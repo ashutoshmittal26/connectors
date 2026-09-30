@@ -1,0 +1,238 @@
+{
+  "layer1_package_consistency": {
+    "outcome": "pass",
+    "explanation": "All seven mandatory subchecks pass. task.toml, instruction.md, tests/manifest.json, tests/test.sh -> tests/test_gvs.sh -> tests/test_outputs.py, solution/*, environment/Dockerfile and environment/entrypoint.sh describe one executable, gradable task: a mailbox audit over the email-calendar-gym producing /workspace/audit.xlsx (sheets Documents + Summary) and one drafted email. environment/_app/ is a byte-identical mirror of task.toml, instruction.md and tests/ (verified by diff -r). tests/manifest.json instruction_sha256 48173ce9... matches the shipped instruction.md. Only residual: consistency/{attestation,envelope,readers}.json all cite instruction_sha256 6d3dc83c..., which matches no hashing of the shipped instruction.md (full, stripped, or body-only), so that QC attestation bundle is stale relative to the shipping prompt; it is not part of the executable/gradable contract."
+  },
+  "layer1_package_consistency__cross_artifact_consistency": {
+    "outcome": "pass",
+    "explanation": "Every required source is present and jointly coherent. instruction.md asks for /workspace/audit.xlsx with sheets Documents/Summary plus one draft; tests/manifest.json grades exactly those; solution/artifact_plan.json + solution/write_artifacts.py materialise them; solution/golden_trajectory.json performs the gym calls; environment/Dockerfile + entrypoint.sh serve the gym via the proxy on :7000 and give the agent /workspace. environment/_app mirror is identical to the task root (diff -r clean). Stale item noted, not blocking: consistency/*.json reference an instruction_sha256 (6d3dc83c...) that does not correspond to the shipped instruction.md (48173ce9...)."
+  },
+  "layer1_package_consistency__instruction_verifier_consistency": {
+    "outcome": "pass",
+    "explanation": "All 16 reward-bearing checks trace to instruction spans: sheet names/headers/row-exclusivity ('starting with a header row document, requests, reminders, signed, tracked, then one row per document in the log and no other rows'), the four Summary metrics named verbatim in the prompt, the register definition given in the parenthetical, and the draft ('subject exactly Documents still awaiting my signature, body each unsigned register document's name, one to a line and nothing else'). draft_is_the_only_one_written traces to 'draft one email'. the_log_was_actually_read (min 2 tool calls, weight 0.5/16.2) traces to the system prompt's instruction to use the gym tools and cannot change reward for any genuine solution. Only unmatched direction is leniency, not a verifier-only demand: the Summary header text 'metric, value' and the stated metric order are asked for but not asserted."
+  },
+  "layer1_package_consistency__solution_instruction_consistency": {
+    "outcome": "pass",
+    "explanation": "solution/golden_trajectory.json performs 3 search_email calls and 1 draft_email with subject 'Documents still awaiting my signature' and body exactly the two unsigned register names; solution/write_artifacts.py builds audit.xlsx with sheets Documents (header + 15 rows, five columns in the prompt's order) and Summary (header + the four named metrics in the stated order); solution/final_answer.md reports the same figures. No deliverable is omitted and no undisclosed contract is used. I re-derived every golden figure independently from the tool payloads recorded in evaluations/oracle/verifier/golden_trajectory.json (15 documents, 36 requests, 46 reminders, register of 10, unsigned register = Emily (Em) Clark-05-20-25.pdf and Michele Nizza-05-20-25.pdf) and it reproduces the plan exactly."
+  },
+  "layer1_package_consistency__solution_verifier_consistency": {
+    "outcome": "pass",
+    "explanation": "The golden artifacts satisfy every assertion: evaluations/oracle/verifier/verifier_summary.json records 16/16 verifiers passed, weighted_pass_rate 1.0, no errors, no unscored items. solution/write_artifacts.py builds the workbook from artifact_plan.json whose cells are the same values the manifest regexes assert, and solve.sh materialises them into /workspace where _run_file_check reads them. No shortcut path: the oracle passes by producing the real workbook and a real gym draft (database_state actual=1 on both draft queries), not by a bypass."
+  },
+  "layer1_package_consistency__manifest_environment_consistency": {
+    "outcome": "pass",
+    "explanation": "task.toml metadata.mcp_servers_extended image digest sha256:3623dc5a... equals the Dockerfile FROM digest; host/container port 8016, auth header x-email-user-token, tenancy header x-database-id and reset_on_run are declared consistently; [[environment.mcp_servers]] url http://localhost:7000/mcp/email-calendar-gym matches the proxy entrypoint binds and the healthcheck curl on :7000. agent.user=rlgymagent matches the Dockerfile useradd and entrypoint runuser. WORKDIR /workspace owned by rlgymagent matches the file_check default workspace. environment/_app mirror is current (sync_app_mirror.sh contract satisfied; diff clean). state_snapshot_enabled=false in task.toml matches scoring.weights.state=0.0 in the manifest."
+  },
+  "layer1_package_consistency__declared_executed_verifier_consistency": {
+    "outcome": "pass",
+    "explanation": "tests/test.sh runs tests/test_gvs.sh which execs tests/test_outputs.py. allowed_verifier_types includes agentic_llm_as_judge, so _emit_engine_owned_reward is the sole scorer and runs every entry of manifest.verifier_configs through run_benchmark_verifiers. All 16 declared configs executed in the recorded run (verifier_summary.json total=16, unscored=0) and no executable reward-bearing check exists outside the declarations. The trajectory/state/sql axes are declared at weight 0.0 and are genuinely inert on this path. test_gvs.sh's decrypt_answer_key.py call is guarded by a file-existence test and is a no-op for this plaintext bundle."
+  },
+  "layer1_package_consistency__artifact_contract_consistency": {
+    "outcome": "pass",
+    "explanation": "Instruction names /workspace/audit.xlsx; every file_check source is {type: xlsx, command: extract_text, path: 'audit.xlsx'} resolved against TH_WORKSPACE_DIR or /workspace (_run_file_check), which is the agent's WORKDIR and is agent-writable. The draft deliverable is graded in the gym's own DB under the acting user id, the same surface draft_email writes. No filename, path or output-surface drift between produced and graded submission; extraction limit default is 90000 chars, far above the ~1.5KB workbook rendering, so no truncation risk."
+  },
+  "layer1_clarity_scope": {
+    "outcome": "pass",
+    "explanation": "All four mandatory subchecks pass. The prompt is terse and stylised but states every graded surface (workbook path, both sheet names, both header rows, row exclusivity on each sheet, the four metric spellings, the exact draft subject, and 'nothing else' in the draft body) and defines the register rule explicitly. consistency/readers.json records 4/4 independent readers recovering every figure's meaning, including the at-least-one-request-under-Opened register test."
+  },
+  "layer1_clarity_scope__output_surface_contract": {
+    "outcome": "pass",
+    "explanation": "The graded surfaces are exactly the two the instruction requires: the workspace file /workspace/audit.xlsx (13 file_check verifiers) and connector-side draft state (2 database_state verifiers). No check grades the chat response. The one trajectory-read check (the_log_was_actually_read, min 2 tool calls, weight 0.5) is a fabrication floor implied by the system prompt's 'Use the tools provided by the configured gym' and cannot affect a genuine run, which makes at least three calls."
+  },
+  "layer1_clarity_scope__representation_contract": {
+    "outcome": "pass",
+    "explanation": "Everything a representation choice could move is disclosed: sheet names, column names and order, 'yes or no' flags, exclusive row sets on both sheets, the literal metric spellings, and the draft body format. Everything the verifier leaves free is genuinely free and verified so: int vs float (2 / 2.0), case, yes/true and no/false, row order, sheet order, extra sheets, extra trailing columns, and metric label space-vs-underscore. No rounding, unit, date or alias decision exists. Document names must be exact, which the prompt pins ('named exactly as its subject line writes it')."
+  },
+  "layer1_clarity_scope__process_requirement_disclosure": {
+    "outcome": "pass",
+    "explanation": "No check grades narration, a prescribed workflow, or a particular tool sequence. the_log_was_actually_read requires only >= 2 tool calls with an empty expected_tools list; the shortest honest path documented in consistency/shortcut_audit.md is three calls, so this floor is unreachable by any correct run and names no tool. The manifest's forbidden_tools list is empty and the trajectory axis is weight 0.0 and never executes."
+  },
+  "layer1_clarity_scope__redaction_readability": {
+    "outcome": "pass",
+    "explanation": "instruction.md contains no placeholders, elisions or broken grammar. The register rule is quoted inline in backticks; the out-of-scope person-keyed notices, the bracket-distinguishes-documents rule, the non-filename-name rule and the everyone-has-signed rule are each stated in a sentence. consistency/readers.json shows 4/4 blind readers recovered all nine figure meanings and the scope exclusion unaided."
+  },
+  "layer1_realism_leakage": {
+    "outcome": "pass",
+    "explanation": "All four mandatory subchecks pass: the domain figures are independently reproducible from the recorded gym payloads, the only authority is the served mailbox itself, the workflow is an ordinary signature close-out with a real write-back, and the answer key is not reachable by the agent."
+  },
+  "layer1_realism_leakage__domain_correctness": {
+    "outcome": "pass",
+    "explanation": "I recomputed the whole gold from the search payloads recorded in evaluations/oracle/verifier/golden_trajectory.json by classifying subjects: 15 documents, request totals 36, reminder totals 46, 12 'You just signed' + 1 'Everyone has signed', register (label:Opened on a request) = 10 names, and summary 10 / 2 / 5 / 3 with the unsigned register set {Emily (Em) Clark-05-20-25.pdf, Michele Nizza-05-20-25.pdf}. Every per-document row in tests/manifest.json matches my recomputation exactly. consistency/attestation.json independently corroborates via a root-only SQL route over message_headers/message_labels."
+  },
+  "layer1_realism_leakage__authoritative_reference_validity": {
+    "outcome": "pass",
+    "explanation": "The task cites no external law, standard or API doc; the sole authority is the served synthetic mailbox, and each graded figure is attested through two independent routes (SQL state route and proxy tool route) in consistency/attestation.json, with the tool route reproducible from the checked-in oracle payloads. The Opened label id ea900f63-... cited in task.toml is consistent with the label query returning 18 of the 36 request messages in the recorded s3 result."
+  },
+  "layer1_realism_leakage__workflow_realism": {
+    "outcome": "pass",
+    "explanation": "An operations analyst reconciling a document-signature mail stream into a spreadsheet and drafting the chase list is a plausible, useful deliverable. The access assumptions are realistic (own mailbox, five mail tools, no per-item read), the difficulty comes from genuine stream properties (page caps, phrasing families, near-identical filenames, label-only register membership) rather than contrived traps, and the outputs (15-row audit sheet, 4-metric summary, one draft) have obvious user value."
+  },
+  "layer1_realism_leakage__golden_isolation": {
+    "outcome": "pass",
+    "explanation": "The Dockerfile copies only task.toml, instruction.md and tests/ into /app and then runs chmod -R go-rwx /app, so the rlgymagent user cannot read the answer key, the manifest, or the gold section of task.toml. solution/ is not baked into the image at all. entrypoint.sh creates /logs/verifier root-only 0700 (and refuses to start if the agent pre-created it or symlinked it), locks /gyms to 0710 root:gym with connector DBs go-rwx, and gives the proxy only a narrowed root-created task-input mirror (task.toml/manifest at 0640 root:harborproxy). The verifier capability files are mode 040 to a group the agent is not in."
+  },
+  "layer2_difficulty": {
+    "outcome": "fail",
+    "explanation": "MISSING EVIDENCE, not failed evidence. evaluations/ contains only the oracle trial (config.json, lock.json, result.json, trial.log, agent/, artifacts/, verifier/). There is no GLM 5.2 / GLM 5.3 model attempt of any kind, so none of the pairing, provenance or distribution subchecks can be satisfied. The GLM references in consistency/readers.json are single-turn instruction-comprehension renderers with no tools and no gym, not task attempts, and they live outside evaluations/."
+  },
+  "layer2_difficulty__evidence_pairing_count": {
+    "outcome": "fail",
+    "explanation": "Zero claimed model attempts exist under evaluations/. The only trial directory is evaluations/oracle, whose lock.json and result.json both record agent.name = 'oracle' with model_info null. No trajectory/result pair for any difficulty trial is present, so the required attempt count cannot be met (missing evidence)."
+  },
+  "layer2_difficulty__provenance_validity": {
+    "outcome": "fail",
+    "explanation": "No GLM provenance exists in evaluations/. result.json agent_info is {name: oracle, version: 1.0.0, model_info: null} and config.agent.model_name is null. consistency/readers.json names 'glm-5.2' but only for four no-tool instruction-reading renderers run by tools/readers.py, which are not independent task attempts and are vendor QC material, not evaluations/ evidence. Independent attempts of one consistent recorded GLM model therefore cannot be established."
+  },
+  "layer2_difficulty__strict_pass_distribution": {
+    "outcome": "fail",
+    "explanation": "No strict-pass distribution can be computed: there are zero recorded GLM trials in evaluations/. The only recorded reward is the oracle's 1.0, which by the stated rules establishes solvability and never counts as a difficulty trial. This is missing evidence rather than a demonstrated distribution violation."
+  },
+  "layer2_difficulty__failure_cause_validity": {
+    "outcome": "fail",
+    "explanation": "Missing evidence: there are no recorded model failures in evaluations/ to attribute, so it cannot be shown that any failure is due to genuine task difficulty rather than ambiguity, hidden requirements, verifier/judge defects, connector faults or infrastructure. Note that the package's own difficulty argument (task.toml DEFAULT MISREADING replay scoring 0.3580, consistency/mutations.json) is static vendor analysis, not a recorded trial."
+  },
+  "layer2_solvability": {
+    "outcome": "pass",
+    "explanation": "evaluations/oracle is a valid recorded Oracle execution earning exactly 1.0. Oracle provenance is consistent across config.json (task path), lock.json (agent.name=oracle, verifier.disable=false) and result.json (config.agent.name=oracle, agent_info.name=oracle, same task path, verifier.disable=false). Terminal completion with no exception_info, completed environment_setup / agent_setup / agent_execution / verifier phases, verifier_result.rewards {reward: 1.0}. agent/oracle.txt is non-empty and records the four replayed gym calls plus 'wrote audit.xlsx sheets [Documents, Summary]'; agent/trajectory.json holds the 5-step ATIF trace; verifier/ holds test-stdout.txt, verifier_summary.json (16/16) and reward.json/reward.txt = 1.0."
+  },
+  "layer2_solvability__eligible_strict_pass": {
+    "outcome": "pass",
+    "explanation": "The oracle trial is a complete, non-contradictory recorded pass: reward exactly 1.0 (not partial), all 16 verifiers passed including the two database_state draft checks (actual=1 vs expected=1) and all 13 workbook file_checks, failure_mode 'pass', unscored 0. The verifier actually executed (verifier phase timestamps 16:17:27 -> 16:17:29, test-stdout.txt present, verifier.disable=false in both lock.json and result.json). This is not a loose solution file: the score comes from an executed verifier over materialised artifacts and live gym state."
+  },
+  "layer2_solvability__saved_evidence_completeness": {
+    "outcome": "pass",
+    "explanation": "The execution is fully reconstructable: agent/oracle.txt (native replay log, non-empty), agent/trajectory.json (5 ATIF steps with the actual arguments and the final answer), verifier/golden_trajectory.json (each step's real tool_execution_results, including the 111/36/46/12/1/18 payloads and the created draft object with its snippet and Subject header), verifier/test-stdout.txt (full per-assertion output), verifier/verifier_summary.json (per-verifier weights, queries, actual vs expected), verifier/reward.json and reward.txt, plus snapshots/. I was able to independently re-derive every graded figure from the saved payloads."
+  },
+  "layer2_solvability__solution_legitimacy": {
+    "outcome": "pass",
+    "explanation": "No fabrication or spoofing. The four gym calls really executed against the served mailbox (the saved payloads carry real message ids, subjects and counts), and the draft check reads the gym DB (drafts JOIN messages JOIN message_headers) rather than any agent-writable file. The workbook is built by solution/write_artifacts.py from artifact_plan.json — the sanctioned Oracle-executes-the-provided-solution route — and its values are exactly what I recomputed from the executed calls, so nothing is asserted that the run did not actually establish. No grading-internal access was used: solve.sh explicitly replays through the public MCP surface as the unprivileged agent user, and task.toml deliberately leaves metadata.agent unset so test_outputs.py's golden-trajectory fallback never fires."
+  },
+  "layer2_solvability__instruction_environment_sufficiency": {
+    "outcome": "pass",
+    "explanation": "Every graded value is derivable from agent-visible material. The instruction names the Opened label and the register rule verbatim; the request/reminder/completion phrasings are readable off an opening search_email sweep (the recorded s1 page shows 'Signature requested by', 'is awaiting your signature', and the out-of-scope 'Signature request sent to' / 'Signature completed by' families), and the completion family is reachable via a 'signed' query. Register membership is resolvable only through search_email's label: operator, which the recorded s3 call proves works and returns 18 of 36. No auditor repair, private knowledge or unsanctioned interface is involved. Residual (not blocking): the availability of the label: operator depends on the gym's own tool documentation, which is inside the pinned image and not inspectable from this tree."
+  },
+  "layer2_stability": {
+    "outcome": "fail",
+    "explanation": "MISSING EVIDENCE. evaluations/ holds exactly one verifier execution (one result.json, one verifier/ directory, statistics.total_runs = 1). The required three-or-more repeats over a proven frozen trajectory/artifact identity do not exist, so stability of reward and per-check outcomes is unestablished."
+  },
+  "layer2_stability__frozen_identity": {
+    "outcome": "fail",
+    "explanation": "No frozen-identity evidence across repeats exists. lock.json carries a task digest (sha256:7cf0c08b...) and result.json a task_checksum (fd57c2dd...) for the single run, but there is no second run to compare them against and no artifact/trajectory hash set proving the same submitted deliverables were re-graded. Equality of graded evidence across repeats is therefore asserted by nothing (missing evidence)."
+  },
+  "layer2_stability__repeat_count": {
+    "outcome": "fail",
+    "explanation": "Only one complete verifier result exists (evaluations/oracle). verifier_summary.json statistics reports total_runs 1, gradable_runs 1. Fewer than the three required repeats."
+  },
+  "layer2_stability__verifier_judge_config_identity": {
+    "outcome": "fail",
+    "explanation": "Missing evidence: with a single run there is no second verifier configuration to compare, so verifier digest / prompt / rubric / control identity across repeats cannot be shown. (For context, no LLM judge was actually invoked in the recorded run — tests/rubric.toml declares zero criteria, so the engine built only the 16 typed verifiers and every check is deterministic.)"
+  },
+  "layer2_stability__reward_equality": {
+    "outcome": "fail",
+    "explanation": "Missing evidence: a single reward (1.0) is recorded, so reward equality on frozen evidence is untested. No unexplained change is observed, but none could be."
+  },
+  "layer2_stability__per_check_stability": {
+    "outcome": "fail",
+    "explanation": "Missing evidence: individual_verifier_stats in verifier_summary.json records passed 1 / total 1 for each of the 16 verifiers from the single run, so no rubric flip, deterministic-check change, or offsetting criterion movement can be ruled in or out across repeats."
+  },
+  "layer5_verifier_fairness_static": {
+    "outcome": "pass",
+    "explanation": "All twelve mandatory subchecks pass. The 16-verifier set covers every material requirement at field level (all 15 document rows x 4 values, all 4 summary figures, the draft subject/body/exclusivity), routes each check to the correct surface (workbook file, gym DB, trajectory), tolerates the representation variation that a correct answer can legitimately show, and is backed by a documented positive/semantic/granularity/cosmetic/incompleteness/adversarial mutation battery. Noted but non-blocking: register_column_reconciles_with_the_summary (weight 1.0) is a strict subset of the five row-group assertions, so a wrong tracked flag is penalised twice; the overlap is disclosed in its metadata and in consistency/requirements.json."
+  },
+  "layer5_verifier_fairness_static__requirement_traceability": {
+    "outcome": "pass",
+    "explanation": "Each verifier carries a requirement_id and evidence_span quoting instruction.md, and consistency/requirements.json maps every requirement_id to its prompt span and grading verifiers. No reward-bearing verifier-only requirement exists: the strictest shapes (16 Documents rows, 5 Summary rows, exact draft subject, exactly two .pdf names in the body, exactly one draft) are all stated in the prompt. The only untested prompt items are the Summary header text and the metric ordering, both deliberately left free and both immaterial to the answer's substance."
+  },
+  "layer5_verifier_fairness_static__coverage_depth": {
+    "outcome": "pass",
+    "explanation": "Coverage is field-level, not shallow. The five row-group verifiers together assert the document name, request count, reminder count, signed flag and tracked flag for all 15 rows; the row-count verifier makes the set exclusive; four verifiers pin the summary figures; register_column ties the sheet's flags to the summary grain. The draft is graded in the gym DB on subject + both names + an exact .pdf occurrence count + a length bound, and a second query asserts the draft count is exactly 1 against a seed of 0. An empty workbook or missing file fails loudly (extract fails / workspace-missing error), and an empty database returns 0 on both draft queries."
+  },
+  "layer5_verifier_fairness_static__evidence_routing": {
+    "outcome": "pass",
+    "explanation": "Workbook requirements are graded from the workbook (xlsx.extract_text over /workspace/audit.xlsx via _run_file_check, which fails loudly if the workspace directory is absent rather than silently scoring 0). Connector-side write-back is graded from the gym's own SQLite through _run_database_state, not from the trajectory or the final message. The single trajectory-read check grades only a tool-call floor. No artifact requirement is graded from narration and no trajectory requirement is graded from a file. The engine also refuses specs that read seeded input files (_spec_paths_under_input)."
+  },
+  "layer5_verifier_fairness_static__semantic_equivalence": {
+    "outcome": "pass",
+    "explanation": "Plausible correct variants survive: integers or floats (2 / 2.0 accepted everywhere), any case, yes/no or true/false, either sheet order, any row order within a sheet, extra unrelated sheets, extra columns past the fifth, spaces/tabs/CR around the pipe separators, metric labels with a space instead of an underscore, either name first in the draft body, and a draft with or without a recipient. consistency/envelope.json records three independent renderers converging on shapes the assertions accept. The one exact-form demand is the document name, which the prompt explicitly pins ('named exactly as its subject line writes it')."
+  },
+  "layer5_verifier_fairness_static__surface_form_brittleness": {
+    "outcome": "pass",
+    "explanation": "I inspected every matcher. The 13 file_check regexes are anchored per row with [ \\t]* tolerance around ' | ' separators produced by extract_xlsx, are (?i) case-insensitive, accept N or N.0, accept yes/true and no/false, and terminate on either the next separator or line end so extra columns are ignored. The two summary-shape regexes count non-empty rows between sheet markers, matching the prompt's explicit 'no other rows'. The draft SQL lowercases and trims the Subject, uses LIKE for both names (order-free) and enforces exclusivity by a .pdf occurrence count plus length(trim(snippet)) <= 64 — the gold body is 56 chars, leaving headroom for bullets or numbering. A wrong answer cannot pass by mimicking tokens: the manifest is unreadable to the agent (/app is 0700 root) and the row-count and draft-count checks reject supersets. Every matcher checks what its criterion claims, except the low-weight tool floor whose description ('floor a fabricated audit cannot clear') overstates a >= 2 call count."
+  },
+  "layer5_verifier_fairness_static__verifier_execution_completeness": {
+    "outcome": "pass",
+    "explanation": "tests/test.sh -> tests/test_gvs.sh -> tests/test_outputs.py; allowed_verifier_types contains agentic_llm_as_judge so _emit_engine_owned_reward runs run_benchmark_verifiers over rubric-derived verifiers (none, since rubric.toml has no criteria) plus all 16 manifest.verifier_configs. Nothing is skipped or unreachable: the recorded run shows total 16, unscored 0, no errors. Infrastructure failure is not silently converted to a score — _emit_engine_owned_reward raises on block.error or failure_mode 'verifier_error', leaving reward.json absent so the trial is UNSCORED rather than a false zero."
+  },
+  "layer5_verifier_fairness_static__score_bucket_activation": {
+    "outcome": "pass",
+    "explanation": "All 16 buckets are active, carry non-zero weights (0.5 to 3.0), and each received evidence in the recorded run (per-verifier entries with actual values, queries or assertion results). The state, sql and trajectory axes are declared at weight 0.0 and are genuinely inert on the engine path — they are reported as enabled:false in the emitted reward, so no disabled bucket is presented as coverage. rubric.toml declares no criteria and correspondingly contributes no verifiers; the 'rubric' block in the reward output is the engine roll-up, not an empty judged bucket presented as active."
+  },
+  "layer5_verifier_fairness_static__aggregation_normalization": {
+    "outcome": "pass",
+    "explanation": "I recomputed the math. flat_verifier_scoring=true pools all items by weight: total weight 1.5+0.6+0.6+5*0.8+4*1.0+1.0+3.0+1.0+0.5 = 16.2. The oracle's 16/16 gives 16.2/16.2 = 1.0, matching reward.txt. The package's own DEFAULT MISREADING claim of 0.3580 also reconciles exactly: the checks it says survive (1.5+0.6+0.6+0.8+0.8+1.0+0.5 = 5.8) over 16.2 = 0.3580. 'pass' is the engine's core-based overall_success (all 16 must pass), which matches the declared single-tier gate; side_effect_gate is 1.0 because the state axis is off, consistent with state_snapshot_enabled=false."
+  },
+  "layer5_verifier_fairness_static__scoring_proportionality": {
+    "outcome": "pass",
+    "explanation": "Weights track materiality: the drafted write-back (the task's headline action, and the figure the register lever moves) is 3.0/16.2; the four register-grain summary figures are 1.0 each; the five per-row groups 0.8 each; the row-count exclusivity 1.5; cosmetic-adjacent shape items are the smallest (header 0.6, summary shape 0.6, tool floor 0.5). No cosmetic issue dominates and no fatal omission is masked: a missing workbook fails 13 checks, a missing draft fails 4.0 of weight, and core_passed requires all 16, so the binary pass cannot be earned with a fatal gap."
+  },
+  "layer5_verifier_fairness_static__check_independence": {
+    "outcome": "pass",
+    "explanation": "The five row-group verifiers partition the 15 documents disjointly, and the four summary verifiers each read a distinct metric row. One genuine overlap exists: register_column_reconciles_with_the_summary (weight 1.0) re-asserts the signed and tracked cells of all 15 rows with the count columns wildcarded, so it is implied by the five row groups and a wrong tracked flag is penalised twice (about 11% of weight for a single-row error). The overlap and its rationale (tying the sheet's own flags to the summary grain) are disclosed in the verifier's metadata.why_justification and in consistency/requirements.json, so it is a disclosed, bounded redundancy rather than hidden double counting."
+  },
+  "layer5_verifier_fairness_static__counterfactual_strength": {
+    "outcome": "pass",
+    "explanation": "Concrete cases exist and discriminate. Positive: the oracle's artifacts score 13/13 file_checks and 16/16 overall. Negative/semantic and granularity: consistency/mutations.json corrupts individual graded cells and shows exactly the owning verifier failing while the rest pass (strictness 100%, brittleness 0%, all controls pass). Incomplete: a missing graded value fails its verifier; a short sheet fails the row count. Adversarial: the superset report is rejected, and task.toml's DEFAULT MISREADING (count the whole log, mark every row tracked) was built as a real workbook and replayed to 0.3580, failing all four summary checks, the reconciliation check, three row groups and the draft check. The per-document quoted-search shortcut is specifically caught by documents_the_ones_signed_with_no_chasing, which demands reminder counts of 0 where that shortcut answers 3, 2 and 2."
+  },
+  "layer5_verifier_fairness_static__process_grading_justification": {
+    "outcome": "pass",
+    "explanation": "Reward depends on the requested outcomes (the workbook and the draft) for 15.7 of 16.2 weight. The only process-shaped check is a >= 2 tool-call floor with an empty expected_tools list — it prescribes no tool, no order and no narration, is harness-agnostic (it counts calls in the ATIF trace), and sits one below the documented shortest honest path of three calls, so it cannot penalise any legitimate workflow."
+  },
+  "layer5_llm_judge_design": {
+    "outcome": "not_applicable",
+    "explanation": "No LLM judge grades anything in this bundle. tests/rubric.toml declares only a [system] preamble with zero [[criteria]] entries, so _rubric_check_verifiers_from_rubric yields no verifiers, and none of the 16 manifest.verifier_configs is of type rubric_check or response_check. The recorded run confirms it: verifier_summary.json type_scores contains only file_check, database_state and tool_execution. task.toml's [metadata.verifier_judge] block is configured but never invoked."
+  },
+  "layer5_llm_judge_design__judge_execution_validity": {
+    "outcome": "not_applicable",
+    "explanation": "No judge call is ever constructed: the verifier list contains no rubric_check or response_check item, so no model ID, endpoint, request or response parsing is exercised. (The configured model reference ${JUDGE_MODEL:-openai/zai-org/GLM-5.2} and OPENAI_API_KEY are resolved only as a precondition in score_benchmark_verifiers, not used to call anything.)"
+  },
+  "layer5_llm_judge_design__judge_failure_handling": {
+    "outcome": "not_applicable",
+    "explanation": "No judge runs, so no judge failure can be converted to a zero. For completeness, the surrounding policy is sound: _emit_engine_owned_reward raises on any block error or failure_mode 'verifier_error' and leaves reward.json absent so the trial is recorded UNSCORED rather than as an agent failure, and tests/test.sh's reconcile block is guarded on reward.json existing."
+  },
+  "layer5_llm_judge_design__judge_context_completeness": {
+    "outcome": "not_applicable",
+    "explanation": "There are no rubric questions, so no rubric asks a judge to assess evidence. The manifest's rubric.evidence block (max_chars 350000, include_db_diff / trajectory / final_output) is configured but unused on the engine path."
+  },
+  "layer5_llm_judge_design__judge_context_truncation": {
+    "outcome": "not_applicable",
+    "explanation": "No judge prompt is constructed, so no context assembly, size limit, ordering or omission behaviour is in play for grading."
+  },
+  "layer5_llm_judge_design__artifact_grounding": {
+    "outcome": "not_applicable",
+    "explanation": "No judged rubric language exists; all 16 checks are deterministic assertions over the workbook text, gym SQL state, or the tool-call list, so there is no opportunity to reward generic plausibility."
+  },
+  "layer5_llm_judge_design__repeat_stability": {
+    "outcome": "not_applicable",
+    "explanation": "No judge is invoked, so there are no sampling controls, repeats or aggregation to assess. Every executed check is deterministic (regex over extracted workbook text, exact SQL count comparisons, a tool-call count)."
+  },
+  "layer5_reward_hacking_static": {
+    "outcome": "pass",
+    "explanation": "All four mandatory subchecks pass. The answer key is unreadable to the agent, the graded write-back lives in gym state the agent can only reach through the sanctioned MCP tools, and the workbook checks require 19 independently-derived values a fabricating run cannot guess. Noted gap (not a passing shortcut): with the state axis disabled, side_effect_gate is inert, so ungraded side effects such as a sent email or a calendar change would not be penalised — but they also cannot substitute for any graded deliverable."
+  },
+  "layer5_reward_hacking_static__rollout_legitimacy": {
+    "outcome": "pass",
+    "explanation": "A fabricated or looping rollout cannot pass on the final surface alone: the workbook must carry 15 exact document names with their exact request and reminder counts, signed and tracked flags, and the four register-grain summary figures, none of which is inferable without actually reading and classifying the stream (the package proves the plausible shortcuts land on 14, 13, 16, 3, 11, 15, 4, 7 or 0). The draft must exist in gym state with the exact subject and exactly the two right names. Residual: because scoring.weights.state is 0.0, the side_effect_gate multiplier is always 1.0, so destructive or extraneous connector actions taken alongside a correct answer are not penalised; draft_is_the_only_one_written does catch extra drafts."
+  },
+  "layer5_reward_hacking_static__sanctioned_interface_use": {
+    "outcome": "pass",
+    "explanation": "The agent reaches the gym only through the MCP proxy at localhost:7000 as rlgymagent. entrypoint.sh locks /gyms to 0710 root:gym and the connector databases to gym:gym go-rwx, so the agent cannot read or write the mailbox DB directly; the proxy's trusted raw control path requires both a root-only capability file (mode 040, group harborproxy) and a Unix socket the agent cannot use. The graded draft must therefore be created through draft_email, and the graded counts must come from search_email."
+  },
+  "layer5_reward_hacking_static__golden_or_internal_access": {
+    "outcome": "pass",
+    "explanation": "No answer leakage. solution/ is never copied into the image; the Dockerfile copies only task.toml, instruction.md and tests/ into /app and then applies chmod -R go-rwx /app, so the agent user cannot read tests/manifest.json (which holds every expected value) or task.toml's GOLD/DECOYS sections. The proxy gets only a narrowed root-owned mirror at 0640 root:harborproxy. There are no answer-bearing fixtures in the workspace — /workspace starts empty and the agent writes the only file there."
+  },
+  "layer5_reward_hacking_static__state_spoofing": {
+    "outcome": "pass",
+    "explanation": "The two highest-value evidence surfaces are not spoofable by the agent: the draft checks read the gym's SQLite (owned by the gym user, directory 0710) with an explicit before/after premise (the seed leaves this mailbox with 0 drafts, so a count of exactly 1 with the right subject and snippet proves the write-back happened), and /logs/verifier is root-only 0700 with entrypoint.sh refusing to start if it was pre-created or symlinked. The workbook is agent-written by design — it is the deliverable. Residual, bounded: /logs/agent is agent-owned, so an agent could in principle edit its own trajectory to satisfy the >= 2 tool-call floor; that affects only 0.5 of 16.2 weight and cannot by itself produce a pass, since the other 15 checks read the workbook and gym state."
+  }
+}

@@ -1,0 +1,295 @@
+[
+  {
+    "id": "s1",
+    "depends_on": [],
+    "purpose": "Locate the library. The prompt names the Articles database but not its id, and titles repeat in this workspace, so the id has to be looked up rather than assumed.",
+    "name": "notion-search",
+    "server": "notion-gym",
+    "arguments": {
+      "query": "Articles"
+    }
+  },
+  {
+    "id": "s2",
+    "depends_on": [
+      "s1"
+    ],
+    "purpose": "Hydrate the database id that s1 returned. This is the only call that yields the data source url the SQL tool needs (collection://ds-...) and the column names behind it; the database id itself is not a usable table name.",
+    "name": "notion-fetch",
+    "server": "notion-gym",
+    "arguments": {
+      "id": "9caee280db7e4c9385908af1164446fb"
+    }
+  },
+  {
+    "id": "s3",
+    "depends_on": [
+      "s2"
+    ],
+    "purpose": "One SQL read over the data source url s2 returned: every article row with its title, its Doc stage and its url. The url is where the 18 page ids come from - SQL refuses to return an id column on this connector - so every per-page read below depends on this result. Nothing about comments or discussions is in this table.",
+    "name": "notion-query-data-sources",
+    "server": "notion-gym",
+    "arguments": {
+      "data": {
+        "data_source_urls": [
+          "collection://ds-9caee280db7e4c9385908af1164446fb"
+        ],
+        "mode": "sql",
+        "query": "SELECT url, \"Title\", \"Doc stage\" FROM \"collection://ds-9caee280db7e4c9385908af1164446fb\" ORDER BY \"Title\"",
+        "page_size": 100
+      }
+    }
+  },
+  {
+    "id": "c01",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Antenatal Testing, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "8ac3fa845b114981bb91cb1f4b2d089a",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c02",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Article, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "496c1307e5df45c1a1d26070b4ab606d",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c03",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Aspirin in Pregnancy, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "9ba9faba0cda4b0690ff1bd65bd2b41f",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c04",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Birthing Options, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "af5a87de325242d2a55d43fd9a3e68b7",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c05",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Exercise with bump, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "16dc4e0087e6479d8eefa45341c73ea8",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c06",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Fertility after Pregnancy, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "fbd4a44e4bce4ee8bd94699c3fffaa3e",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c07",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Foods to avoid, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "0838853293924c0983805dacd275067c",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c08",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Group B Streptococcus, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "45d64e7853ec48e3805cbaebd4581a03",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c09",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Induction of Labor, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "fdf4675f0b784b609cbc0beaf4795421",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c10",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Intercourse During Pregnancy, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "e41385382b604fa19714052f4c8a2913",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c11",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Nausea and Vomiting, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "82657cac45bd45f4a5b11776cd5f4dd7",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c12",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on New Brainstorm, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "43f1f5ee8fce49eb86e5696af40c0ffe",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c13",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on New Product Spec (PRD), whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "fd6b54a246dd4926a8db16e888f3f7d0",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c14",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Pregnancy Schedules, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "c37b57236665484a9053e5db36042f10",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c15",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Thinking about a massage?, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "6920b961d7ad496da24012bc02bc8a13",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c16",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Title example, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "ea4f1018df7f410083e8f5cf87b200e7",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c17",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Ultrasound in Pregnancy, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "e353cadc5c144df7b46bb23b3eebacde",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  },
+  {
+    "id": "c18",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Vaginitis & BV, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "7c08344e98da4c4a8b79b52233198f3c",
+      "include_all_blocks": true,
+      "include_resolved": true
+    }
+  }
+]

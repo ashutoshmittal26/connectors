@@ -1,0 +1,39 @@
+{
+  "steps": [
+    {
+      "id": "s1",
+      "depends_on": [],
+      "name": "search_email"
+    },
+    {
+      "id": "s2",
+      "depends_on": [
+        "s1"
+      ],
+      "name": "search_email"
+    },
+    {
+      "id": "s3",
+      "depends_on": [
+        "s1"
+      ],
+      "name": "search_email"
+    },
+    {
+      "id": "s4",
+      "depends_on": [
+        "s2",
+        "s3"
+      ],
+      "name": "draft_email"
+    }
+  ],
+  "metrics": {
+    "steps": 4,
+    "hops": 3,
+    "chain_depth": 3,
+    "graded_hops": 3,
+    "hop_coverage": 1.0,
+    "note": "hops counts steps whose ARGUMENTS came from an earlier step's output and whose result is load-bearing for a graded figure. s1 is not a hop (depends_on is empty). s2 and s3 carry query strings lifted verbatim out of the subject lines s1 returned: this gym has five tools and no per-item read, so a message can only be reached through search_email, and the reminder and completion phrasings appear nowhere but in the subjects the opening sweep brings back. s2 is load-bearing for every row of the audit sheet; s3 is load-bearing for the register column and for all four summary figures; s4's body is the two names the intersection of s2 and s3 leaves. chain_depth is the longest dependency path, s1 -> s2 -> s4, which is 3 and is this gym's floor: batch_gate's own comment says the deepest honest path here is three levels because with no per-item read there is nothing to chain into. Nothing was padded to reach it - the shortest honest path is 3 calls, stated and measured in consistency/shortcut_audit.md."
+  }
+}

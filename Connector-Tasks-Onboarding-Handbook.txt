@@ -1,0 +1,2218 @@
+﻿Connector Tasks — Consolidated Findings & Onboarding Handbook
+
+
+Connector Tasks
+Consolidated Findings & Onboarding Handbook
+Everything a new author needs to take a connector task from claim to an accepted package
+
+
+CompanyBench / Connector Tasks
+Consolidated from team findings, project documentation, and the two worked tasks
+________________
+
+
+Contents
+How to use this handbook3
+SECTION 1 · Connector vs non-connector4
+Part 1 · Connector vs non-connector tasks5
+SECTION 2 · Understanding connector tasks10
+Part 2 · The connectors11
+Part 3 · What a good task looks like16
+Part 4 · Get the environment working first17
+Part 5 · Package anatomy20
+Part 6 · The connector surface22
+Part 7 · The review record (review.csv)25
+SECTION 3 · Findings: tackling the work27
+Part 8 · Playbook — the two tasks worked end to end28
+Part 9 · The working method, stage by stage36
+Part 10 · Difficulty — the highest-value finding38
+Part 11 · Migration discipline41
+Part 12 · Verifier design and fairness43
+Part 13 · Evidence discipline46
+Part 14 · Client rejection patterns50
+Part 15 · The QC review workflow52
+Part 16 · Packaging, gates and upload traps54
+Part 17 · Docker and entrypoint engineering57
+Part 18 · Triage — when QC fails60
+Part 19 · Quick reference62
+Part 20 · What the guidance does not cover65
+________________
+
+
+How to use this handbook
+This document consolidates every finding the team has recorded on connector tasks into one place: the shared findings document, the project documentation set, the client audit of 28 connector tasks, and the engineering discoveries made while building and hardening the tasks in this workspace.
+It is written for someone who has just been handed their first connector task, and it is in three sections. Section 1 tells you which of the two task families you are holding. Section 2 is what a connector task is made of and what has to be true before you can run one. Section 3 is the work itself — how it goes, how long it takes, what goes wrong, and what the evidence has to show before it ships.
+Reading order if you are short on time
+* Part 4 — get the environment working. Nothing else matters until Docker, the platform flag, and Python 3.11 are right.
+* Part 10 — the difficulty finding. This is the single highest-value section; it is the difference between a task that ships and one that comes back.
+* Part 6 — the connector surface. The most frequent single defect across the audited batch.
+* Part 19 — the checklist and the command sequence.
+A note on sourcing
+Where a number appears in this handbook it came from a measured run, a gate report, or the client audit — not from an estimate. Sections marked "Not in the current documentation" record findings made in this workspace that no existing doc covers; they are flagged so the guide owners can fold them in.
+
+
+TIME EXPECTATION  Team members reported 2–3.5 hours to read the guidelines and understand the workflow, plus roughly 2.5 hours to get the environment working cleanly if nothing goes wrong. Budget a full day before you produce anything shippable.
+	________________
+
+
+SECTION 1
+Connector vs non-connector
+Which of the two task families you are holding, and everything that changes as a result.
+Part 1 · Connector vs non-connector tasks
+________________
+
+
+Part 1 · Connector vs non-connector tasks
+Two task families run through the same twelve stages, the same review record and the same acceptance bar — but they are packaged differently, configured differently, fail differently, and are audited against different pattern sets. Work out which one you are holding before you touch anything, because several of the differences are load-bearing and one of them is irreversible.
+1.1 Which one am I holding?
+The task type is decided by files, not by the scenario description. These are the decisive signals:
+
+
+Signal
+	Non-connector (native / offline)
+	Connector
+	tests/verifier.json
+	PRESENT — the declarative check suite
+	Absent
+	tests/manifest.json
+	MUST be absent
+	PRESENT — state snapshot + rubric config
+	tests/rubric.toml
+	Absent
+	Present
+	tests/rl_world_verifiers/
+	Absent
+	Present — the vendored verifier engine
+	environment/_app/
+	MUST be absent
+	PRESENT — required build-context mirror
+	environment/mcp/proxy/
+	Absent
+	Present — server.py plus requirements.txt
+	environment/input/
+	Present — read-only fixtures
+	Usually absent
+	task.toml MCP declaration
+	mcp_servers = []
+	[[metadata.mcp_servers_extended]] plus [[environment.mcp_servers]]
+	
+
+NEVER CONVERT ONE TYPE INTO THE OTHER  Renaming verifier.json to manifest.json, or adding an _app mirror to a native task, does not migrate it — it produces a package that is neither. Classify the task at intake and keep it in its family. A native task that has acquired a manifest or an _app directory has a packaging defect, not a connector.
+	1.2 Where the packages diverge
+
+
+Concern
+	Non-connector
+	Connector
+	How the agent reaches data
+	Reads read-only fixtures off disk under environment/input/
+	Calls MCP tools through the proxy at localhost:7000
+	Base image
+	A public Python image, digest-pinned
+	The private connectors-harness image, digest-pinned by sha256
+	What runs in the container
+	The agent and the verifier
+	The agent, the verifier, a 12-connector gym fleet under supervisord, and the MCP proxy
+	Grading substrate
+	Files the agent wrote
+	Files the agent wrote PLUS gym database state and the tool-call trajectory
+	Deliverable location
+	/app
+	/workspace — because /app is made root-only so the agent cannot read task internals
+	Build context
+	The task folder
+	environment/ only — hence the _app mirror
+	
+
+1.3 task.toml — the settings that differ
+
+
+Key
+	Non-connector
+	Connector
+	Why
+	[verifier] environment_mode
+	"separate" is viable
+	"shared" — required
+	"separate" crashes harbor run with FileNotFoundError; it needs a tests/Dockerfile that connector tasks have never had
+	[agent] timeout_sec
+	3600.0
+	4800.0
+	Longer MCP and gym setup
+	[verifier] timeout_sec
+	600.0
+	1500.0
+	Heavier grading — state snapshot plus trajectory
+	[agent] user
+	Default
+	"rlgymagent"
+	Non-root so the agent cannot read task.toml, solution/ or tests/ off disk
+	artifacts paths
+	/app/...
+	/workspace/...
+	/app is root-only in a connector image
+	[environment] allow_internet
+	Typically false
+	true
+	The proxy may need the upstream gym
+	[environment.healthcheck]
+	Not required
+	Required
+	The container is not ready until the proxy answers
+	
+
+The connector healthcheck has a specific shape, and two of its fields are routinely set wrong:
+[environment.healthcheck]
+command = "curl -fsS --max-time 3 http://localhost:7000/health"
+interval_sec = 15.0
+timeout_sec = 120.0        # the ROUND-TRIP budget, not curl's --max-time
+retries = 40
+start_period_sec = 60.0    # boot grace; 120 for heavy startup
+start_interval_sec = 15.0
+* Bound the curl. Without --max-time 3, an unbounded curl hangs and every retry is consumed by one probe.
+* Do not confuse the two timeouts. timeout_sec is the harness round-trip budget. Raising it is the fix for boot failures; never "fix" a healthcheck by editing the verifier timeout.
+1.4 What changes in the review record
+Both families ship the identical 14-row review.csv with both fold-ins and the closing verdict. Exactly one row behaves differently.
+
+
+Row
+	Non-connector
+	Connector
+	Layer 4 · Connectors, MCPs, and CLIs
+	N/A is legitimate here — and ONLY here. Give a brief reason, e.g. "offline non-connector task; task.toml declares mcp_servers = []; the agent needs only a shell and read-only fixtures."
+	Must be filled from evidence: connector name, which operations succeeded or failed, the affected trial, and whether the cause is data, service, auth, interface, or agent usage.
+	Layer 2 Stability
+	Regrades run normally where a verifier environment exists
+	harbor trial regrade refuses under environment_mode = "shared" — a known, documented limitation. Disclose it; do not route around it.
+	All other 12 rows
+	Identical requirements
+	Identical requirements
+	
+
+N/A IS A TYPE DECLARATION, NOT AN ESCAPE HATCH  N/A on the connector row is how a non-connector task declares its family. Putting N/A on any other row — Layer 4 Environment and files, for instance — is a guaranteed reviewer catch on either family.
+	1.5 Where the difficulty lives, and what typically breaks
+
+
+
+
+	Non-connector
+	Connector
+	Where difficulty comes from
+	The shape of the fixture data — what the model's own script quietly assumes and the data honestly is not
+	Deciding what to count, plus whether the sanctioned workflow actually has to be performed
+	Signature defect
+	Brittle prose regex and verifier false-negatives
+	The unauthenticated raw-SQL proxy bypass (P-C1)
+	Audit pattern IDs
+	P-L*
+	P-C1 … P-C10
+	Realism and leakage
+	Does get flagged — author-trap annotation, golden contradicting the stated authority
+	0 failures across all 28 audited connector tasks
+	Who usually owns the defect
+	The task author
+	The harness and proxy image — roughly 62 of 82 audited fail cells
+	Oracle runtime
+	About 8 seconds
+	45–70 seconds under emulation, longer with gym setup
+	
+
+THE HARDENING METHOD TRANSFERS; THE TRAP DOES NOT  Both families harden by putting the difficulty in the data rather than in the prose, and both are measured the same way. But a trap copied from another task usually measures nothing on yours, because what made it work there was a property of that task's data. Read your own baseline trajectory, list what the model's script assumed, and make the data honestly not like that.
+	1.6 What is identical across both families
+Most of this handbook applies unchanged. Do not look for a connector-specific version of any of the following — there isn't one:
+* The core quality invariant, and the Contract Gap / Coverage Gap split.
+* The "four things" acceptance bar.
+* The twelve stages, the cold read, and the forward and backward traceability passes.
+* Write the prediction before hardening; re-run the oracle after every change.
+* Oracle must score exactly 1.000. A partial oracle never justifies starting a battery.
+* Exactly four battery attempts — never five, never "run five and pick four".
+* The 14-row review.csv, both fold-ins, append-only notes, and the closing verdict line.
+* Evidence discipline: a battery measures only the task as it existed when the battery ran.
+* An infrastructure or verifier failure is ineligible evidence and gets replaced, never counted.
+1.7 A live conflict between the guides — read this before you quote a band
+The project documents do not currently agree on the shipping band, and a newcomer following the wrong one will ship a task that is rejected.
+
+
+Source
+	What it says
+	Standing
+	The autonomous task workflow, citing AUDIT-STANDARD.md §3
+	1/4 or 2/4 ship. 0/4, 3/4 and 4/4 all require a re-roll.
+	AUTHORITATIVE. It explicitly lists "1–3 of 4" as a common wrong memory, and records that the earlier standing decision to ship-and-disclose a 3/4 is superseded — the ceiling is now mechanical.
+	The review.csv generation guide §4
+	1/4 or 2/4 ship. 0/4, 3/4 and 4/4 do not ship — re-roll.
+	Agrees with the above.
+	The task.toml / oracle setup guide §7.3
+	"Current band (as of 2026-09-07): ≤3 of 4 strict passes. 1/4, 2/4 and 3/4 all ship."
+	STALE for this work. The authoritative source names this exact reading as the superseded memory.
+	The Trainer Guidelines, Step 4d
+	FIVE runs; accept at a pass rate of 50% or below — "a low pass rate is good here".
+	A DIFFERENT PROGRAMME. That document governs trainers evaluating mined Harbor tasks claimed from a tracker, not connector authoring. Do not apply its band here.
+	
+
+USE 1/4 OR 2/4  Treat a 3/4 as out of band and re-roll it. The programmatic gate enforces this: audit_evaluations.py fails Layer 2 difficulty at 3 or more strict passes, so disclosure no longer substitutes for a re-roll. Report all four individual rewards, never the average.
+	
+
+The trainer band is worth understanding rather than just ignoring, because the difference is not only the ceiling — it is the FLOOR, and that is the half people get wrong.
+
+
+
+
+	Trainer Guidelines (mined Harbor tasks)
+	Here (connector authoring)
+	Battery size
+	Five runs
+	Exactly four — never five, never "run five and pick four"
+	Ceiling
+	50% — three of five fully passing is too easy
+	Two of four
+	Floor
+	None. 0 of 5 is an excellent result.
+	0 of 4 is a RE-ROLL, not a success
+	Reading
+	A low pass rate means the task is hard enough
+	A zero means the task is broken, unfair, or above the model population — sweep for false negatives and infrastructure deaths before believing it
+	
+
+THE FLOOR IS THE TRAP  Under the trainer rules a 0/5 is something to celebrate. Here a 0/4 is the same signal as a 4/4 — the measurement is telling you something is wrong with the task, not that you are finished. If you have worked from the trainer document before, this is the habit most likely to follow you across.
+	
+
+A second band applies on top of the four-run battery: the audit's own six-trial matrix — GLM-5.2, Claude Fable 5 and GPT-5.6 Sol, two attempts each — must land 2 to 4 strict passes of 6. Note it in the Cross-trial · Calibration row, along with the comparability risk if the task was calibrated against GLM-5.2 alone.
+________________
+
+
+SECTION 2
+Understanding connector tasks
+What a connector task is made of, what the gym layer actually does, and what has to be true before you can run one.
+Part 2 · The connectors
+Part 3 · What a good task looks like
+Part 4 · Get the environment working first
+Part 5 · Package anatomy
+Part 6 · The connector surface
+Part 7 · The review record (review.csv)
+________________
+
+
+Part 2 · The connectors
+A connector task is only as good as your understanding of the gym behind it. This part is what the connector layer actually is, how a request reaches it, how the two connectors in this workspace differ from each other, and how to probe a live gym before you design anything against it.
+2.1 What a gym is
+A "gym" is a service emulator: a FastAPI application backed by a per-tenant SQLite database, shipped inside the connectors-harness image. It exposes two quite different surfaces, and the distinction matters for everything else in this handbook:
+* The MCP tool surface — typed tools (list_roles, search_channels, functions_deploy) that the agent is meant to use. This is the sanctioned interface.
+* The control plane — /reset, /step, /state, and an /api/* family including sql-runner, download-db-file and delete-database. This is for the harness and the verifier, and the agent must never reach it.
+
+
+Everything in Part 6 (closing the connector surface) exists because that second surface is reachable from inside the same container the agent runs in.
+2.2 The fleet that ships in the image
+The base image carries thirteen gyms and starts twelve supervisor programs — regardless of which single connector your task actually uses. This is measurable, not folklore:
+$ docker run --rm --entrypoint /bin/sh <connectors-harness-image> -c \
+    'ls /gyms; grep -c "^\[program:" /etc/supervisor/conf.d/supervisord.conf'
+ 
+email_calendar   github      gws          linear     microsoft_365
+microsoft_teams  notion      outlook      shopify    slack
+snowflake        supabase    task-harness
+12
+WHY THIS MATTERS FOR YOUR TIMEOUTS  Your task uses one connector; the container boots all of them. That is why readiness takes 31–41 seconds on an emulated host, why the template's 40-attempt probe is too tight, and why memory pressure at container start is the single most common cause of a trial dying before it begins.
+	2.3 The request path
+Three parties reach the gym, by three different routes and with three different credentials. Knowing which is which is what lets you tell a security boundary from a bug.
+
+
+Party
+	Route
+	Credential
+	What it may reach
+	The agent
+	http://localhost:7000/mcp/<gym>
+	None — the proxy is open on the MCP path
+	Only the MCP tool surface. /mcp and /health are the sole client-public paths.
+	The proxy
+	Direct to the gym on its own port (e.g. 8025)
+	x-connector-internal-capability, read from a root-created capability file
+	Everything, including /reset and /state — this is the harness lifecycle path
+	The verifier
+	The trusted Unix socket, then /raw/<gym>/state
+	A separate verifier capability plus socket ownership (mode 0600, owned by the proxy user)
+	Read-only state passthrough for grading
+	
+
+The gym decides what is privileged. These are the paths its gateway treats as control-plane, verbatim from the image:
+_PRIVILEGED_PATHS = frozenset({
+    "/reset", "/step", "/state",
+    "/sql-runner",       "/api/sql-runner",
+    "/download-db-file", "/api/download-db-file",
+    "/delete-database",  "/api/delete-database",
+    "/seed-database",    "/api/seed-database",
+})
+_CLIENT_PUBLIC_PATHS = frozenset({"/mcp", "/health"})
+Note where /reset and /state actually live: they are served by the OpenEnv wrapper (custom_http_server.py), not by the gym's /api router. That distinction is what makes one gym's client-mode behaviour survivable and another's fatal — see 2.5.
+2.4 Declaring a connector in task.toml
+
+
+Field
+	What it does
+	name
+	The gym identifier, e.g. "snowflake-gym". Must match the [[environment.mcp_servers]] entry the agent sees.
+	image
+	The connectors-harness image, pinned by @sha256 digest. Never a floating tag.
+	host_port / container_port
+	The gym's own port — 8025 snowflake, 8027 supabase, 8008 slack. Confirm it from the image's supervisord.conf rather than assuming.
+	auth_header_name
+	The per-gym acting-identity header, e.g. x-snowflake-user-token, x-slack-user-token.
+	access_token
+	The seeded token for the acting user. It must correspond to a real row in the gym's user table.
+	db_id_header_name
+	The tenancy header, normally x-database-id. The proxy mints a fresh id per run.
+	reset_on_run
+	true seeds a fresh tenant database for every trial. Required for reproducible grading.
+	dataset
+	Provenance declaration — "synthetic" or "real". Required; the packaging gate checks it.
+	
+
+CONFIRM THE PORT FROM THE IMAGE  One task in this workspace records that its gym runs on 8027 and explicitly notes this was "confirmed from this image's own supervisord.conf — NOT 8026, which is this gym's documented default." Ports drift between image builds. Read them, do not inherit them.
+	2.5 The two connectors in this workspace, and how differently they behave
+Both tasks are connector tasks on the same harness. Almost nothing else about their connector layer is the same.
+
+
+
+
+	Snowflake gym (port 8025)
+	Supabase gym (port 8027)
+	Shape
+	SQL-backed. A tenant SQLite database with a real relational corpus.
+	CLI-emulation. Roughly 126 emulated CLI commands rather than a queryable schema.
+	Tool call convention
+	EVERY tool wraps its arguments in an "input" object: {"input": {...}}. Calling any of them with {} returns "input: field required".
+	Conventional argument objects.
+	The escape hatch
+	execute_sql_readonly runs arbitrary read-only SQL against the tenant database — including sqlite_master and WITH RECURSIVE. Any single figure is computable in one call.
+	No general SQL tool. Source must be downloaded and read.
+	State grading
+	/state accepts verify_queries, so SQL-based database_state checks work.
+	/state does NOT accept arbitrary queries — it returns a fixed shape. SQL-based database_state is unusable; grade the proxy-captured tool trace instead.
+	Client mode
+	FATAL if enabled. main.py drops the whole /api database router at import time.
+	Harmless. Only the docs URLs are gated; the routers stay registered.
+	
+
+The client-mode difference is worth seeing in source, because it is the single most confusing behaviour in the stack:
+# /gyms/snowflake/app/main.py
+app.include_router(core_router)
+if not client_mode_enabled():
+    app.include_router(database_router)     # <-- never registered under client mode
+ 
+# /gyms/supabase/app/main.py  -- no such conditional; routers always registered
+openapi_url = None if client_mode_enabled() else "/openapi.json"
+A SUBSTRATE PROPERTY IS DISCLOSED, NOT WORKED AROUND  Snowflake's general SQL tool means a solver that already knows what to compute gets any figure in one call. The accepted task did not try to close that — it recorded it as a property of the gym and moved the difficulty into DECIDING what to count. Where you cannot remove a shortcut, design so the shortcut does not help.
+	2.6 Probe the live gym before you design anything
+This is the standing discipline in this workspace, and it is what produced every connector finding in this handbook. Four checks, in order, against the running gym — never against a database file on disk.
+
+
+#
+	Check
+	What it settles
+	1
+	DATABASE — does the tenant database exist, and where?
+	For a SQL-seeded gym the tenant db only exists after POST /reset. Read it from /gyms/<gym>/mcp_databases/<dbid>.db, never from a stray file elsewhere in the image.
+	2
+	ROWS — how many rows in each table that matters?
+	Gives you the corpus size you will design against, and the numbers your gold must reproduce.
+	3
+	THROUGH A TOOL — can the agent actually reach it?
+	Prove it by a live tools/call, never by SQL against the file. A fact the agent cannot reach is not a fact your task can grade.
+	4
+	DOES ONE CALL RETURN EVERYTHING?
+	The design question. If one call answers the task, you have no task yet — you have a lookup.
+	
+
+A worked probe, from a booted container:
+# 1. seed the tenant, as the proxy does
+CAP=$(cat /run/harbor/proxy/connector-control-capability)
+curl -s -X POST -H "x-connector-internal-capability: $CAP" \
+     -H 'Content-Type: application/json' -d '{}' \
+     http://127.0.0.1:8025/reset
+ 
+# 2. count what is actually there
+ls /gyms/snowflake/mcp_databases/
+sqlite3 /gyms/snowflake/mcp_databases/<dbid>.db \
+  "SELECT name, (SELECT COUNT(*) FROM sqlite_master) FROM sqlite_master LIMIT 5;"
+ 
+# 3. reach the same fact THROUGH the sanctioned tool surface
+curl -s http://127.0.0.1:7000/mcp/snowflake-gym -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{"method":"tools/call","params":{"name":"snowflake__list_roles",
+       "arguments":{"input":{}}}}'
+
+
+A real corpus, recorded from step 2 on the Snowflake gym, is the kind of inventory your design notes should carry:
+
+
+Table
+	Rows
+	Table
+	Rows
+	privilege_grant
+	350
+	snowflake_user
+	22
+	privilege_grant_privilege
+	608
+	database
+	17
+	snowflake_table
+	239
+	role
+	14
+	role_grant
+	45 (33 USER, 12 ROLE edges)
+	warehouse
+	6
+	schema
+	42
+	
+
+	
+
+	
+
+2.7 Connector-level defects you inherit
+These are properties of the connector layer, not of your task — but they ship inside your package, so they are yours to detect and disclose.
+
+
+Defect
+	How it presents
+	What to do
+	Silent corpus loss
+	A tool returns an incomplete list with no truncation marker and no continuation token. In one audited task the connector returned 22 items where the oracle enumerated 35 — and the 13 dropped rows included two the verifier expected.
+	Run the golden's query path THROUGH the MCP tool and confirm the agent-reachable corpus equals the oracle corpus. Do this before designing, and again before shipping.
+	Broken advertised tools
+	The proxy /step call returns HTTP 200 while the agent sees an opaque "Tool call failed" with no diagnosable message.
+	Exercise every tool the instruction references. A tool named in your prompt that returns nothing is a Contract Gap.
+	Admin endpoints reachable
+	The gym's /api/schema, /api/sql-runner or raw .db readable by the agent user.
+	Probe as the agent user, not as root. Close them, or grade the trajectory so the bypass earns nothing.
+	Ports open to anything
+	With client mode off and no GYM_API_KEYS set, the gym ports are open to any local caller.
+	If your proxy design requires client mode off, it must mint an API key so the agent still gets 401. The two designs are in Part 6.3.
+	
+
+________________
+
+
+Part 3 · What a good task looks like
+3.1 The core quality invariant
+One sentence governs everything else:
+THE INVARIANT  The set of submissions the verifier rewards must equal the set a competent agent could produce from agent-visible information alone.
+	
+
+Every defect you will ever find is a violation of that invariant in one of two directions:
+
+
+Direction
+	What it means
+	Typical shape
+	Contract Gap
+	The verifier rewards LESS than a competent agent could produce — correct, valid solutions fail.
+	Hidden requirements, brittle regex, over-strict schemas, an undisclosed workflow rule
+	Coverage Gap
+	The verifier rewards MORE than intended — wrong or trivial solutions pass.
+	Weak anti-hacking proof, unchecked edge cases, a backend bypass that skips the workflow
+	
+
+3.2 The acceptance bar — the "four things"
+A task is accepted when all four hold at once. Every section of this handbook maps back to one of them.
+* It grades cleanly — the checks measure concrete state, deterministically, and a correct solution passes.
+* A model can solve it — at least one non-oracle run reaches full reward.
+* Most attempts do not — at most 2 of 4 GLM-5.2 attempts strictly pass.
+* Nothing is unfair — every graded requirement traces to a sentence the agent can read.
+
+
+The three golden task principles
+* Difficulty from work, never ambiguity. Every fork a reasonable engineer could take is pinned in instruction.md or promoted to its own graded question. Do not make a task hard by withholding requirements; make the work substantial.
+* Deterministic and semantic grading. Grade identity, state and structure — database rows, API responses, configuration status — not vocabulary, whitespace or arbitrary prose.
+* Strict packaging and provenance. Declared dataset provenance, and all 12 packaging gates green with no blocking findings.
+
+
+________________
+
+
+Part 4 · Get the environment working first
+This part exists because it is where new authors lose the most time, and none of it is about task quality. Do all of it before you try to run anything.
+4.1 Docker memory — the OOM chain
+The agent install step (nvm plus a global npm install) runs inside a container that is already running a 12-connector gym fleet, under QEMU emulation on Apple Silicon. It consumes more memory than any reasonable cgroup allows. This is the measured progression from an actual debugging session:
+
+
+Run
+	Docker VM
+	Container
+	Healthcheck
+	Outcome
+	v6
+	7.65 GB
+	4 GB (default)
+	passed
+	agent ran, no report.json
+	v7
+	7.65 GB
+	4 GB
+	passed
+	OOM at apt-get
+	v8
+	7.65 GB
+	4 GB
+	passed
+	OOM at apt-get
+	v9
+	7.65 GB
+	6 GB override
+	failed 38×
+	container starved the host
+	v13
+	12 GB
+	6 GB override
+	passed
+	OOM at npm install (agent ran first)
+	v16
+	16 GB
+	12 GB override
+	passed
+	OOM at npm install
+	v17
+	16 GB
+	8 GB override + pre-bake
+	passed
+	reward 1.0 — the working combination
+	
+
+THE SWEET SPOT  Docker VM at 16 GB, container override at 8 GB, and the agent pre-baked into the image. On a 16 GB host, do NOT allocate all 16 GB to Docker — it SIGKILLs the host. 8–12 GB for the container is the working range.
+	
+
+Setting Docker Desktop memory without the GUI:
+/opt/homebrew/bin/python3.11 -c "
+import json, pathlib
+p = pathlib.Path.home()/'Library/Group Containers/group.com.docker/settings-store.json'
+d = json.loads(p.read_text()); d['memoryMiB'] = 16384; d['swapMiB'] = 4096
+p.write_text(json.dumps(d, indent=2)+'\n')"
+ 
+pkill -9 -f "com.docker" 2>/dev/null; sleep 4; open -a Docker
+4.2 Apple Silicon and the amd64-only image
+The connectors-harness base image is published for linux/amd64 only. On an arm64 Mac every build and run goes through emulation.
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+ 
+# a pull without it fails with:
+#   no matching manifest for linux/arm64/v8 in the manifest list entries
+docker pull --platform linux/amd64 <image>@sha256:<digest>
+* Cost of emulation: an oracle run goes from roughly 8 seconds native to 45–70 seconds emulated. Image builds take about 10 minutes.
+4.3 Python 3.11 — not the system python
+The pipeline needs Python ≥ 3.10, and its TOML reader uses 3.11's tomllib. The default python3 on macOS is 3.9.6 and fails the doctor's can_gate check with the misleading message "the bundle is incomplete".
+# always use the explicit interpreter
+/opt/homebrew/bin/python3.11 pipeline/run.py --doctor
+ 
+# expected: every row "ok", including
+#   Python >= 3.10 ... 3.11.11
+#   TOML reader  ... tomllib
+#   docker CLI   ... digest pinning available
+4.4 The Dockerfile pre-bake — the OOM fix
+Harbor's opencode install step runs nvm install 22 followed by npm i -g opencode-ai@latest at container start. Pre-baking the identical sequence at build time — where memory is unconstrained — makes the runtime step a fast no-op, because nvm reports "already installed" and npm's up-to-date check skips the download.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl bash coreutils nodejs npm ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    su - rlgymagent -c 'set -euo pipefail; \
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh \
+          | env -u NODE_VERSION bash && \
+        export NVM_DIR="$HOME/.nvm" && \
+        . "$NVM_DIR/nvm.sh" && \
+        nvm install 22 && nvm alias default 22 && \
+        npm i -g opencode-ai@latest && \
+        opencode --version'
+Verify inside the built image — it should print Node v22.x and an opencode version:
+docker run --rm --platform linux/amd64 --entrypoint /bin/sh <image> -c \
+  'su - rlgymagent -c "export NVM_DIR=\$HOME/.nvm; . \$NVM_DIR/nvm.sh; \
+   node --version; opencode --version"'
+ 
+# v22.23.2
+# 1.18.31
+
+
+DO NOT PIN opencode-ai  Leave it as @latest. Harbor installs opencode-ai@latest at container start; pinning an older version here makes npm's up-to-date check miss and re-download it, which defeats the entire purpose of the pre-bake.
+	4.5 The opencode + GLM-5.2 provider config
+GLM-5.2 is served through a LiteLLM proxy that speaks the Chat Completions API. The opencode agent's built-in openai provider uses the Responses API, so it fails with "text part chatcmpl-... not found". The fix is a custom provider via @ai-sdk/openai-compatible, which speaks Chat Completions.
+{
+  "provider": {
+    "glm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "GLM Gateway",
+      "options": {
+        "baseURL": "<gateway-base-url>/v1",
+        "apiKey": "{env:OPENAI_API_KEY}"
+      },
+      "models": {
+        "glm-5.2": {
+          "name": "GLM-5.2",
+          "reasoning": true,
+          "interleaved": { "field": "reasoning_content" },
+          "limit": { "context": 200000, "output": 96000 },
+          "options": { "max_tokens": 96000 }
+        }
+      }
+    }
+  }
+}
+Why each critical field is there
+
+
+Field
+	Why it is required
+	"reasoning": true plus "interleaved": {"field": "reasoning_content"}
+	Tells the AI SDK to parse GLM-5.2's reasoning_content field. Harbor hardcodes the --thinking flag in the opencode command and it cannot be disabled; without this config opencode crashes trying to parse reasoning output.
+	"apiKey": "{env:OPENAI_API_KEY}"
+	@ai-sdk/openai-compatible does NOT auto-read OPENAI_API_KEY. It must be set explicitly in options using opencode's env-reference syntax.
+	output / max_tokens = 96000
+	Matches what production QC uses. An earlier run used 16384, which is too low for harder tasks and does not reproduce production behaviour.
+	provider name "glm"
+	Determines the command-line model identifier: glm/glm-5.2.
+	________________
+
+
+Part 5 · Package anatomy
+A task package is a directory that must contain all of the following to pass QC. Anything missing is a packaging gate failure before anyone looks at your content.
+5.1 Root files
+
+
+File
+	Purpose
+	task.toml
+	Primary configuration: scenario metadata, MCP server definitions, timeouts, environment limits, and the grader-only GOLD / DECOYS / HIDDEN RULES / HOPS blocks.
+	instruction.md
+	The prompt the solving model sees. This is the contract — every graded requirement must trace to a sentence here.
+	README.md
+	Changelog documenting every modification made to the task.
+	review.csv
+	The 14-row review record. Hard requirement; a task is not submittable without it.
+	
+
+5.2 Required directories
+
+
+Directory
+	Required contents
+	tests/
+	manifest.json, rubric.toml, verifier_engine.py, test.sh, test_gvs.sh, task_inputs.py, test_outputs.py, rl_world_verifiers/
+	solution/
+	solve.py, solve.sh, golden_trajectory.json, golden_results.json, expected_diff.json, final_answer.md, artifact_plan.json, write_artifacts.py, emit_oracle_trajectory.py, files/
+	environment/
+	Dockerfile, entrypoint.sh, sync_app_mirror.sh, seed scripts, _app/ mirror, mcp/proxy/
+	evaluations/
+	solvability/, difficulty/, stability/ — each with real run results
+	
+
+5.3 The evaluations structure and its acceptance criteria
+This is the part most often missing, and it is the one the gate blocks on.
+
+
+Folder
+	Contents
+	Acceptance criterion
+	evaluations/solvability/r1/
+	result.json, agent/trajectory.json, verifier/
+	At least 1 run with reward = 1.0, from a NON-oracle agent
+	evaluations/difficulty/r1–r4/
+	result.json, config.json, agent/, verifier/ for each run
+	At most 2 of 4 runs with reward = 1.0
+	evaluations/stability/repeat-01–03/
+	result.json, config.json, lock.json, agent/, verifier/
+	All 3 repeats return identical rewards
+	
+
+THE ORACLE DOES NOT COUNT FOR SOLVABILITY  Layer 2 solvability requires a non-oracle rollout earning exactly 1.0. An oracle run proves the checks can grade the gold; it does not prove a model can do the task. A package with only an oracle run fails solvability even though the oracle scored 1.0.
+	5.4 The _app mirror
+The Docker build context is environment/, because some remote builders upload only that directory. So the task files the image needs are mirrored into environment/_app/. Run the sync script after editing ANY task-root file:
+./environment/sync_app_mirror.sh
+ 
+# then confirm
+diff task.toml        environment/_app/task.toml
+diff instruction.md   environment/_app/instruction.md
+diff -r tests         environment/_app/tests
+
+
+A CLEAN diff -r DOES NOT MEAN THE MIRROR IS CORRECT  diff -r confirms the mirror matches the root — not that the root is correct. The mirror can faithfully copy a self-contradictory root. See Part 11.3 for the case where this shipped a broken image.
+	________________
+
+
+Part 6 · The connector surface
+This is the single most frequent defect family in the audited batch: 13 of 28 tasks failed Layer 5 reward hacking, and 12 of those failed on one exact mechanism.
+6.1 The three doors
+Every connector task has three ways an agent can reach the graded data without using the sanctioned MCP tools. Close all three. Closing two is the same as closing none.
+
+
+Door
+	What it is
+	How to probe it
+	The state route
+	The proxy's raw passthrough — GET /raw/{gym}/state?verify_queries=<arbitrary SQL>
+	curl it from a bash shell inside the sandbox as the agent user
+	The step route
+	POST /raw/{gym}/step — drives the gym directly, skipping MCP
+	Same: curl it as the agent user
+	Files on disk
+	The gym's SQLite database, /opt/proxy/server.py, seed SQL, anything world-readable
+	ls and cat as the agent user; this is the door that makes the other two irrelevant
+	
+
+6.2 P-C1 — the unauthenticated raw-SQL proxy bypass
+The harbor-mcp-proxy image exposes an unauthenticated raw passthrough on the same localhost:7000 the agent already reaches for MCP, and in some gyms the gym itself on port 8020 or a /api/sql-runner on 8014. An agent with a bash tool runs one SQL SELECT and derives every graded value, bypassing the entire sanctioned workflow. Because the verifier inspects only the final deliverable, the bypass yields full reward.
+
+
+The pre-ship adversarial test — run this before you ship, from inside the sandbox:
+# if either returns a row, the task is broken and does not ship
+curl 'http://localhost:7000/raw/<gym>/state?verify_queries=SELECT 1'
+curl 'http://localhost:8020/state?verify_queries=SELECT 1'
+ 
+# also check what the agent user can read on disk
+docker exec -u rlgymagent <container> sh -c 'ls -l /opt/proxy /gyms 2>&1'
+
+
+What you can do about it as a task author
+* Grade the trajectory, not only the deliverable. Add a tool_execution check that the sanctioned MCP tools were actually called. If reward depends only on final values, a backend-bypass rollout scores full reward.
+* Verify the gate at runtime, not by reading the Dockerfile. A route you believe is closed is not evidence; a curl that returns 404 is.
+* A latent route is a finding on its own. A run that happened not to take the shortcut does not prove the task is safe.
+
+
+THIS IS A HARNESS DEFECT YOU INHERIT  The raw passthrough ships in the proxy image every connector author uses, so this is not your bug — but it is in your package, and therefore yours to close. The highest-leverage harness fix (authenticating the /raw/ passthrough) would close roughly 13 connector tasks at once.
+	6.3 Gym-specific behaviour — not in the current documentation
+This section records findings made in this workspace that no existing document covers. They matter because they look like drift between tasks and are actually two coherent designs that must not be mixed.
+Two proxy designs, and how each authenticates to the gym
+
+
+
+
+	Design A — capability header
+	Design B — API key
+	Proxy variant
+	The larger template proxy (~2051 lines)
+	The newer template proxy (~1002 lines)
+	How it reaches the gym
+	Attaches x-connector-internal-capability on every upstream request, read from the control-capability file
+	Attaches x-api-key, read from GYM_API_KEY_FILE
+	Client mode
+	Must be ON. The gym's middleware lets the capability through and blocks the agent.
+	Must be OFF, and GYM_API_KEYS must be set so the agent still gets 401.
+	Entrypoint must
+	export GYM_CLIENT_MODE=1 and leave the capability in supervisord's environment
+	NOT export GYM_CLIENT_MODE, unset the capability before supervisord, and mint GYM_API_KEYS
+	Provides
+	Trusted verifier socket and a tool-call trace file (proxy-tool-calls.jsonl)
+	Neither — which is why its readiness probe cannot check for the socket
+	
+
+DO NOT MIX THE TWO  Porting one task's entrypoint onto another task's proxy breaks it. Porting the smaller proxy into a task that has tool_execution checks destroys its trajectory evidence, because that proxy writes no tool-call trace. Identify which proxy your task ships before you touch the entrypoint.
+	
+
+Client mode is gym-specific
+The gym decides whether client mode removes its control plane, and different gyms decide differently. The Snowflake gym drops its entire database router at import time when client mode is on:
+# /gyms/snowflake/app/main.py
+app.include_router(core_router)
+if not client_mode_enabled():
+    app.include_router(database_router)     # <- dropped entirely
+ 
+# /gyms/snowflake/app/gateway.py
+def client_mode_enabled() -> bool:
+    explicit = (os.environ.get("GYM_CLIENT_MODE") or "").strip().lower() in {
+        "1", "true", "yes", "on"}
+    return explicit or bool(
+        os.environ.get("HARBOR_CONNECTOR_CONTROL_CAPABILITY", "").strip())
+* The condition is OR. Removing GYM_CLIENT_MODE is not enough on its own — a non-empty capability in the gym's environment also turns client mode on. Both halves are required.
+* The Supabase gym does not do this. It gates only its docs URLs on client mode; its routers stay registered. The identical entrypoint configuration is therefore harmless on Supabase and consequential on Snowflake.
+* The router that gets dropped serves /api/reset-database, /api/database-state, /api/sql-runner, /api/download-db-file, /api/delete-database — the whole state surface.
+
+
+How to verify the boundary is actually correct, on a running container — this is the test that settles it either way:
+# as the agent: must be 404
+docker exec -u rlgymagent <ctr> sh -c \
+  'curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8025/state'
+ 
+# as the proxy, with the capability: must be 200
+docker exec <ctr> sh -c 'CAP=$(cat /run/harbor/proxy/connector-control-capability); \
+  curl -s -o /dev/null -w "%{http_code}\n" \
+  -H "x-connector-internal-capability: $CAP" http://127.0.0.1:8025/state'
+________________
+
+
+Part 7 · The review record (review.csv)
+Every task needs a review.csv at its root before shipping. This is a hard requirement, not an optional step.
+7.1 Structure
+* Location: tasks/<task-name>/review.csv, at the task root, included in the packaged zip at <task-name>/review.csv.
+* Columns — exactly five: review_check, status, review_notes, change_made, what_to_record.
+* Rows — exactly 14, byte-exact names. Never decorate a row name; the portal parser counts a decorated name as an extra row.
+* Status values: PASS, FIXED_AND_VERIFIED, or N/A. N/A is legitimate only on Layer 4 · Connectors, MCPs, and CLIs for a non-connector task.
+* change_made is BLANK on every PASS row. Truly empty — not "No change required". Writing anything there on a PASS row triggers a QC failure ("review.csv worksheet integrity"). Only FIXED_AND_VERIFIED rows carry content in that column; on an N/A row "No change required" is acceptable.
+* Cross-trial · Calibration must END with an explicit verdict: Verdict: approve. / Verdict: change. / Verdict: block. — followed by the caveat a reviewer should weigh. A missing verdict line fails the calibration row.
+* Check counts in the notes must match the shipped verifier. If the notes say "24 of 24" and the manifest has 34 checks, QC flags that the review's claims do not match the bundle. Re-derive every count after adding or removing a check.
+
+
+#
+	Row name
+	#
+	Row name
+	1
+	Layer 1 · Package consistency
+	8
+	Layer 4 · Environment and files
+	2
+	Layer 1 · Clarity and scope
+	9
+	Layer 4 · Connectors, MCPs, and CLIs
+	3
+	Layer 1 · Realism and leakage
+	10
+	Layer 4 · Deliverables and artifact quality
+	4
+	Layer 2 Difficulty
+	11
+	Layer 5 · Verifier coverage and fairness
+	5
+	Layer 2 Solvability
+	12
+	Layer 5 · LLM judge consistency
+	6
+	Layer 2 Stability
+	13
+	Layer 5 · Reward hacking and exploitability
+	7
+	Layer 3 Oracle Mode
+	14
+	Cross-trial · Calibration
+	
+
+THE MIDDLE DOT MATTERS  The interpunct (·) is present on ten rows and absent on the four Layer 2/3 rows. Copy the names exactly as listed — this is a byte-exact match, not a stylistic choice.
+	
+
+Two fold-ins are required. A review missing either is incomplete even with all 14 rows present:
+* Layer 4 · Rollout reasoning folds into Layer 2 Difficulty.
+* Layer 5 · Failure attribution folds into Cross-trial · Calibration.
+7.2 review_notes is a history, not a final-state summary
+When a row is revised across iterations, keep the original failure note and append the new state and evidence. Overwriting the original removes the only record that the first problem was real and was fixed — a reviewer then cannot tell whether it ever existed.
+* No original failure may be overwritten or removed.
+* Record the exact change made in every iteration.
+* "Looks good", "fixed" and "reran" are not sufficient. Cite the specific trials, logs, files, artifacts or evaluation outputs inspected.
+
+
+NEVER WRITE FIXED_AND_VERIFIED SPECULATIVELY  A failure closes only after the check that exposed it has been repeated and the post-fix evidence confirms the result. "I made the change" is not "verified".
+	7.3 The contradiction to avoid
+The status column and the notes must agree. A real example from this workspace: a task's review.csv marked Layer 2 Difficulty, Solvability and Stability all PASS, while the review_notes on those same rows read:
+"ZERO reward files recorded under evaluations/difficulty (the directory
+ is absent) - 0 of 4 ... 0/4 currently fails Layer 2 Difficulty"
+ 
+"a true >=3 vendor-stability repeat is NOT yet recorded - an honest
+ gap, disclosed"
+The prose was honest; the status column was not consistent with it. The task's own Harbor Check verdict in the same folder recorded 16 Layer-2 failures. If QC reads review.csv against the shipped check verdict, that mismatch is itself a finding — on top of the underlying gap.
+IF YOU HAVE AN OPEN GAP, SAY SO IN THE STATUS  There is no status value meaning "open gap", which is what tempts authors into writing PASS. Disclose it plainly in the notes AND do not claim PASS — an honest disclosed gap is recoverable; a contradicted PASS reads as a false claim.
+	________________
+
+
+SECTION 3
+Findings: tackling the work
+How the work actually goes, how long it takes, what goes wrong, and what the evidence has to show before a task can ship.
+Part 8 · Playbook — the two tasks worked end to end
+Part 9 · The working method, stage by stage
+Part 10 · Difficulty — the highest-value finding
+Part 11 · Migration discipline
+Part 12 · Verifier design and fairness
+Part 13 · Evidence discipline
+Part 14 · Client rejection patterns
+Part 15 · The QC review workflow
+Part 16 · Packaging, gates and upload traps
+Part 17 · Docker and entrypoint engineering
+Part 18 · Triage — when QC fails
+Part 19 · Quick reference
+Part 20 · What the guidance does not cover
+________________
+
+
+Part 8 · Playbook — the two tasks worked end to end
+This is the method applied end to end, followed by the two real tasks in this workspace worked issue by issue. Both started in exactly the same place — solved by the model in every scored run — and took different routes out. One route worked first time; the other spent a full cycle on a false negative. Read both.
+8.1 Worked example A — the edge-function task
+A Supabase Edge Function JWT audit. Go through every project in one workspace org, find every deployed Edge Function with JWT verification disabled, fix the genuine violations by redeploying with JWT on, leave the compliant ones alone. Deliverables: /workspace/metrics.json and /workspace/report.json.
+Eight issues stood between this task and acceptance. They are worth reading in order, because six of the eight are consequences of the first.
+
+
+A1 — The discriminator was a mechanical threshold, and stayed 4/4
+* What it was. The rule was "only functions with version 2 or higher while keeping JWT disabled are violations" — disclosed and fair, but a one-step lookup. The model reads "version >= 2" and applies it directly.
+* Evidence. Four difficulty runs, pre-hardening and hardened-v1, all scored reward 1.0 against this discriminator. Full disclosure did not move it.
+* What was done. Reworked so the rule required interpretation, not lookup: "a function deployed for the first time is still in development — the developer may have intentionally left JWT off." The model must connect "first deploy" to the version field and derive the threshold itself.
+* Two further nuances the seeded data already supported: public integration endpoints (health/signing, carrying an import map) and development-project prototypes (no import map) are exempt.
+* Result. Genuine violations dropped from 11 to 3 — ids 46, 86 and 88: verify_jwt=false, redeployed, not a public endpoint, not a dev-project prototype.
+
+
+A2 — The answer was migrated to the assertions but not to the prose
+When the answer moved 11 → 3, the manifest's expected arrays were updated but the prose around them was not. The package asserted 3 and read 9.
+
+
+Field
+	Stale (v1)
+	Rewritten (v2)
+	metrics_violation_function_ids — description
+	"the 11 violations"
+	"the 3 genuine violations"
+	— why_justification
+	"The real violations are: id 46 … id 55 … id 81 … id 83 …" (the full 11-id list)
+	The 3 real violations, the 8 exempt with their reasons, and the slug-collision reframing
+	metrics_compliant_function_ids — description
+	"the other 35"
+	"the other 43"
+	remediation_targets_exact — rubric
+	"these 9 required calls"
+	"these 3 required calls", with the exempt categories expanded from first-deploys to all three
+	read_enough_to_answer
+	"31 real tool calls"
+	"23 real tool calls"
+	
+
+THE ASSERTION FAILS LOUDLY; THE PROSE FAILS SILENTLY  A stale expected array breaks the oracle immediately. A stale why_justification breaks nothing and ships. A reviewer reads the prose.
+	
+
+A3 — task.toml grader metadata was still at v1
+* GOLD listed violation_function_ids as 11 ids. Rewritten to 3 violations / 43 compliant, with the violation detail restated as 3 violations plus 8 compliant-despite-verify_jwt=false, each carrying its exemption reason.
+* HOPS said "+ 11 deploy / 31 real tool calls". Rewritten to "+ 3 deploy / 23 tool calls" and "ONLY THE 3 REAL VIOLATIONS", with the 8-exempt note.
+* DECOYS said "(11 ids)". Rewritten to "(3 ids)" with new lures: 11 = ignore all exemptions; 9 = apply only first-deploy; 43 functions_reviewed = slug-keying collapse.
+* HIDDEN RULES actively called a now-compliant function "a real violation" — id 102 qz-sign. Reframed as "a public signing endpoint so compliant by policy, NOT a violation".
+
+
+A4 — Two unpinned forks in the instruction
+* Fork one. Two exemptions — public endpoint and development project — could both match one function, and the prompt did not say which governs. A model applying the dev-project rule to a public endpoint over-remediates and lands differently from the oracle.
+* The pin. "Where a function's name and purpose mark it as a public integration endpoint, that classification takes precedence over the development-project rule, regardless of which project it lives in."
+* Fork two. The violation_function_ids field definition literally said "every function that had JWT verification disabled" — contradicting the exemptions stated above it.
+* The reconciliation. "every function you determined to be a genuine violation under the rules above — not the functions the rules above classify as compliant despite having JWT verification disabled."
+
+
+A5 — The mirror was internally contradictory and would have broken the image
+The mirror held gym_step_state expected_rows for ids 90, 94, 100 and 103 at remediated versions (6, 6, 5, 3) while the assertions already classified those functions as compliant and untouched. A correct v2 agent would have failed gym_step_state in the baked image.
+Re-running the sync script from the corrected root brought those four ids to 5, 5, 4 and 2 — untouched seed state — and the mirror then diffed clean against root for instruction, task.toml and manifest.
+
+
+A6 — Packaging gate findings
+* G02 found the GLM gateway IP in eval files; G03 found authoring-machine paths in 9 eval files.
+* Both auto-remediate — the gateway IP is rewritten to a TEST-NET-3 address, the paths to a generic user path. Gate-after showed 0 blocking, 1 package clean.
+* The recurring part: this comes back every time evals are regenerated, because fresh eval files carry fresh machine paths. Always re-run the gate after an eval refresh.
+
+
+A7 — The evidence was stale and had to be re-earned
+Every evaluation on disk predated the v2 instruction edit: the runs timestamped 03:15, the instruction was edited at 10:52. The 4/4 and the 1.0 oracle were both measuring the old, easier task.
+The re-earn order, and why it is that order:
+* Re-run the oracle first against the v2 verifier — 3/3 violation, 43/43 compliant, 3 deploys, gym_step_state rows matching the corrected versions. If the oracle fails, that is a verifier defect, not a golden defect: fix the check and re-run.
+* Then the 4-run battery, with the predictor written first: 11 = ignore all exemptions, 9 = apply only the first-deploy exemption, 3 = correct. If the battery does not produce 11 and 9 as the two predictable wrong answers, the discriminator is still a mechanical threshold in disguise.
+* Then one solvability run from a non-oracle model — a full-reward run proves a model can do it, not merely that the check can grade the gold.
+
+
+A8 — The review record was stale
+The 14-row record still quoted 11 violations, 35 compliant, 11 deploys, "11/11 checks". Every count was stale. The instruction was to append, not overwrite: keep the original failure notes so a reviewer can see the first problem was real and was fixed, then add the v2 state and the new evidence on top — and re-zip from the sanitized tree, because zipping from raw source regresses the path and README gates.
+8.2 Worked example B — the access-review task
+A Snowflake least-privilege access review. The role roster reports direct grants, but Snowflake roles inherit up the hierarchy, and one grant is written ALL IN SCHEMA rather than against a table. Five figures follow from those two facts, plus a write-back that revokes the READONLY role's writes. Deliverable: /workspace/access_review.json. This task cleared the QC gate and finalisation.
+
+
+B1 — It started 4/4 too
+Same starting point as Task A: the delivery gate flagged it as solved in every scored run.
+
+
+B2 — The prediction was written before the change
+Prediction: band drops 4/4 -> 1-2/4, because a list must be exactly
+right - missing, extra, or wrong-order all fail.
+ 
+Result: matched.
+Writing the prediction first is what lets you tell a working lever from a lucky one. The initial battery landed 3/4 before hardening; the hardened battery matched the prediction.
+
+
+B3 — The lever was precision, applied honestly
+Four of five deliverable fields changed from counts (10, 5, 6, 13) to sorted lists of names — the ten account names, five role names, six role names, thirteen table names. The fifth stayed a count because no name list existed in gold.
+* Chained — you must enumerate correctly to produce the list at all.
+* Sharp — a wrong list is a specific wrong answer, not a near miss.
+* Provable — the oracle checks exact list equality.
+* Honest — an auditor genuinely wants names. It raises required precision without adding ambiguity or removing information.
+
+
+B4 — The oracle was re-verified after the change
+Changing the deliverable shape from counts to lists could have broken grading, and there is no partial credit on the oracle gate. Re-running it returned reward 1.0 across 10/10 checks.
+
+
+B5 — The exemption-precedence fork, pinned in four words
+"How many roles can write" could defensibly include TRANSFORMER, which owns the tables, or include OPERATE-on-a-task. Two plausible exemptions, both matching the same question.
+* The pin: "can write" became "are granted write". One change excludes ownership (not a grant) and task control from the count.
+* The reinforcement: the prompt contrasts "how many roles are granted write" against "how many accounts could write" in the same sentence, so the asymmetry is legible rather than hidden.
+
+
+B6 — The decoy table got a proof harness
+A decoy table is an assertion unless something re-derives gold and catches collisions. This task shipped a consistency/ folder:
+
+
+File
+	What it does
+	gold_sql.py
+	Re-derives every gold figure from the seeded tenant database, and exits non-zero if any decoy value collides with a gold value.
+	shortcut_audit.md
+	Records the lazy paths actually run against the live gym, and what each one scored.
+	readers.json
+	An independent cold-read pass, with instruction_sha256 stamped so staleness is detectable.
+	
+
+SHIP THE HARNESS, NOT JUST THE TABLE  No existing guide names the consistency harness as a deliverable, and it is what makes a decoy table defensible. A decoy table without something that re-derives gold and fails on collision is an assertion, not evidence.
+	
+
+B7 — The infrastructure it had to fight through
+
+
+Obstacle
+	Resolution
+	Upload rejection on server.py
+	The converter matches the proxy by FULL FILE HASH, not by comments or signatures. Three attempts failed — a comment marker, then patching the reference — before the fix: ship the exact unmodified reference server.py and adapt the entrypoint around it.
+	Snowflake client-mode trap
+	HARBOR_CONNECTOR_CONTROL_CAPABILITY as an environment variable — not only GYM_CLIENT_MODE — triggers the gym's client_mode_enabled() and 404s /reset. The entrypoint must unset it before supervisord; the capability stays available via its file.
+	Docker OOM
+	On a 16 GB host, allocating all 16 GB to Docker SIGKILLs the host. 8–12 GB is the working range.
+	Apple Silicon against an amd64-only image
+	DOCKER_DEFAULT_PLATFORM=linux/amd64. The oracle went from about 8 s native to 45–70 s emulated.
+	G10 as an expected residual
+	The pipeline cannot invent a missing reward — the battery is produced by a harbor run, not by repackaging.
+	Re-zipping from raw source
+	Regresses the authoring-path and missing-README gates. The pipeline's --check-only sanitises and re-zips automatically.
+	
+
+8.3 Two things that look like hardening and are not
+* Adding rules or instructions. A rule clear enough to be fair is a rule the model turns into a few lines of code — it reads it, copies it out, runs it. What you actually buy is boundary risk: runs failing on greater-than versus greater-or-equal, on which side of an as-of date a record falls, on a phrase that can be read two honest ways. That is vagueness dressed as difficulty, it points straight back at the sentence you added, and review will fail it.
+* Adding data. Volume is not difficulty. A script crunches two hundred thousand rows as fast as two hundred.
+
+
+THE TRAP DOES NOT TRANSFER  What is on offer depends completely on the task, and that is the point. The difficulty is a property of your data, not of your prose. A trap copied from someone else's task usually measures nothing on yours, because what made it work there was a property of their data.
+	8.4 The contrast that matters
+The two tasks side by side are the whole lesson.
+
+
+
+
+	Task A — edge function
+	Task B — access review
+	Starting band
+	4/4
+	4/4
+	First lever
+	A mechanical threshold (version >= 2) — a strong model applies it in one step
+	Precision: counts became sorted name lists
+	Prediction written first?
+	Not on the first attempt
+	Yes
+	Outcome of the first attempt
+	Still 4/4 after full disclosure — the false negative
+	Matched the prediction, landed in band
+	What fixed it
+	Rework to an interpretive discriminator the model must connect to data
+	Nothing to fix — the honest lever worked first time
+	What it proves
+	The mechanical-threshold path does not work
+	The honest-lever path does
+	
+
+The shared lessons across both: sync the mirror after every edit, run the oracle after every change, and write the prediction before hardening.
+8.5 The gotchas that cost batteries
+The task is in band, but unfair
+* Two honest methods give different answers. Fix the data so both agree, and keep values off thresholds rather than arguing about which side of one they fall.
+* Every field the grade depends on must agree with itself across the whole input set — and you assert that AFTER the last edit, not before it.
+* Dates break the story: a record after the as-of date, an override dated after the thing it overrides, an order column disagreeing with its timestamp. Assert all three every time.
+* No two rules may apply to the same input at once, or a run can be right about one and still wrong about the grade.
+* The last edit created a new ambiguity in a rule you did not touch. Re-check every rule after the final edit, including the ones you believe you left alone.
+* The test is the trajectory, not the score. A run that reasons correctly and then writes "the spec would need to say" is telling you the task is unfair, whatever it scored.
+
+
+The artifacts describe different tasks
+* Prompt, solution, tests, manifest and environment drift on filenames, paths, columns or counts. Reconcile them on purpose, not by trusting a green oracle. Confirm the solution follows the required method, not just the reward.
+* The reference answer's own write-up is graded by nothing, so nothing catches it repeating the mistake the task is built around. Read it against the standard line by line and recompute every figure it states from the inputs.
+
+
+The measurement is wrong
+* One battery is not a result. Report a rate only when every failure is traced to a named model error.
+* Timeouts, empty runs, provider errors and memo-only failures are not kills. Triage every failed run to a step and a wrong value.
+* Judge a failure by the delivered file, not by what the model said while working.
+* Change one thing per version. Several edits at once make the result impossible to explain — and batch every content edit before you freeze, because each one voids the evidence before it.
+* Pass rates multiply. A second trap on a working task often gives 0/4. Count traps that fire, not traps you planted.
+* A four-trial sample carries about one trial of noise. One high battery beside two in-band ones is a sampling question, not a difficulty one — and it costs one more battery to answer.
+
+
+Nothing moves
+* After two builds with no change, stop turning the same dial. The tell is that every build so far moved the same thing.
+* Volume is not a rung. More of the same pattern moves nothing.
+
+
+WHEN THE LEVERS ARE GENUINELY SPENT  If remove-leakage, remove-recipe, add-a-real-second-deliverable, require-reconciliation and add-an-interpretive-discriminator have all been tried and the band is still 4/4, the task is not missing a discriminator — it is below the model population's capability floor. That needs a new data relation or a rework at the data level. Do not add a fourth independent rule; ten easy checks are still ten easy checks.
+	8.6 Finalisation lessons from repairs
+* Start from the exact version QC reviewed, not the newest working folder. Reproduce the reported example there and group findings that share a root cause before changing anything — this prevents several patches for what is really one problem.
+* The instruction and supplied policy are the public contract. A verifier name, an internal comment or a golden phrase cannot impose a condition the participant was never told about. Either disclose the exact requirement or grade equivalent correct work fairly.
+* Be strict only where the format is genuinely pinned. Filenames, schemas, codes and JSON keys can be exact when the instruction says so; memo wording and number presentation need room for natural alternatives.
+* Read meaning, not keyword presence. Negation and contradiction checks must understand phrases such as "not reconciled" and "no longer current", and must stay within the correct record so one paragraph cannot accidentally pass or fail another.
+* Give every verifier repair a positive and a negative regression. The exact valid phrase from QC should pass; a nearby version with the wrong meaning should fail. Cover ordinary layouts too — numbered lists, table rows, punctuation, line breaks.
+* Each reward check measures the requirement in its own description. Two different checks should not both fail because one shared setup phrase broke, and a small memo issue should not carry the same loss as a missing core report.
+* Keep golden files, grader code, hidden fixtures and answer keys outside the agent-readable workspace — and save complete run evidence: valid trajectory JSON, artifact manifests, detailed verifier output, rewards, and the model settings actually used. A good run is hard to defend when its saved record is broken.
+* Do not change a sound task because QC returned INDETERMINATE or an obvious capture failure. Re-run first, then record a short evidence-based platform explanation if the same engine problem repeats. Task changes are for defects you can actually reproduce.
+________________
+
+
+Part 9 · The working method, stage by stage
+9.1 The twelve stages
+Twelve stages. Each has a "where this goes wrong" and a "before you move on". The spine is sound; what follows is the condensed form with the traps called out.
+
+
+Stage
+	What you do
+	Where it goes wrong
+	1 · Claim and set up
+	Claim the task, get the environment running, confirm the image builds.
+	Skipping Part 4 and losing an afternoon to OOM.
+	2 · Learn the package
+	Read task.toml, instruction.md, manifest.json, solution/. Sync the mirror.
+	Trusting README/review.csv as ground truth instead of reading the artifacts.
+	3 · Read the prompt cold
+	Read instruction.md with the gold hidden. Write down every guess.
+	Skipping it. This is the highest-value half hour in the whole process.
+	4 · Trace the asks to the checks
+	Forward pass: instruction → checks. Backward pass: for every check not on your list, quote the sentence that creates it — or delete the check.
+	Traceability failures are the single most common defect class.
+	5 · Close the connector surface
+	Probe all three doors: state route, step route, files on disk.
+	Closing two doors. The files-on-disk door makes the other two irrelevant.
+	6 · Run PreQC and fix findings
+	Static review, triage, re-run.
+	Dismissing a finding without a written reason.
+	7 · Prove the oracle
+	harbor run -a oracle. Expect reward 1.0.
+	Not re-running it after every single change.
+	8 · Measure it
+	4 GLM-5.2 trials. Target: at most 2 of 4 strict passes.
+	Quoting a battery that predates your last edit.
+	9 · Read the runs
+	Read all 4 trajectories. Label every failure by cause.
+	Attributing a verifier defect to the model.
+	10 · Harden honestly
+	Write the prediction, apply one lever, re-run oracle, re-run battery, compare.
+	Hardening by withholding information instead of adding work.
+	11 · Break it yourself
+	Perturbation tests — try to pass without doing the work.
+	Assuming a run that did not take a shortcut proves there is none.
+	12 · Record it and submit
+	Write review.csv, package, gate, re-zip from the sanitized tree.
+	Zipping from raw source and regressing G03/G07.
+	
+
+THE THREE SHARED LESSONS  Sync the mirror after every edit. Run the oracle after every change. Write the prediction before hardening. Both worked tasks converged on these three independently.
+	9.2 How long a task actually takes
+Measured from claim to submission-ready package.
+
+
+Scenario
+	Time
+	When it applies
+	Simple — easy battery, no hardening
+	1–2 hours
+	Oracle passes first try, battery lands 1–2 of 4, no environment issues
+	Normal — moderate hardening
+	~3 hours
+	Oracle passes, 1–2 hardening iterations, one battery re-run
+	Complex — heavy hardening plus infrastructure
+	4–8 hours
+	Multiple hardening rounds, environment fixes, repeated battery re-runs
+	
+
+Where the hours go
+
+
+Stage
+	Time
+	What you are doing
+	1–2 · Claim and learn
+	15–30 min
+	Read task.toml, instruction.md, manifest.json, solution/. Understand the connector and data model. Sync the mirror.
+	3–4 · Read prompt, trace checks
+	30–45 min
+	Cold read. Forward pass instruction→checks. Backward pass checks→instruction. Identify coverage gaps and unfair checks.
+	5 · Close connector surface
+	30–60 min
+	Probe all three doors. Verify proxy routes are gated. Test from inside the container.
+	6 · PreQC
+	15–30 min
+	Static review, fix findings, re-run.
+	7 · Prove oracle
+	30–60 min
+	Run oracle locally, debug, repeat after every change.
+	8 · Measure (battery)
+	30–90 min
+	4 GLM-5.2 trials, ~5–6 min each, ~25 min sequential, plus ~10 min image build on Apple Silicon.
+	9 · Read runs
+	30–45 min
+	Read all 4 trajectories, label every failure, check dispersion.
+	10 · Harden (iterative)
+	1–3 hours
+	Design discriminator, update every file, re-run oracle (5 min), re-run battery (25 min), iterate if band is wrong.
+	11–12 · Break, record, submit
+	30–60 min
+	Perturbation tests, write review.csv, package, gate, re-zip.
+	________________
+
+
+Part 10 · Difficulty — the highest-value finding
+Most connector tasks are rejected for being too easy. In the client audit of 28 connector tasks, 13 failed Layer 2 Difficulty and 20 were flagged "potentially too easy"; none was flagged too hard. This part is the accumulated understanding of why, and what actually works.
+10.1 The false negative: a disclosed rule can still be too easy
+The standard test for a fair discriminator is "does it survive full disclosure?" — if you told the model the rule outright, would the task still be hard? That test is correct but incomplete, and the gap is where Task A lost a full hardening cycle.
+There is a third state the test does not catch: a rule that IS disclosed, DOES survive disclosure, and is still trivially applied because it is a mechanical threshold.
+
+
+
+
+	Task A, first attempt (failed)
+	Task A, reworked (in band)
+	The discriminator
+	"Only functions with version 2 or higher while keeping JWT disabled are violations."
+	"A function deployed for the first time is still in development — the developer may have intentionally left JWT off."
+	Disclosed?
+	Yes
+	Yes
+	Fair?
+	Yes
+	Yes
+	What the model does
+	Reads "version >= 2" and applies it. One step. No interpretation.
+	Must understand "first deploy", connect it to the version field, and derive the threshold. Three steps.
+	Measured band
+	4/4 — stayed 4/4 even after full disclosure
+	In band
+	
+
+THE RULE TO REMEMBER  If your discriminator is "field >= N" or "field == X", a strong model applies it in one step whether or not you disclosed it. Difficulty that survives disclosure comes from INTERPRETATION — connecting an abstract concept ("initial development", "production integration") to a concrete field and deriving which records it covers. Restate the threshold as a policy the model must connect to data.
+	
+
+Task B is the same principle done right from the start. Its task.toml records that the difficulty is "in DECIDING what to count, and every naive reading yields a decoy". Five figures (10, 5, 6, 15, 13), each with a decoy table naming the wrong number a specific naive reading produces:
+
+
+Figure
+	Gold
+	A named naive reading
+	Yields
+	accounts_that_can_use_readonly
+	10
+	Read assigned_to_users off list_roles
+	3
+	
+
+	
+
+	Add the counters of READONLY, ANALYST and REPORTER (double-counts)
+	11
+	
+
+	
+
+	Walk the role hierarchy downward instead of upward
+	3
+	roles_the_roster_understates
+	5
+	Count roles that have any ancestor holding members
+	8
+	tables_readonly_can_change
+	13
+	Ignore the two ALL IN SCHEMA grants
+	5
+	
+
+	
+
+	Treat REFERENCES as a write
+	19
+	
+
+10.2 The honest levers
+Hardening must add work, never remove information. The lever that worked on Task B is the textbook example.
+The precision lever — Task B
+Four of five deliverable fields changed from counts (10, 5, 6, 13) to sorted lists of names — the ten account names, the five role names, the six role names, the thirteen table names. The fifth stayed a count because no name list existed in gold.
+* Chained — the model must enumerate correctly to produce the list at all.
+* Sharp — a wrong list is a specific wrong answer, not a near miss.
+* Provable — the oracle checks exact list equality.
+* Honest — an auditor genuinely wants names, not just a count. It increases required precision without adding ambiguity or removing information.
+
+
+Write the prediction before you change anything
+This is what separates a working lever from a lucky one. Task B's prediction, written before the edit:
+Prediction: band drops 4/4 -> 1-2/4, because a list must be exactly
+right - missing, extra, or wrong-order all fail.
+ 
+Result: matched.
+Task A's equivalent prediction for its reworked discriminator was also written first, and doubles as a diagnostic:
+11 = ignore all exemptions
+ 9 = apply only the first-deploy exemption
+ 3 = correct
+ 
+If the battery does not produce 11 and 9 as the two predictable wrong
+answers, the discriminator is not interpretive enough - it is still a
+mechanical threshold in disguise.
+10.3 Pin every fork — including exemption precedence
+Where two exemption rules can both match one record, state which governs. This is a fork a reasonable reader could take two ways, and an unpinned fork is a Contract Gap.
+
+
+
+
+	Task A (the defect)
+	Task B (the fix)
+	The collision
+	A function that is a public integration endpoint (exempt) AND lives in a development project (also exempt). Which governs?
+	"How many roles can write" could include TRANSFORMER, which OWNS the tables, or include OPERATE-on-a-task.
+	What happened
+	Left open. A model applying the dev-project rule to a public endpoint over-remediates and lands differently from the oracle.
+	Pinned in four words: "can write" became "are granted write".
+	The shape of the pin
+	Added later: "a public endpoint is treated as a public endpoint regardless of which project it lives in."
+	One pin excludes ownership (not a grant) and task-control. The prompt contrasts "roles granted write" against "accounts that could write" in the same sentence to make the asymmetry legible.
+	
+
+STATE PRECEDENCE AS A PRINCIPLE, NOT A THRESHOLD  A precedence pin should read as a policy ("a public endpoint is a public endpoint wherever it lives"), not as a rule number. Then confirm the verifier's expected values actually reflect it.
+	10.4 When nothing moves it — recognising a ceiling
+Sometimes the interpretive levers have all been tried and the band is still 4/4. This is not a missing discriminator; it is a task below the model population's capability floor.
+If you have tried removing leakage, removing the recipe, adding a real second deliverable, requiring reconciliation, and adding an interpretive discriminator, and it is still 4/4 — the task needs a new data relation (a second source to reconcile, a latent crux that fires on one row) or a rework at the data level.
+DO NOT ADD A FOURTH INDEPENDENT RULE  Ten easy checks are still ten easy checks. Adding breadth to a task that is too shallow does not make it discriminating; it makes it longer.
+	10.5 "Too easy" is usually a symptom
+Before you tune difficulty, close the shortcut. Most audited connector tasks flagged as too easy were inflated by the proxy bypass described in Part 6 — the agent answers correctly without performing the workflow at all. Closing that bypass routinely moves a task from trivially solvable to genuinely discriminating with no content change whatsoever.
+ORDER OF OPERATIONS  Close the bypass and fix the grading first. Re-measure. Only then decide whether the task is genuinely too easy. A task that is 4/4 because one SQL SELECT answers it is not easy — it is broken.
+	________________
+
+
+Part 11 · Migration discipline
+The documentation is strong on static defects and on attribution. It is weakest on MIGRATION — what happens when a sound task is changed across versions, which is exactly the regime a hardening cycle lives in. These four findings are all migration-shaped, and they are the ones that most reliably send a hardened task back.
+11.1 When the answer moves, everything moves with it
+When Task A's hardening moved the violation count from 11 to 3, the new answer had to land in every one of these:
+
+
+Location
+	What carries the old value
+	instruction.md
+	The disclosed rules themselves
+	tests/manifest.json
+	The expected arrays AND every why_justification, description and rubric string quoting the old count
+	task.toml
+	GOLD block, HOPS count, DECOYS, HIDDEN RULES, deliverables count, every "only the N" sentence
+	solution/
+	metrics.json, report.json, artifact_plan.json, final_answer.md, golden_trajectory.json (step count must match the new deploy count)
+	environment/_app/
+	Re-synced from root
+	review.csv
+	Counts in every row's notes
+	
+
+THE PROSE FAILS SILENTLY  The manifest's expected arrays fail loudly if stale. The description / why_justification / rubric prose fails silently — and is the common miss. Task A shipped a stale "the 9 real violations are…" sitting next to a correct expected: ["46","86","88"]. A package where the assertions say 3 and the prose says 9 is not "mostly migrated" — it is contradictory, and a reviewer reads the prose.
+	
+
+Worked example — what actually had to be rewritten
+
+
+Field
+	Stale (v1)
+	Corrected (v2)
+	metrics_violation_function_ids description
+	"the 11 violations"
+	"the 3 genuine violations"
+	its why_justification
+	"The real violations are: id 46 … id 55 … id 81 … id 83 …"
+	The 3 real violations, plus the 8 exempt with reasons, plus the slug-collision reframing
+	metrics_compliant_function_ids description
+	"the other 35"
+	"the other 43"
+	remediation_targets_exact rubric
+	"these 9 required calls"
+	"these 3 required calls", exempt categories expanded
+	read_enough_to_answer
+	"31 real tool calls"
+	"23 real tool calls"
+	task.toml HOPS
+	"+ 11 deploy / 31 real tool calls"
+	"+ 3 deploy / 23 tool calls"
+	task.toml HIDDEN RULES
+	id 102 qz-sign is "verify_jwt=false, a real violation"
+	qz-sign is "a public signing endpoint so compliant by policy, NOT a violation"
+	
+
+11.2 A rule can migrate to a different check
+Task A's hardening moved the "violating" qz-sign to compliant, so the same-slug-different-compliance collision no longer straddled the violation boundary. The obvious conclusion — that the id-not-slug rule was dead — was wrong. The rule had migrated to a different check: functions_reviewed (46, not 43 after slug de-duplication) instead of the violation set.
+* Signal to watch for: a population count short by exactly the number of same-slug pairs, while every violation/compliant check passes.
+* Re-derive which check carries a rule's signal before assuming the lever is spent.
+11.3 The mirror can copy a self-contradictory root
+Task A's mirror held gym_step_state expected_rows for ids 90, 94, 100 and 103 at remediated versions (6, 6, 5, 3) while the assertions already classified those functions as compliant and untouched. The baked image would have failed a correct agent on gym_step_state — the mirror expected those functions remediated while the assertions said they should be left alone.
+diff -r would have caught it, but only because the root was already correct in that comparison. The fix was to re-run sync_app_mirror.sh from the corrected root; the four ids then read 5, 5, 4, 2 (untouched seed state).
+THE ONE-LINE GUARD  After a hardening that touches expected_rows or expected values, confirm the ROOT manifest's expected values are internally consistent with its own assertions — before syncing the mirror.
+	11.4 A battery can be measuring an instruction you no longer have
+Task A had four difficulty runs at 03:15, all reward 1.0. The instruction was edited at 10:52. The 03:15 runs measured the old, easier instruction. Quoting "4/4 reward 1.0" as the current band is undetectable from the reward file alone — you have to compare the run timestamp against the instruction's mtime.
+# the check that catches it
+stat -f '%Sm' instruction.md tests/manifest.json
+stat -f '%Sm' evaluations/difficulty/r1/result.json
+ 
+# and the durable version: compare the recorded hash
+shasum -a 256 instruction.md
+grep instruction_sha256 tests/manifest.json
+THE RULE  A battery's reward is evidence only for the task as it existed when that battery ran. Before quoting a pass count, confirm the run timestamp postdates the last edit to instruction.md, tests/manifest.json, and the _app mirror. A 4/4 that predates the hardening edit is measuring a task you no longer have.
+	________________
+
+
+Part 12 · Verifier design and fairness
+88% of tasks failed at the verifier coverage and fairness gate. More than 60% had verifier-only requirements; more than 50% had verifier false-negatives counted as model failures. This is where most of the remaining rejections live.
+12.1 Traceability — the most common defect
+Every graded requirement must trace to a sentence in instruction.md. The backward pass is the mechanical way to find violations: for every check in the manifest that is not on your list from the cold read, quote the sentence that creates the requirement — or delete the check.
+This applies to workflow and trace-shape checks too, which is where connector tasks specifically fail:
+* Every tool_execution check must trace to an instruction line.
+* Every rubric "fail if fewer than N calls/reads" rule must trace to an instruction line.
+* Every definitional count (do bots count as people? which field is the account identifier?) must be stated in the instruction — the verifier must not hard-code one side of an ambiguous definition.
+
+
+Real examples of undisclosed workflow requirements
+
+
+Task
+	The hidden requirement
+	Consequence
+	outside-bookers-confirmed-group-session-audit
+	A reward-bearing rubric graded a prescribed first full-window search_calendar call that instruction.md never states.
+	Two evidenced runs with fully correct answers were penalised.
+	tracker-signoff-holdback-reconcile
+	A check awarded 5% of reward for a bare ">=10 accepted tool calls" floor with an EMPTY expected_tools list, plus a rubric failing any trace with "fewer than seven tab reads".
+	Penalised an equally correct whole-workbook grid read.
+	ephyra-final-stretch-second-reviewer-coverage
+	A verifier expected 12, which requires counting two automated code-assist accounts as "people" — a rule never stated, whose plain reading yields 0.
+	Layer 1 package consistency failure.
+	
+
+12.2 Dead score buckets and vacuous checks
+A manifest that declares weighted buckets (sql 0.3 / state 0.2 / rubric 0.5) while sql_verifiers is empty, the state axis is disabled with an empty expected_diff, and rubric.toml holds only a system preamble with zero items — is advertising coverage that does not exist. Worse when the README then describes that dead layer as active.
+* Every weight bucket declared in the manifest must have a selector matching at least one check.
+* A disabled bucket must be explicit, and the remainder reweighted.
+* A tool_execution check with an empty expected_tools verifies nothing — name the required tools or delete the check.
+12.3 Duplicate checks and scoring disproportionality
+Two failure shapes, both caught by one test.
+* Duplicates: byte-identical specs (answers_json_exists and answers_json_parses) double-counting the same fact.
+* Implied checks carrying independent weight: answers_json_wellformed is logically implied by each of the four value checks, yet carried 20% of reward.
+
+
+THE TEST  If a wrong answer to the central question the task exists to answer still scores most of the marks, the verifier does not measure the task. In one audited task the headline question was worth the same 0.2 as a file-parses check, so a run that answered it wrongly still scored 0.8.
+	12.4 The judge configured over an empty rubric
+A judge is configured in task.toml and is a hard precondition of the scoring path, yet rubric.toml contains zero rubric items and every graded check is a deterministic file_check. When the API key is unset or the judge model is unreachable, the scoring function returns 0.0 BEFORE any file_check runs — converting a configuration failure into a scored zero on an all-deterministic task.
+* If rubric.toml has zero rubric items, the judge must not gate the scoring path.
+* Lint rule: zero rubric items means task.toml must not set a verifier judge.
+* Judge infrastructure failures must be ineligible, never a 0.0 reward scalar. An infrastructure fault must never become a result attributed to the model.
+12.5 Verifier categories — keep core, and look before you delete
+Every verifier entry in the manifest carries a "category". The trainer workflow for mined Harbor tasks states the rule bluntly: keep "core", delete every "secondary" entry, and do it BEFORE the oracle run because it changes the grading. That rule is sound and all three tasks in this workspace already satisfy it — none of them ships a secondary verifier.
+$ python3 -c "import json,collections; ..."   # count categories per manifest
+ 
+read-only-in-name-only                {'core': 12}
+the-edge-function-nobody-locked-down  {'core': 9, 'process': 2}
+what-the-loads-quietly-lost           {'core': 10}
+Note the third category. The trainer rule assumes every verifier is core or secondary, and a connector task can carry a "process" entry that the binary model does not describe. In the edge task those two are report_explains_the_jwt_policy (a file_check) and states_a_clear_conclusion (the task's only rubric_check).
+DO NOT APPLY "DELETE EVERYTHING NOT CORE" MECHANICALLY  On that task it would remove the only judged item in the bundle and silently convert it to fully deterministic — which changes what the package measures, not just how many checks it has. Count the categories first, and treat anything that is neither core nor secondary as a decision, not a deletion.
+	12.6 An ask may legitimately stay ungraded
+The backward pass says every ask is either graded or deleted. There is a third state, and the accepted task uses it deliberately.
+Task B's instruction says "State your conclusion in your reply." Nothing grades it. Its task.toml records that this is deliberate: adding a response_check "would put a judged verifier on a bundle that is otherwise 100% deterministic". The sentence exists for framing — it makes the task an access review rather than a scripted five-number exercise.
+RECORD THE DECISION, DO NOT FORCE THE CHECK  An ask may legitimately stay ungraded when grading it would force a judge onto an otherwise-deterministic bundle. Following the backward pass literally would delete that sentence or add a check; the accepted task did neither, on purpose — and wrote down why.
+	________________
+
+
+Part 13 · Evidence discipline
+The largest single group of issues anyone has measured is the write-up no longer matching the evidence. It sent back tasks that were completely sound underneath — real gold, fair checks, closed surface, honest band.
+13.1 Running the battery
+# prerequisites
+set -a && . ./.env && set +a
+export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+ 
+# the provider config, as one line
+OC_CFG='{"provider":{"glm":{"npm":"@ai-sdk/openai-compatible", ... }}}'
+ 
+# ALWAYS run a single trial first, before spending the full battery
+harbor run -p tasks/<task-folder> -a opencode -m glm/glm-5.2 \
+  -k 1 -n 1 --override-memory-mb 8192 \
+  --agent-env OPENAI_API_KEY="$OPENAI_API_KEY" \
+  --agent-env OPENAI_BASE_URL="$OPENAI_BASE_URL" \
+  --agent-env OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=96000 \
+  --ve JUDGE_MODEL=openai/glm-5.2 \
+  --agent-kwarg "opencode_config=$OC_CFG" \
+  -o eval-jobs --job-name <name> -y
+ 
+# then the full 4-attempt battery: same command with -k 4 -n 1 -r 3
+
+
+Flag
+	Meaning
+	Why this value
+	-k 4
+	4 total trials
+	The battery is exactly four attempts — never five
+	-n 1
+	1 concurrent (sequential)
+	Parallel risks OOM
+	-r 3
+	3 retries per trial on failure
+	Absorbs infrastructure flakes
+	--override-memory-mb 8192
+	8 GB container
+	Needs a 16 GB Docker VM
+	--ve JUDGE_MODEL=...
+	The verifier's judge model
+	Must match production
+	
+
+Monitoring while it runs:
+docker stats --no-stream --format 'CPU:{{.CPUPerc}} MEM:{{.MemUsage}}'
+ 
+d=$(ls -dt eval-jobs/<job-name>/<task>__*/ | head -1)
+tail -5 "$d/trial.log"
+grep -o '"tool":"[^"]*"' "$d/agent/opencode.txt" | sort | uniq -c | sort -rn
+cat "$d/verifier/reward.json"
+13.2 Building the evaluations structure
+Trials land in eval-jobs/. The package needs them reshaped into evaluations/. Sort oldest-first so r1..r4 are in run order.
+TASK="tasks/<task-folder>"
+BATT="eval-jobs/<job-name>"
+TRIALS=($(ls -dt "$BATT"/<task>__*/ | tail -r))   # macOS: tail -r reverses
+ 
+for i in 0 1 2 3; do
+  r=$((i+1)); SRC="${TRIALS[$i]}"; DST="$TASK/evaluations/difficulty/r$r"
+  rm -rf "$DST"; mkdir -p "$DST/agent" "$DST/verifier"
+  cp "$SRC/result.json"                    "$DST/result.json"
+  cp "$SRC/config.json"                    "$DST/config.json"
+  cp "$SRC/agent/trajectory.json"          "$DST/agent/trajectory.json"
+  cp "$SRC/verifier/reward.json"           "$DST/verifier/reward.json"
+  cp "$SRC/verifier/reward.txt"            "$DST/verifier/reward.txt"
+  cp "$SRC/verifier/verifier_summary.json" "$DST/verifier/verifier_summary.json"
+done
+solvability/r1 takes any reward-1.0 trial from a non-oracle agent. stability/repeat-01..03 is a verifier REGRADE — the same frozen trajectory graded three times — not three fresh runs. Harbor does not expose this as a CLI flag, so if you cannot run a true regrade, document the gap honestly in review.csv rather than fabricating three identical runs.
+13.3 Reading the results without drawing the wrong conclusion
+Three traps sit between a finished battery and a number you can report. Each of them turns a healthy task into a bad one on paper.
+
+
+Trap
+	What happens
+	What to do instead
+	verifier_summary.json repeats itself
+	The file lists the same verifiers several times under different groupings. Grep for "passed" and pair it with a nearby "name" and you will attribute a failure to the wrong check — then "fix" a verifier that was never failing.
+	Read whole entries, not adjacent lines. Parse the JSON and print each item with its own name, type and motivation together.
+	A reward of 0.0 that was really a crash
+	A trial that died still writes a reward, and 0.0 counts as a model failure unless you look.
+	Before counting any zero, check for exception.txt and for a MISSING trajectory.json. Either one means the run is void evidence and must be replaced, never counted as difficulty.
+	Concurrency starving the containers
+	Each running container asks for about 4 GB. Over-subscribe and the machine swaps; a starved container looks exactly like a failed task.
+	Roughly (RAM in GB − 4) / 4. On a 16 GB machine that is 2 — and for connector tasks, where the container also boots the full gym fleet, 1 is the safe answer.
+	
+
+# per-verifier detail, read as whole entries
+python3 -c "
+import json,sys
+d=json.load(open(sys.argv[1]))
+print('reward:', d['reward']['total'])
+for it in d['reward']['rubric']['items']:
+    print(('PASS' if it.get('passed') else 'FAIL'), it.get('name'), '|', it.get('verifier_type'))
+    if it.get('motivation'): print('   ', it['motivation'][:200])
+" <job>/<run>/verifier/verifier_summary.json
+ 
+# void-evidence check, before any zero is believed
+ls <job>/<run>/exception.txt 2>/dev/null   # present  => crashed
+ls <job>/<run>/agent/trajectory.json       # missing  => nothing recorded
+13.4 When the golden trajectory is missing or wrong
+A broken or absent golden trajectory does not have to block the battery. The order is flexible: fix the gold first, or run the battery and then promote a fully-correct run into it.
+* Promote a reward-1.0 run. Take a model run that scored exactly 1.0 — or the best available — and make it the golden trajectory. This is the recommended way to get a clean gold when the original is broken.
+* But the gate is unmoved. Before submission the task must have a golden trajectory AND the oracle must score exactly 1.000. Promoting a run does not excuse either.
+
+
+A PARTIAL ORACLE IS NEVER A STARTING GUN  If the oracle is below 1.0, a verifier is rejecting the known-correct answer. That is a defect in the task, not in your setup, and not something a battery can tell you anything useful about. Fix the owner — gold, rubric, or an ungrounded check — and re-run before spending a single model trial.
+	13.5 What makes evidence stale
+* The write-up quoting results, a pass count, a fingerprint, check counts or call counts from a battery that later runs replaced.
+* Repeats described with the wrong count and the wrong nature — "three fresh oracle repeats" where the folder holds five re-gradings of a model run.
+* Evidence described as living somewhere it does not.
+* A review record describing a different task entirely, or mixing up two batteries.
+
+
+THE FIX IS MECHANICAL  Re-derive every number in your write-up from the evidence folder and the manifest before you finalise. None of these gaps needed judgement to find — they needed somebody to re-derive the number. And DELETE stale claims rather than updating them; a write-up asserting something the package contradicts is a finding on its own.
+	
+
+YOUR OWN PROSE IS GRADED  The reviewing agent reads every file in the tree. A comment explaining WHY a design is correct helps you. A comment explaining why a defect is tolerable gets quoted straight back at you. Never ship a to-do, a note asking somebody else to fix something, or a line conceding that a check is questionable. Keep repair notes outside the package.
+	13.6 Attribution — whose fault was the run
+Reading runs is where a task is saved or lost. The discipline is to label every failure by cause before drawing any conclusion about difficulty.
+
+
+Observation
+	Attribution
+	The judge quotes words the model never wrote
+	Grading defect — never a model failure
+	The attempt aborted before the agent started; the only log is image-baked
+	Infrastructure. The attempt is INELIGIBLE and must be replaced, never counted
+	The deliverable was exactly right but one check pulled it below full reward
+	Verifier defect. Ineligible, not a data point
+	All four attempts trip on the same clause, after the levers are spent
+	The ceiling signal — the task is too simple for the model population
+	Ambiguous data the prompt never mentioned, coming from the connector seed
+	Task defect. Only catchable from the trajectory — which is why trajectories must be read
+	
+
+THE RULE THAT PROTECTS THE MEASUREMENT  An attempt whose grading or environment behaved unreasonably is ineligible and gets replaced by a retry — never counted in the capability denominator. Infrastructure failures counted as model failures are frequently the only thing making a task look hard.
+	________________
+
+
+Part 14 · Client rejection patterns
+From a client audit of 28 connector tasks: 24 had issues. This is the measured distribution — read it as a prioritised list of what to check before you ship.
+14.1 Failures by gate
+
+
+Gate / Layer
+	Fails
+	Reading
+	Layer 2 · Difficulty
+	13
+	12 are "too easy" at 3/4 GLM-5.2 strict passes. Connector tasks clear solvability but miss the difficulty bar.
+	Layer 4 · Connectors, MCPs, CLIs
+	13
+	The connector stack itself: proxy health timeout, silent corpus loss, broken advertised tools, HTTP 500 on content fetch.
+	Layer 5 · Reward hacking
+	13
+	The connector signature defect: unauthenticated raw-SQL proxy bypass lets one SQL SELECT replace the whole MCP workflow.
+	Layer 5 · Verifier coverage and fairness
+	9
+	Mostly trajectory/workflow checks: dead score buckets, duplicate checks, undisclosed workflow steps.
+	Layer 4 · Environment and files
+	9
+	Proxy healthcheck timeout, agent print-mode ceiling, Dockerfile nodejs conflict.
+	Layer 5 · LLM judge consistency
+	9
+	Judge config gates reward even when no rubric exists — reward 0 on a missing key.
+	Layer 5 · Cross-trial calibration
+	7
+	Verifier/judge false-negatives published as model failures.
+	Layer 1 · Clarity and scope
+	4
+	Undisclosed workflow/trace-shape requirements.
+	Layer 1 · Package consistency
+	2
+	Verifier-only workflow rule (e.g. "counts bots as people").
+	Layer 2 · Solvability
+	1
+	Pass required guessing an undisclosed counting rule.
+	Layer 3 · Oracle mode
+	1
+	Golden fails a tool_execution check tied to the proxy-bypass class.
+	Layer 4 · Deliverables
+	1
+	Agent-phase timeout produced no deliverable.
+	Layer 2 · Stability
+	0
+	Healthy across all 28.
+	Layer 1 · Realism and leakage
+	0
+	Not flagged on any connector task.
+	
+
+14.2 The named patterns
+
+
+ID
+	Pattern
+	Freq
+	What to do
+	P-C1
+	Unauthenticated raw-SQL proxy bypass
+	12/28
+	The connector signature defect — covered in full, with the pre-ship probe, in the connector-surface part. Do not re-derive it here.
+	P-C2
+	Connector proxy healthcheck timeout
+	8/28
+	Keep healthcheck retries generous. Such cells are ineligible and must be replaced, never counted.
+	P-C3
+	Silent corpus loss / broken advertised tools
+	13/28
+	Run the golden's query path THROUGH the MCP tool and confirm the agent-reachable corpus equals the oracle corpus.
+	P-C4
+	Judge config gates reward with no rubric
+	7/28
+	Zero rubric items means no judge in the scoring path. Judge infra failure is ineligible, not 0.0.
+	P-C5
+	Undisclosed workflow / trace-shape rules
+	4/28
+	Every workflow check traces to an instruction line, or is deleted.
+	P-C6
+	Under-difficulty (3 of 4 strict passes)
+	12/28
+	Treat 3/4 as a shipping blocker. Re-derive the rate from evaluations/, not the write-up.
+	P-C7
+	Dead score buckets / vacuous checks
+	3/28
+	Every declared weight bucket needs a matching check.
+	P-C8
+	Duplicate checks / disproportionate scoring
+	2/28
+	No check logically implied by another carries independent weight.
+	P-C9
+	Verifier false-negatives as model failures
+	7/28
+	A cell failing verifier reasonableness is ineligible, replaced by a retry.
+	P-C10
+	Oracle/solvability downstream of C1 and C5
+	2/28
+	Fix the verifier or the rule, then re-run. Do NOT edit the golden to match a bad check.
+	P-TE
+	Index flag "potentially too easy"
+	20/28
+	A symptom, not a cause. Re-audit P-C1 first; do not turn the difficulty dial.
+	
+
+HARNESS VERSUS AUTHOR  Of the 82 fail cells, the dominant defects are harness/proxy-image issues (P-C1, P-C2, P-C3, P-C4) rather than per-task authoring errors. The genuinely author-side patterns are P-C5, P-C6, P-C7 and P-C8 — roughly 20 of 82 cells. Keep the two separate so harness fixes are not confused with authoring fixes.
+	________________
+
+
+Part 15 · The QC review workflow
+QC is run as a two-pass review with isolated context. The second pass is the point — it exists to catch anything hallucinated or overlooked in the first.
+15.1 The common issues QC is looking for
+* Task checksum mismatch
+* Instruction-to-verifier mapping issues
+* Verifier coverage and fairness (88% of tasks failed here)
+* Verifier-only requirements (more than 60% of tasks)
+* Verifier false-negatives counted as model failures (more than 50% of tasks)
+* Unfair verifiers — verifying something not mentioned in the prompt, ambiguous requirements
+* Oracle mode failure
+* Not grounding verifier quality against the GLM runs
+15.2 The strategy
+* Separate the two kinds of correctness. Structural correctness of the task is a different question from model-failure correctness. Do not mix them.
+* Get instruction-to-verifier mapping right BEFORE running GLM. Use both LLM review and manual reading. There is no point spending battery time on a task whose contract is wrong.
+* Then run GLM, and read the trajectories. Trajectories are necessary for confirming verifier quality. Some defects are only visible there — for example, ambiguous data that is not in the prompt but comes from the connector's seed data.
+* Review twice, with isolated context. A second pass in a fresh session is the key control.
+* Ask follow-up questions. Interrogate whether a failure is genuine rather than accepting the first verdict.
+
+
+15.3 The unified QC tool
+A standalone reviewer ships alongside this work: one command checks a task against three gates — prompt and environment, verifier, run evidence — and returns an advisory Keep / Fixable / Reject with cited evidence. It never edits the task.
+# free, makes no API call - start here
+python3 unified_qc.py --input /path/to/<task-dir> --dry-run
+ 
+# real review
+python3 unified_qc.py --input /path/to/<task-dir> --output-dir ~/qc-out/<task>
+ 
+# post-run QC: reviews your actual harbor runs
+python3 unified_qc.py --input /path/to/<task-dir> \
+  --trajectory <job-dir> --include-trajectories required
+It reads the same variables as harbor run — OPENAI_API_KEY, OPENAI_BASE_URL, JUDGE_MODEL — so a sourced harbor env is enough. Outputs are results.json (full evidence and the ask-to-verifier coverage map), results.csv (one row per issue), and summary.md.
+* It is advisory. A model assists the analysis; a human confirms the cited evidence before acting. Do not auto-act on the verdict.
+* Check the trajectory actually matched. If you pass --trajectory, confirm context.trajectory.records is greater than zero in results.json before trusting the run gate. Zero means nothing matched and the gate proved nothing.
+* A crashed run is flagged as infrastructure, not difficulty. Discard that reward and re-run. Never let a crash enter a pass rate as evidence the task is hard.
+15.4 The review discipline that matters most
+DO NOT TRUST README OR review.csv  Before reading README or review.csv as ground truth, do your own independent pass. Reproduce the behaviour yourself — run it, trace it, inspect the actual artifacts and logs — rather than accepting a stated verdict. Only after forming your own conclusion, cross-check against the documents. Treat any mismatch as a flag to call out explicitly, not something to silently resolve in favour of the existing doc.
+	
+
+Audit review.csv as its own artifact, separately from the task outcome: missing or duplicate rows, inconsistent gate labels, contradictory verdicts, malformed data, or rows unsupported by any evidence in the folder.
+
+
+The mandatory model-failure sanity check
+Regardless of what any skill's default checks cover, explicitly re-verify and give a Yes/No/Uncertain verdict with specific evidence (file path plus line or section) for each:
+
+
+Check
+	The question
+	Reward hacking
+	Did the task pass via a shortcut or exploit rather than genuine completion?
+	Unfair verifier
+	Did the verifier require something not implied by the spec, or penalise a legitimate approach?
+	Non-model-caused failure
+	Did it fail due to harness, environment, judge infra, a flaky verifier, an ambiguous spec, or a one-off bug — rather than a genuine model capability failure?
+	
+
+If uncertain, say so explicitly rather than guessing. "Uncertain — could not verify" is a valid and useful answer; a confident wrong verdict is not.
+________________
+
+
+Part 16 · Packaging, gates and upload traps
+16.1 Running the gate
+# check only - no model spend; tests the package and remediates defects
+/opt/homebrew/bin/python3.11 pipeline/run.py tasks/<task-folder> --check-only
+ 
+# what you want to see
+#   after: 0 findings (0 blocking) across 1 packages
+ 
+# outputs
+#   harbor-pipeline-out/<task-name>.zip        shippable package
+#   harbor-pipeline-out/.work/gate-after.json  findings report
+#   harbor-pipeline-out/.work/stage2-changes.json  applied fixes
+
+
+16.2 The gates you will actually hit
+
+
+Gate
+	What it flags
+	How it is resolved
+	G02
+	Routable infrastructure address in a host position
+	Auto-remediated — the pipeline rewrites the gateway IP to a TEST-NET-3 address
+	G03
+	Authoring-machine path in package text
+	Auto-remediated — paths rewritten to a generic user path
+	G07
+	Missing README
+	Auto-generated by the sanitiser
+	G10
+	Incomplete difficulty battery ("0 of 4 difficulty rewards recorded")
+	NOT auto-fixable. Needs the task re-run; repackaging cannot invent a missing reward.
+	
+
+G02 AND G03 RECUR EVERY TIME  They come back whenever evals are regenerated, because fresh eval files carry fresh machine paths and the gateway address. Always re-run the gate after an eval refresh — a clean gate from last week is not evidence.
+	
+
+STALE PACKAGES BLOCK THE GATE  The gate runs over the WHOLE harbor-pipeline-out/ directory. A stale package from another task will surface its G10 failure as a blocking finding even though your package is clean. Move stale packages to an archive directory before running the gate.
+	16.3 Re-zip from the sanitized tree, never from raw source
+When adding review.csv to a package that the sanitiser has already cleaned, copy review.csv into that clean tree and re-zip from it. Zipping from raw source regresses G03 (authoring-machine path) and G07 (missing README). The pipeline's --check-only does this automatically. After re-zipping, re-run the gate to confirm the new file introduced no packaging defect.
+16.4 task.toml ordering — an upload trap
+The upload validator requires schema_version as the FIRST line of task.toml. Without it the parser fails to find [task].name even though the TOML is syntactically valid — the validator is not using a standard TOML parser.
+schema_version = "1.1"
+ 
+[task]
+name = "harbor/your-task-name"
+description = "..."
+keywords = ["harbor"]
+ 
+# top-level keys like artifacts go AFTER [task]
+artifacts = [
+    { source = "/workspace/metrics.json" },
+]
+After fixing, mirror to environment/_app/task.toml via sync_app_mirror.sh and re-run --check-only to re-zip.
+16.5 The MCP proxy bootstrap anchor
+A package can be rejected at upload with: "environment/mcp/proxy/server.py could not be schema-repaired: no known bootstrap anchor" — even after passing every preceding gate. It mainly affects packages built from mined proxies rather than template-based ones.
+The upload pipeline performs schema-repair on the proxy by locating a fixed text anchor inside bootstrap(). It searches for a specific 11-line block at exactly 12-space indentation.
+
+
+EXACT TEXT MATCHING, NOT BEHAVIOURAL EQUIVALENCE  Restoring the same function calls with different indentation (16-space instead of 12-space) or reworded comments will still be rejected. Copy the block verbatim from an accepted package rather than reimplementing equivalent logic.
+	
+
+The required block, at exactly 12-space indentation:
+            # Tool catalog assignment
+            state["tools"] = tool_list
+            logger.info(f"Registered {len(tool_list)} tools for {name}")
+ 
+            # HARBOR-LOCAL: warn loudly when any tool carries a schema
+            # that the model family is known to mishandle
+            _warn_schema_issues(name, state["tools"], run_model)
+ 
+            # Verify allowlist size
+            if allowlist and len(state["tools"]) != len(allowlist):
+                logger.warning(f"Tool count mismatch: expected {len(allowlist)}")
+The one-line verification — it must return 1:
+grep -c "HARBOR-LOCAL: warn loudly when any tool carries a schema" \
+  environment/mcp/proxy/server.py
+
+
+The coordinated changes required alongside it: add the helper functions (_is_fireworks_family, _warn_schema_issues, _schema_problem_keys_for_model); move the run_model assignment before the async server loop to prevent unbound-name errors; move tool-list processing outside the gym-only conditional so it executes at 12-space indentation; and place the catalog normalisation call just before STATE[name] = state.
+
+
+A related trap: the converter matches server.py by full file hash
+Task B hit upload rejection on server.py three times — a "# HARBOR-BOOTSTRAP" comment marker, then patching the reference — before finding the fix: ship the exact unmodified reference server.py and adapt the ENTRYPOINT around it. Do not modify the reference proxy to suit your task.
+________________
+
+
+Part 17 · Docker and entrypoint engineering
+NOT IN THE CURRENT DOCUMENTATION  This part records findings made while building and repairing the environments in this workspace. No existing document covers them. They are ordinary Dockerfile engineering, but each one produced a real, silent failure here.
+	17.1 A semicolon-separated RUN swallows failures
+Docker takes the exit status of the LAST command in a RUN. A block of commands joined by semicolons, with no set -e, reports success if the final command succeeds — no matter what failed in the middle.
+$ sh -c 'false; true'; echo $?
+0
+In the task images this pattern covered the block that rewrites supervisord.conf — reassigning user=root to user=gym and relocating every log path. A failed sed there produces a green build with a broken supervisor configuration. The fix is one line plus an assertion:
+RUN set -eu; \
+    id rlgymagent >/dev/null 2>&1 || useradd --create-home ... ; \
+    sed -i -e 's/^user=root$/user=gym/' ... \
+        /etc/supervisor/conf.d/supervisord.conf; \
+    grep -q '^user=gym$' /etc/supervisor/conf.d/supervisord.conf || \
+        { echo "supervisord.conf was not rewritten" >&2; exit 1; }
+
+
+KEEP pipefail WHERE THERE IS A PIPE  The Node pre-bake pipes curl into bash. Without set -o pipefail, a failed curl still succeeds because bash exits 0 on empty input. Use set -euo pipefail inside that su -c block specifically — set -eu alone is not enough there.
+	17.2 Layer order decides your rebuild time
+If the expensive Node/opencode layer sits AFTER the COPY of task files, then editing instruction.md or any test invalidates it and re-downloads nvm, Node and opencode on every single build. During a hardening cycle you edit those files constantly.
+The ordering rule: everything that depends only on the base image goes first; task-file COPYs go last. Only the permissions step that genuinely depends on the copied files stays after them.
+
+
+Order
+	Layer
+	Depends on
+	1
+	Users, supervisord rewrite, procps, systemd unit removal
+	Base image only
+	2
+	Node 22 + opencode pre-bake
+	The rlgymagent user from step 1
+	3
+	Python venv for the proxy
+	Base image only
+	4
+	COPY _app task files, proxy, seed patches, entrypoint
+	Your task files
+	5
+	chmod -R go-rwx /app and /workspace creation
+	The COPYs in step 4
+	
+
+Verifying the fix worked — touch a task file and confirm the costly layers stay cached:
+touch environment/_app/instruction.md
+docker build --platform linux/amd64 -t verify:local environment/ | grep CACHED
+ 
+# the users layer, the node layer and the venv layer should all report CACHED
+17.3 The build context needs a .dockerignore
+COPY mcp/proxy/ /opt/proxy/ is a DIRECTORY copy. Anything left beside server.py is baked into the shipped image. In one task that meant an 86 KB superseded proxy backup (server.py.old-2051) and a __pycache__ directory were published inside the package.
+# environment/.dockerignore
+**/__pycache__/
+**/*.py[cod]
+*.old
+*.old-*
+*.bak
+*.orig
+.DS_Store
+Verify after building — /opt/proxy should contain only what you intended:
+docker run --rm --entrypoint /bin/sh <image> -c 'ls -A /opt/proxy'
+# requirements.txt
+# server.py
+17.4 The readiness probe and how long boot actually takes
+The entrypoint waits for the proxy before handing the container to the agent. The template allows 40 attempts, roughly 40 seconds. That is too tight on an emulated host, because supervisord starts the full 12-connector gym fleet regardless of which one the task uses.
+
+
+Task
+	Measured time to readiness
+	Against a 40-attempt limit
+	Snowflake task
+	31 s
+	Would have passed — with 9 s of margin
+	Supabase task
+	41 s
+	Would have FAILED
+	
+
+Both measurements are from the same host on the same afternoon. Raising the budget to 150 attempts costs nothing when the proxy comes up quickly, and prevents a whole class of spurious "proxy did not become ready" aborts.
+
+
+The readiness check should test both listeners where the proxy provides both:
+while [ "${PROXY_ATTEMPT}" -lt 150 ]; do
+    if [ -S "${TRUSTED_PROXY_SOCKET}" ] \
+        && curl -fsS http://127.0.0.1:7000/health >/dev/null 2>&1; then
+        PROXY_READY=1; break
+    fi
+    ...
+CHECK WHICH PROXY YOU SHIP FIRST  The smaller template proxy creates no trusted socket. On that proxy the socket test never passes and the container hangs until the probe gives up. Its absence from that task's readiness check is correct, not an oversight. See Part 6.3.
+	
+
+REPEATED HEALTHCHECK FAILURES DURING BOOT ARE NORMAL  While the gyms come up you will see Healthcheck failed (rc=7, in_start_period=True) over and over. That is the probe doing its job — it retries up to 40 times. You only have a problem if "Healthcheck passed" never appears at all. If it never does, the usual cause is memory pressure rather than a broken image: lower the concurrency and retry before touching the Dockerfile.
+	17.5 Verify a build by running it, not by reading it
+Every claim in this part was confirmed against a running container. That is the standard to hold: a Dockerfile that looks right is not evidence.
+# build
+docker build --platform linux/amd64 -t verify:local environment/
+ 
+# the four things worth checking in the built image
+docker run --rm --entrypoint /bin/sh verify:local -c '
+  su - rlgymagent -c "export NVM_DIR=\$HOME/.nvm; . \$NVM_DIR/nvm.sh; \
+                      node --version; opencode --version"
+  grep -m1 "^user=" /etc/supervisor/conf.d/supervisord.conf
+  ls -A /opt/proxy
+  id rlgymagent >/dev/null && id gym >/dev/null && id harborproxy >/dev/null \
+    && echo "all three users present"'
+ 
+# then boot it and confirm the proxy actually comes up
+docker run -d --platform linux/amd64 --name boot verify:local
+docker exec boot sh -c 'curl -s http://127.0.0.1:7000/health'
+________________
+
+
+Part 18 · Triage — when QC fails
+18.1 The infrastructure-shaped failure
+You will see failures of this shape:
+Run failed: Harbor Check wrote no durable status:
+  [job]: RUNNING · [job]: RUNNING · [job]: FAILED ·
+  harbor-check: The Batch stage failed; exact original error evidence
+  could not be verified for this invocation.
+The standing guidance is that this is an infrastructure problem, not a task verdict — re-run QC, and if it fails the same way, flag it to the QC team. That guidance is right, and it is also incomplete: it describes the SYMPTOM, and a task can produce that symptom deterministically.
+
+
+SEPARATE THE ABORT FROM THE VERDICT  A "no durable status" abort means the harness died before writing a result. That is different from a recorded Layer-2 failure. Re-running clears the first and never clears the second. Check whether your task ALSO has a standing verdict failure before concluding it was just infrastructure.
+	
+
+Task-side conditions that produce an abort with no status
+* The agent install OOMs at container start (exit 137) because the image has no Node/opencode pre-bake. The job dies before any verdict exists.
+* The readiness probe gives up before the proxy comes up, so the trial aborts in preparation, before agent setup.
+* The healthcheck times out in the lifecycle (P-C2) — the only proxy log captured is the image-baked one, timestamped before the run.
+
+
+All three are fixable in the package, and all three are covered in Part 4 and Part 17.
+18.2 How to read a Harbor Check result
+The check writes a per-subcheck verdict. Summarise it by layer before drawing any conclusion — the shape of the failure tells you what kind of problem you have.
+/opt/homebrew/bin/python3.11 -c "
+import json, collections
+d = json.load(open('evaluations/harbor_check/check-result.json'))
+by = collections.defaultdict(lambda: [0, 0])
+for k, v in d.items():
+    if not isinstance(v, dict): continue
+    by[k.split('__')[0]][0 if v.get('outcome') == 'pass' else 1] += 1
+for l, (p, f) in sorted(by.items()):
+    print(f'{l:35s} pass={p:2d} fail={f:2d}')"
+
+
+A real result, from a task whose evidence folder was emptied after an edit:
+layer1_clarity_scope                pass= 5 fail= 0
+layer1_package_consistency          pass= 8 fail= 0
+layer1_realism_leakage              pass= 5 fail= 0
+layer2_difficulty                   pass= 0 fail= 5
+layer2_solvability                  pass= 0 fail= 5
+layer2_stability                    pass= 0 fail= 6
+layer5_llm_judge_design             pass= 7 fail= 0
+layer5_reward_hacking_static        pass= 5 fail= 0
+layer5_verifier_fairness_static     pass=13 fail= 0
+43 pass, 16 fail, and every failure in Layer 2. That shape means the CONTENT is sound and the EVIDENCE is missing — the check's own words were "evaluations/ exists but is empty". No amount of re-running clears that; only running the battery does.
+
+
+The triage question, in order
+* Did the run produce a verdict at all? No verdict means an abort — check the environment first (Part 4, Part 17).
+* If there is a verdict, which layers failed? Layer 2 only, with Layers 1 and 5 clean, means missing evidence rather than a broken task.
+* Does the evidence exist on disk? Confirm evaluations/difficulty, solvability and stability are actually present and populated.
+* Has a battery ever been run for THIS task? Check the job output directory. It is easy to assume a battery ran because a sibling task has one.
+# which task does each recorded job belong to?
+for d in eval-jobs/*/; do
+  printf '%-28s ' "$(basename $d)"
+  grep -rhoE 'harbor/[a-z-]+' "$d" 2>/dev/null | sort -u | tr '\n' ' '; echo
+done
+________________
+
+
+Part 19 · Quick reference
+19.1 The complete command sequence
+# 1. Docker to 16 GB (one-time) - see Part 4.1
+ 
+# 2. Pre-bake the Dockerfile (one-time per task) - see Part 4.4
+ 
+# 3. Load environment
+set -a && . ./.env && set +a
+export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+ 
+# 4. Sanity check the tooling
+/opt/homebrew/bin/python3.11 pipeline/run.py --doctor
+ 
+# 5. Sync the mirror after ANY task-root edit
+./environment/sync_app_mirror.sh
+ 
+# 6. Prove the oracle
+harbor run -p tasks/<task-folder> -a oracle ...      # expect reward 1.0
+ 
+# 7. Single test trial BEFORE the full battery
+harbor run -p tasks/<task-folder> -a opencode -m glm/glm-5.2 -k 1 -n 1 ...
+ 
+# 8. Full 4-attempt battery
+harbor run -p tasks/<task-folder> -a opencode -m glm/glm-5.2 -k 4 -n 1 -r 3 ...
+ 
+# 9. Build evaluations/ structure - see Part 13.2
+ 
+# 10. Update review.csv - see Part 7
+ 
+# 11. Package and gate
+/opt/homebrew/bin/python3.11 pipeline/run.py tasks/<task-folder> --check-only
+ 
+# 12. Package is at harbor-pipeline-out/<task-name>.zip
+19.2 Troubleshooting — symptom to cause
+
+
+Symptom
+	Cause and fix
+	Agent crashes with "text part chatcmpl-… not found"
+	You used the openai/ model prefix without the custom provider. The openai/ path uses the Responses API, which the proxy does not serve correctly for reasoning. Use glm/glm-5.2 with the openai-compatible provider config.
+	Every model call fails 401 Invalid Authentication
+	Key and endpoint mismatch. The GLM key works only against its own gateway URL — check OPENAI_BASE_URL before suspecting the key.
+	Rubric verifiers all score 0
+	JUDGE_MODEL unset, or the task names a judge the proxy does not serve. Set JUDGE_MODEL and pass the key and base URL to the VERIFIER environment, not only the agent.
+	Image pull fails 403 / unauthorized
+	No access to the registry project. Authenticate; if it still fails, that is an access-rights question for your lead — do not work around it.
+	AgentSetupTimeoutError
+	Add --agent-setup-timeout-multiplier 3.
+	Healthcheck never passes
+	Usually memory pressure, not a broken image. Lower concurrency, close other applications, retry.
+	Oracle reward 0.0 with no crash
+	The gold failed a grader. Read the verifier stdout for the failing assertion, then fix the owner — gold, rubric, or an ungrounded check.
+	exception.txt present
+	The trial crashed and the number is meaningless. Common causes: a bad task.toml, a proxy port conflict, or a gym that never became healthy.
+	Results folder empty
+	The job failed before producing anything. Read the job log in the job folder.
+	Out of disk
+	The base image needs roughly 50 GB. Check docker system df — and never run docker image prune -a, which deletes the shared benchmark base image everyone depends on.
+	First run is very slow
+	Expected. The first task run builds the thin layer on the base image and may download around 15 GB. Later runs reuse the cache.
+	
+
+19.3 Pre-submission checklist
+
+
+Area
+	Item
+	Structure
+	task.toml with schema_version as the first line, all required sections
+	Structure
+	instruction.md — every graded requirement traces to a sentence in it
+	Structure
+	README.md changelog present
+	Structure
+	review.csv — 14 byte-exact rows, both fold-ins, notes are a history
+	Solution
+	golden_trajectory.json and golden_results.json present
+	Solution
+	files/ subdirectory with deliverable artifact copies
+	Environment
+	Dockerfile with base image pinned by digest
+	Environment
+	Node + opencode pre-baked (no runtime OOM)
+	Environment
+	.dockerignore present; /opt/proxy holds only what you intended
+	Environment
+	RUN blocks use set -eu; supervisord rewrite asserted
+	Environment
+	Readiness probe budget adequate for an emulated host
+	Environment
+	Seed script with build-time assertions; build fails if any assert fails
+	Environment
+	_app mirror synced AND root confirmed internally consistent
+	MCP Proxy
+	Bootstrap anchor present at exactly 12-space indentation (grep returns 1)
+	MCP Proxy
+	Reference server.py shipped unmodified
+	Surface
+	All three doors probed from inside the container as the agent user
+	Surface
+	curl on the raw state and step routes returns no data
+	Verifiers
+	Every check traces to an instruction line — including workflow checks
+	Verifiers
+	No declared weight bucket without a matching check
+	Verifiers
+	No check logically implied by another carrying independent weight
+	Verifiers
+	Judge does not gate the scoring path if rubric.toml has zero items
+	Evidence
+	solvability/ — 1+ NON-oracle run at reward 1.0
+	Evidence
+	difficulty/ — exactly 4 runs, at most 2 strict passes
+	Evidence
+	stability/ — 3 identical repeats, or the gap honestly disclosed
+	Evidence
+	Every battery timestamp postdates the last instruction/manifest edit
+	Evidence
+	Every number in the write-up re-derived from the evidence folder
+	Packaging
+	Gate reports 0 findings, 0 blocking
+	Packaging
+	Re-zipped from the sanitized tree, not raw source
+	Packaging
+	No stale packages in the output directory
+	________________
+
+
+Part 20 · What the guidance does not cover
+Two things a reader needs to know before trusting the surrounding documentation: which governing files are missing here, and which behaviour no document describes. Both cost real time to rediscover.
+20.1 Missing artifacts in this workspace
+* REVIEW-STANDARD.md (the single authority for review.csv) and AUDIT-STANDARD.md (the five-layer audit framework and the shipping band) live at the OBI project root, alongside audit-framework.toml, which defines the 14 areas and their named subchecks. None of the three is present in this connector-tasks workspace, so anyone working only from here has no copy of the governing rules. Copy them in, or treat this handbook as the local stand-in and re-check it against them before relying on a band or a row definition.
+20.2 Undocumented environment behaviour
+* The two proxy designs and their incompatible entrypoint requirements (Part 6.3).
+* Gym-specific client-mode behaviour — the Snowflake gym drops its database router, the Supabase gym does not (Part 6.3).
+* Silent-failure Dockerfile semantics, layer ordering, and build-context pollution (Part 17).
+* Measured readiness timings and why the template budget is too tight on an emulated host (Part 17.4).
+
+
+
+
+This handbook consolidates: the team findings document (time estimates, guideline feedback, per-issue QC v2 records, and the connector task guide), the project documentation set (task playbook, connector task guidelines, GLM battery workflow, QC playbook and client audit), and engineering findings made directly against the running environments in this workspace.

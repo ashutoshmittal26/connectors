@@ -1,0 +1,23 @@
+{
+    "task": {
+        "path": "/var/folders/xy/4zzybhjd47bbj10x5p61_5mm0000gn/T/harbor-check-83y16b1r/check-which-articles-still-have-an-open-review"
+    },
+    "trial_name": "check-which-articles-still-have__nJNfx5i",
+    "trials_dir": "/Users/mandy/Downloads/mining/aster-connector-mining/work/tasks_batch_20260926/_evidence/which-articles-still-have-an-open-review/harbor-check/check-20260927-215548",
+    "verifier_timeout_multiplier": 5.0,
+    "agent_setup_timeout_multiplier": 6.0,
+    "agent": {
+        "name": "claude-code",
+        "model_name": "claude-opus-5",
+        "kwargs": {
+            "reasoning_effort": "medium"
+        }
+    },
+    "environment": {
+        "type": "docker",
+        "kwargs": {
+            "keepalive": null
+        }
+    },
+    "job_id": "9f291c91-fb5d-4f38-8d95-c017fdf780a1"
+}

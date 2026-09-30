@@ -1,0 +1,23 @@
+{
+    "task": {
+        "path": "/tmp/harbor-check-qkmtiu20/check-which-practices-moved-to-client-billing"
+    },
+    "trial_name": "check-which-practices-moved-to-c__yaHcXWL",
+    "trials_dir": "/mnt/c/Turing/aster-mining/v6b/aster-connector-mining/work/tasks_batch_20260928/_evidence/which-practices-moved-to-client-billing/harbor-check/wpmtcb-check-20260928T100229",
+    "verifier_timeout_multiplier": 5.0,
+    "agent_setup_timeout_multiplier": 6.0,
+    "agent": {
+        "name": "claude-code",
+        "model_name": "anthropic/claude-opus-5",
+        "kwargs": {
+            "reasoning_effort": "medium"
+        }
+    },
+    "environment": {
+        "type": "docker",
+        "kwargs": {
+            "keepalive": null
+        }
+    },
+    "job_id": "5c42ddeb-2cac-48be-b1f6-d509aa7aaac3"
+}

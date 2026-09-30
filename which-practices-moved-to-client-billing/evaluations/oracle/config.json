@@ -1,0 +1,12 @@
+{
+    "task": {
+        "path": "/mnt/c/Turing/aster-mining/v6b/aster-connector-mining/work/tasks_batch_20260928/gws/which-practices-moved-to-client-billing"
+    },
+    "trial_name": "which-practices-moved-to-client__STqR7Jt",
+    "trials_dir": "/mnt/c/Turing/aster-mining/v6b/aster-connector-mining/work/tasks_batch_20260928/_evidence/which-practices-moved-to-client-billing/oracle-local/wpmtcb-oracle-20260928T100229",
+    "environment": {
+        "type": "docker",
+        "override_cpus": 8
+    },
+    "job_id": "f895b57e-0104-4095-8760-57efd4530bf3"
+}

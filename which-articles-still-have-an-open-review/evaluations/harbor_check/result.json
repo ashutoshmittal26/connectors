@@ -1,0 +1,119 @@
+{
+    "id": "98fc4b18-88ae-4e80-8eef-3e0dd3c185c3",
+    "task_name": "check-which-articles-still-have-an-open-review",
+    "trial_name": "check-which-articles-still-have__nJNfx5i",
+    "trial_uri": "file:///Users/mandy/Downloads/mining/aster-connector-mining/work/tasks_batch_20260926/_evidence/which-articles-still-have-an-open-review/harbor-check/check-20260927-215548/check-which-articles-still-have__nJNfx5i",
+    "task_id": {
+        "path": "/var/folders/xy/4zzybhjd47bbj10x5p61_5mm0000gn/T/harbor-check-83y16b1r/check-which-articles-still-have-an-open-review"
+    },
+    "source": null,
+    "task_checksum": "5855f21d33e85d9f0a69ca8a9701144460dd356fe2e023593fea681334fa16e5",
+    "config": {
+        "task": {
+            "path": "/var/folders/xy/4zzybhjd47bbj10x5p61_5mm0000gn/T/harbor-check-83y16b1r/check-which-articles-still-have-an-open-review",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "check-which-articles-still-have__nJNfx5i",
+        "trials_dir": "/Users/mandy/Downloads/mining/aster-connector-mining/work/tasks_batch_20260926/_evidence/which-articles-still-have-an-open-review/harbor-check/check-20260927-215548",
+        "install_only": false,
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": 5.0,
+        "agent_setup_timeout_multiplier": 6.0,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "claude-code",
+            "import_path": null,
+            "model_name": "claude-opus-5",
+            "n_concurrent": null,
+            "concurrency_group": null,
+            "skills": [],
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "resume_trajectory": false,
+            "load_trajectory": null,
+            "extra_allowed_hosts": [],
+            "kwargs": {
+                "reasoning_effort": "medium"
+            },
+            "mcp_servers": []
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "cpu_enforcement_policy": "auto",
+            "memory_enforcement_policy": "auto",
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "override_tpu": null,
+            "mounts": null,
+            "extra_docker_compose": [],
+            "kwargs": {
+                "keepalive": null
+            },
+            "extra_allowed_hosts": []
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "artifacts": [],
+        "extra_instruction_paths": [],
+        "job_id": "9f291c91-fb5d-4f38-8d95-c017fdf780a1",
+        "source_trial": null
+    },
+    "agent_info": {
+        "name": "claude-code",
+        "version": "2.1.283",
+        "model_info": {
+            "name": "claude-opus-5",
+            "provider": "anthropic"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 5545814,
+        "n_cache_tokens": 5367888,
+        "n_output_tokens": 36429,
+        "cost_usd": 5.373509,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 1.0
+        }
+    },
+    "verifier_environment_mode": "shared",
+    "exception_info": null,
+    "started_at": "2026-09-27T16:25:49.809649Z",
+    "finished_at": "2026-09-27T16:40:30.357515Z",
+    "environment_setup": {
+        "started_at": "2026-09-27T16:25:49.846864Z",
+        "finished_at": "2026-09-27T16:25:50.973718Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-09-27T16:25:50.973812Z",
+        "finished_at": "2026-09-27T16:30:22.917766Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-09-27T16:30:22.918323Z",
+        "finished_at": "2026-09-27T16:40:17.632162Z"
+    },
+    "verifier": {
+        "started_at": "2026-09-27T16:40:18.408589Z",
+        "finished_at": "2026-09-27T16:40:18.839248Z"
+    },
+    "step_results": null
+}

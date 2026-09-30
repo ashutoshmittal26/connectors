@@ -1,0 +1,419 @@
+{
+  "generated_by": "tools/attest.py --emit",
+  "generated_at": "2026-09-27T16:57:47Z",
+  "instruction_sha256": "bdd314115f458df0b4a03ce1ebb658be56b3756be3ffce0aa98a35214bdf2ff6",
+  "gym": "notion-gym",
+  "acting_user": "u-morgan-lee",
+  "acting_user_basis": "MEASURED, two ways, 2026-09-27. (1) Ownership: u-morgan-lee (Morgan Lee) created 196 pages, more than any of the workspace's other 11 users. (2) The notion-gym access_token in task.toml resolves to exactly one row of the users table, u-morgan-lee - compared in memory against users.api_key, with neither the token nor any api_key printed or written anywhere.",
+  "gold_derivation": [
+    {
+      "figure": "articles_reviewed",
+      "graded_by": [
+        "metrics_articles_reviewed"
+      ],
+      "gold_value": 14,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Distinct live article pages of the Articles database that carry at least one reviewer comment - the ARTICLE grain, not the comment grain.",
+        "query": "SELECT COUNT(DISTINCT c.page_id) FROM comments c JOIN pages p ON p.id = c.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0",
+        "value": 14
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the served articles whose reply carries at least one <comment> element.",
+        "query": "",
+        "value": 14,
+        "evidence": "proxy_recount_20260927/articles_reviewed.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/articles_reviewed.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "still_open",
+      "graded_by": [
+        "metrics_still_open",
+        "review_log_reconciles_the_open_articles_by_article"
+      ],
+      "gold_value": 11,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Distinct live article pages carrying at least one UNRESOLVED discussion. Counting pages, not threads and not comments, and not `pages with no resolved thread`, which would fold in the four articles that carry no thread at all.",
+        "query": "SELECT COUNT(DISTINCT d.page_id) FROM discussions d JOIN pages p ON p.id = d.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND d.resolved = 0",
+        "value": 11
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the served articles with at least one discussion whose resolved attribute is \"false\".",
+        "query": "",
+        "value": 11,
+        "evidence": "proxy_recount_20260927/still_open.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/still_open.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "still_open_new",
+      "graded_by": [
+        "metrics_still_open_new"
+      ],
+      "gold_value": 5,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "The still_open articles narrowed to Doc stage New. Doc stage is a rich_text property, so the value is the plain_text of its single span, reached through property_values and rich_text_spans; it is not a column of any page table.",
+        "query": "SELECT COUNT(DISTINCT d.page_id) FROM discussions d JOIN pages p ON p.id = d.page_id JOIN property_values pv ON pv.page_id = p.id JOIN data_source_properties dsp ON dsp.id = pv.property_id AND dsp.name = 'Doc stage' AND dsp.data_source_id = 'ds-9caee280db7e4c9385908af1164446fb' JOIN rich_text_spans rts ON rts.property_value_id = pv.id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND d.resolved = 0 AND rts.plain_text = 'New'",
+        "value": 5
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the served articles whose \"Doc stage\" cell in the data-source result is New and whose reply carries a discussion with resolved=\"false\".",
+        "query": "",
+        "value": 5,
+        "evidence": "proxy_recount_20260927/still_open_new.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/still_open_new.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "still_open_draft",
+      "graded_by": [
+        "metrics_still_open_draft"
+      ],
+      "gold_value": 2,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "The still_open articles narrowed to Doc stage Draft. Doc stage is a rich_text property, so the value is the plain_text of its single span, reached through property_values and rich_text_spans; it is not a column of any page table.",
+        "query": "SELECT COUNT(DISTINCT d.page_id) FROM discussions d JOIN pages p ON p.id = d.page_id JOIN property_values pv ON pv.page_id = p.id JOIN data_source_properties dsp ON dsp.id = pv.property_id AND dsp.name = 'Doc stage' AND dsp.data_source_id = 'ds-9caee280db7e4c9385908af1164446fb' JOIN rich_text_spans rts ON rts.property_value_id = pv.id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND d.resolved = 0 AND rts.plain_text = 'Draft'",
+        "value": 2
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the served articles whose \"Doc stage\" cell in the data-source result is Draft and whose reply carries a discussion with resolved=\"false\".",
+        "query": "",
+        "value": 2,
+        "evidence": "proxy_recount_20260927/still_open_draft.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/still_open_draft.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "still_open_in_review",
+      "graded_by": [
+        "metrics_still_open_in_review"
+      ],
+      "gold_value": 4,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "The still_open articles narrowed to Doc stage In Review. Doc stage is a rich_text property, so the value is the plain_text of its single span, reached through property_values and rich_text_spans; it is not a column of any page table.",
+        "query": "SELECT COUNT(DISTINCT d.page_id) FROM discussions d JOIN pages p ON p.id = d.page_id JOIN property_values pv ON pv.page_id = p.id JOIN data_source_properties dsp ON dsp.id = pv.property_id AND dsp.name = 'Doc stage' AND dsp.data_source_id = 'ds-9caee280db7e4c9385908af1164446fb' JOIN rich_text_spans rts ON rts.property_value_id = pv.id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND d.resolved = 0 AND rts.plain_text = 'In Review'",
+        "value": 4
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the served articles whose \"Doc stage\" cell in the data-source result is In Review and whose reply carries a discussion with resolved=\"false\".",
+        "query": "",
+        "value": 4,
+        "evidence": "proxy_recount_20260927/still_open_in_review.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/still_open_in_review.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "articles_without_comments",
+      "graded_by": [
+        "metrics_articles_without_comments",
+        "review_log_lists_every_reviewer_comment"
+      ],
+      "gold_value": 4,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Live article pages carrying no reviewer comment at all - the complement of articles_reviewed inside the same 18 pages.",
+        "query": "SELECT COUNT(*) FROM pages p WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND NOT EXISTS (SELECT 1 FROM comments c WHERE c.page_id = p.id)",
+        "value": 4
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the served articles whose reply is an empty <discussions total-count=\"0\"> envelope. With include_resolved left at its default these four would be seven, which is exactly what the paired refusal on this row rejects.",
+        "query": "",
+        "value": 4,
+        "evidence": "proxy_recount_20260927/articles_without_comments.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/articles_without_comments.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "review_log_comment_lines",
+      "graded_by": [
+        "review_log_lists_every_reviewer_comment",
+        "no_comment_was_added_to_the_library"
+      ],
+      "gold_value": 19,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Every reviewer comment on a live article page: the number of comment lines review_log.md must carry, and the seed-state baseline the no-new-comment prohibition holds at.",
+        "query": "SELECT COUNT(*) FROM comments c JOIN pages p ON p.id = c.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0",
+        "value": 19
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count every <comment> element served across the 18 replies. Each discussion's comment-count attribute was checked against the elements actually served, and every comment id was served exactly once.",
+        "query": "",
+        "value": 19,
+        "evidence": "proxy_recount_20260927/comments_total.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/comments_total.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "review_log_open_comment_lines",
+      "graded_by": [
+        "review_log_accounts_for_every_article_and_both_findings"
+      ],
+      "gold_value": 15,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Comment lines whose thread is still unsettled. resolved lives on the discussion, not on the comment, so this is a comment count under a thread-level predicate.",
+        "query": "SELECT COUNT(*) FROM comments c JOIN discussions d ON d.id = c.discussion_id JOIN pages p ON p.id = c.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND d.resolved = 0",
+        "value": 15
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the <comment> elements sitting inside a discussion served with resolved=\"false\".",
+        "query": "",
+        "value": 15,
+        "evidence": "proxy_recount_20260927/comment_lines_open.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/comment_lines_open.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "review_log_settled_comment_lines",
+      "graded_by": [
+        "review_log_accounts_for_every_article_and_both_findings"
+      ],
+      "gold_value": 4,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Comment lines whose thread has been resolved. These are invisible on the tool surface unless include_resolved is set, which is why the split is graded and not just the total.",
+        "query": "SELECT COUNT(*) FROM comments c JOIN discussions d ON d.id = c.discussion_id JOIN pages p ON p.id = c.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND d.resolved = 1",
+        "value": 4
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the <comment> elements inside a discussion served with resolved=\"true\".",
+        "query": "",
+        "value": 4,
+        "evidence": "proxy_recount_20260927/comment_lines_settled.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/comment_lines_settled.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "review_log_comment_lines_doc_stage_new",
+      "graded_by": [
+        "review_log_accounts_for_every_article_and_both_findings"
+      ],
+      "gold_value": 9,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Comment lines whose article is at Doc stage New - the stage column of the 19-row deliverable, counted at comment grain because the log carries one line per comment.",
+        "query": "SELECT COUNT(*) FROM comments c JOIN pages p ON p.id = c.page_id JOIN property_values pv ON pv.page_id = p.id JOIN data_source_properties dsp ON dsp.id = pv.property_id AND dsp.name = 'Doc stage' AND dsp.data_source_id = 'ds-9caee280db7e4c9385908af1164446fb' JOIN rich_text_spans rts ON rts.property_value_id = pv.id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND rts.plain_text = 'New'",
+        "value": 9
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the served <comment> elements on articles whose \"Doc stage\" cell in the data-source result is New.",
+        "query": "",
+        "value": 9,
+        "evidence": "proxy_recount_20260927/comment_lines_stage_new.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/comment_lines_stage_new.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "review_log_comment_lines_doc_stage_draft",
+      "graded_by": [
+        "review_log_accounts_for_every_article_and_both_findings"
+      ],
+      "gold_value": 4,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Comment lines whose article is at Doc stage Draft - the stage column of the 19-row deliverable, counted at comment grain because the log carries one line per comment.",
+        "query": "SELECT COUNT(*) FROM comments c JOIN pages p ON p.id = c.page_id JOIN property_values pv ON pv.page_id = p.id JOIN data_source_properties dsp ON dsp.id = pv.property_id AND dsp.name = 'Doc stage' AND dsp.data_source_id = 'ds-9caee280db7e4c9385908af1164446fb' JOIN rich_text_spans rts ON rts.property_value_id = pv.id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND rts.plain_text = 'Draft'",
+        "value": 4
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the served <comment> elements on articles whose \"Doc stage\" cell in the data-source result is Draft.",
+        "query": "",
+        "value": 4,
+        "evidence": "proxy_recount_20260927/comment_lines_stage_draft.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/comment_lines_stage_draft.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "review_log_comment_lines_doc_stage_in_review",
+      "graded_by": [
+        "review_log_accounts_for_every_article_and_both_findings"
+      ],
+      "gold_value": 6,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Comment lines whose article is at Doc stage In Review - the stage column of the 19-row deliverable, counted at comment grain because the log carries one line per comment.",
+        "query": "SELECT COUNT(*) FROM comments c JOIN pages p ON p.id = c.page_id JOIN property_values pv ON pv.page_id = p.id JOIN data_source_properties dsp ON dsp.id = pv.property_id AND dsp.name = 'Doc stage' AND dsp.data_source_id = 'ds-9caee280db7e4c9385908af1164446fb' JOIN rich_text_spans rts ON rts.property_value_id = pv.id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND rts.plain_text = 'In Review'",
+        "value": 6
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the served <comment> elements on articles whose \"Doc stage\" cell in the data-source result is In Review.",
+        "query": "",
+        "value": 6,
+        "evidence": "proxy_recount_20260927/comment_lines_stage_in_review.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/comment_lines_stage_in_review.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "articles_in_the_database",
+      "graded_by": [
+        "the_article_pages_were_not_touched",
+        "read_every_article_thread"
+      ],
+      "gold_value": 18,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Live pages in the Articles database: the seed-state baseline the do-not-touch prohibition holds at, and the same 18 that make the per-page comment reads a floor of 18 tool calls.",
+        "query": "SELECT COUNT(*) FROM pages WHERE parent_id = '9caee280db7e4c9385908af1164446fb' AND in_trash = 0",
+        "value": 18
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the rows notion-query-data-sources served for the data source, having checked has_more is false so the page cap did not truncate the view, and confirm one notion-get-comments call was needed per row because the tool takes a single page_id.",
+        "query": "",
+        "value": 18,
+        "evidence": "proxy_recount_20260927/live_pages.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/live_pages.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "resolved_reviewer_threads",
+      "graded_by": [
+        "no_reviewer_thread_was_resolved_or_reopened"
+      ],
+      "gold_value": 3,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Resolved discussions in the library: the seed-state baseline that catches a run which tidies up by settling the threads it just reported, or re-opens one.",
+        "query": "SELECT COUNT(*) FROM discussions d JOIN pages p ON p.id = d.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND d.resolved = 1",
+        "value": 3
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the discussions served with resolved=\"true\" across the 18 replies.",
+        "query": "",
+        "value": 3,
+        "evidence": "proxy_recount_20260927/resolved_threads.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/resolved_threads.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    },
+    {
+      "figure": "settled_articles",
+      "graded_by": [
+        "review_log_accounts_for_every_article_and_both_findings",
+        "review_log_reconciles_the_open_articles_by_article"
+      ],
+      "gold_value": 3,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Articles whose reviewer thread is settled - the three the log must show on a settled line and must NOT show on an open one. It equals resolved_reviewer_threads here only because each of the three carries exactly one thread.",
+        "query": "SELECT COUNT(DISTINCT d.page_id) FROM discussions d JOIN pages p ON p.id = d.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND d.resolved = 1",
+        "value": 3
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "notion-search -> notion-fetch -> notion-query-data-sources (the 18 article rows with their Doc stage, has_more false) -> 18 x notion-get-comments with include_all_blocks and include_resolved both true; then count the served articles that carry at least one discussion and none with resolved=\"false\".",
+        "query": "",
+        "value": 3,
+        "evidence": "proxy_recount_20260927/settled_articles.txt",
+        "source": "author-measured, evidence proxy_recount_20260927/settled_articles.txt"
+      },
+      "independent_because": "b never reads a table. a joins comments/discussions/pages inside the gym's own store through the verifier-only state route; b counts what the SERVED view hands the acting user - the <discussion resolved=...> and <comment> elements inside notion-get-comments' XML, after notion-query-data-sources supplied the 18 page ids from its url column. The two surfaces do not share a query, a join or a table name, so a wrong join in a cannot reach b. They are also the two sides that can genuinely differ here: the tool route reports total-count 0 on every page unless include_all_blocks is set, hides settled threads unless include_resolved is set, and anchors 13 of the 14 threads to a block rather than to the page, none of which the stored table shows.",
+      "agrees": true
+    }
+  ],
+  "gold_derivation_exempt": [],
+  "prompt_claims": [
+    {
+      "claim": "Articles are rows of a live database titled Articles - the prompt names both the entity type (a page in a database) and the database's title, so the number of counterexamples it states is 0.",
+      "quote": "Every article we publish lives as a page in the Articles database",
+      "kind": "counterexamples",
+      "stated": 0,
+      "measured": 0,
+      "agrees": true,
+      "query": "SELECT COUNT(*) FROM pages p LEFT JOIN databases db ON db.id = p.parent_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND (p.parent_type <> 'database_id' OR db.title <> 'Articles' OR db.in_trash <> 0)"
+    },
+    {
+      "claim": "Every reviewer comment on an article belongs to a thread on that same article page - the notes live on the page, not on some other object - so the counterexample count is 0. Note: 13 of the 14 threads are anchored to a block INSIDE the page (context=\"block\"), which is still the page's own comment surface and is why include_all_blocks is needed.",
+      "quote": "reviewers leave their notes as comments on the page itself",
+      "kind": "counterexamples",
+      "stated": 0,
+      "measured": 0,
+      "agrees": true,
+      "query": "SELECT COUNT(*) FROM comments c JOIN discussions d ON d.id = c.discussion_id JOIN pages p ON p.id = c.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND d.page_id <> c.page_id"
+    },
+    {
+      "claim": "The prompt gives a thread exactly two states, settled and not settled, and maps them onto the library's resolved flag. The library's reviewer threads take exactly 2 distinct values of that flag, so both states the prompt names really occur.",
+      "quote": "A thread somebody has settled is resolved; a thread nobody has settled is still waiting on a person.",
+      "kind": "distinct-values",
+      "stated": 2,
+      "measured": 2,
+      "agrees": true,
+      "query": "SELECT COUNT(DISTINCT d.resolved) FROM discussions d JOIN pages p ON p.id = d.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0"
+    },
+    {
+      "claim": "The prompt asserts the article-to-comment fan-out is real, not hypothetical: at least one article carries more than one comment. 1 = at least one such article exists. (Measured here as an existence flag, because the prompt says `may carry`, it states no count.)",
+      "quote": "one article (`page id`) may carry several comments",
+      "kind": "existence",
+      "stated": 1,
+      "measured": 1,
+      "agrees": true,
+      "query": "SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END FROM (SELECT c.page_id FROM comments c JOIN pages p ON p.id = c.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 GROUP BY c.page_id HAVING COUNT(*) > 1)"
+    },
+    {
+      "claim": "The prompt asks for a Doc stage on every comment line, which asserts that every article carrying a reviewer comment has a non-empty Doc stage. Counterexamples: 0. (The four articles with no comment have no Doc stage and get no comment line.)",
+      "quote": "written as `article title | Doc stage | open`",
+      "kind": "counterexamples",
+      "stated": 0,
+      "measured": 0,
+      "agrees": true,
+      "query": "SELECT COUNT(*) FROM pages p WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND EXISTS (SELECT 1 FROM comments c WHERE c.page_id = p.id) AND NOT EXISTS (SELECT 1 FROM property_values pv JOIN data_source_properties dsp ON dsp.id = pv.property_id AND dsp.name = 'Doc stage' AND dsp.data_source_id = 'ds-9caee280db7e4c9385908af1164446fb' JOIN rich_text_spans rts ON rts.property_value_id = pv.id WHERE pv.page_id = p.id AND TRIM(rts.plain_text) <> '')"
+    },
+    {
+      "claim": "The prompt asserts the two halves of the file exhaust the database: the commented articles plus the uncommented ones are every article in it, with no page counted twice and none left out. Residual stated: 0.",
+      "quote": "so that every article in the database appears somewhere in this file",
+      "kind": "residual",
+      "stated": 0,
+      "measured": 0,
+      "agrees": true,
+      "query": "SELECT (SELECT COUNT(DISTINCT c.page_id) FROM comments c JOIN pages p ON p.id = c.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0) + (SELECT COUNT(*) FROM pages p WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0 AND NOT EXISTS (SELECT 1 FROM comments c WHERE c.page_id = p.id)) - (SELECT COUNT(*) FROM pages p WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND p.in_trash = 0)"
+    }
+  ],
+  "numerals_not_claims": [],
+  "numerals_not_claims_note": "instruction.md contains no digit at all and no cardinal number word of two or more (its only number words are the distributive `one` of `one line for every reviewer comment`, `one article`, `one row per metric` and `one title per line`). There is therefore no numeral to exempt, and this list is empty because the prompt states no figure, not because none was checked."
+}

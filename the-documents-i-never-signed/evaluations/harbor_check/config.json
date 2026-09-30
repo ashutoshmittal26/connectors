@@ -1,0 +1,23 @@
+{
+    "task": {
+        "path": "/tmp/harbor-check-i3_arck8/check-the-documents-i-never-signed"
+    },
+    "trial_name": "check-the-documents-i-never-sign__MgcnJft",
+    "trials_dir": "/home/amateen/aster-mining-0927/work/tasks_batch_20260927/_evidence/the-documents-i-never-signed/harbor-check/tdins-check-20260927T161131",
+    "verifier_timeout_multiplier": 5.0,
+    "agent_setup_timeout_multiplier": 6.0,
+    "agent": {
+        "name": "claude-code",
+        "model_name": "anthropic/claude-opus-5",
+        "kwargs": {
+            "reasoning_effort": "medium"
+        }
+    },
+    "environment": {
+        "type": "docker",
+        "kwargs": {
+            "keepalive": null
+        }
+    },
+    "job_id": "478088ca-1d55-43e7-9dab-838fe2cb81b3"
+}

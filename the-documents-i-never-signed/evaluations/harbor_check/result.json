@@ -1,0 +1,121 @@
+{
+    "id": "e79d4fa7-29fe-4fbe-bee0-49238b7b42a8",
+    "task_name": "check-the-documents-i-never-signed",
+    "trial_name": "check-the-documents-i-never-sign__MgcnJft",
+    "trial_uri": "file:///home/amateen/aster-mining-0927/work/tasks_batch_20260927/_evidence/the-documents-i-never-signed/harbor-check/tdins-check-20260927T161131/check-the-documents-i-never-sign__MgcnJft",
+    "task_id": {
+        "path": "/tmp/harbor-check-i3_arck8/check-the-documents-i-never-signed"
+    },
+    "source": null,
+    "task_checksum": "0a0e668146e8799ddf27834bc368bae8c87d4260711bd0aa0ad1073a6a61f4ad",
+    "config": {
+        "task": {
+            "path": "/tmp/harbor-check-i3_arck8/check-the-documents-i-never-signed",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "check-the-documents-i-never-sign__MgcnJft",
+        "trials_dir": "/home/amateen/aster-mining-0927/work/tasks_batch_20260927/_evidence/the-documents-i-never-signed/harbor-check/tdins-check-20260927T161131",
+        "install_only": false,
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": 5.0,
+        "agent_setup_timeout_multiplier": 6.0,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "claude-code",
+            "import_path": null,
+            "model_name": "anthropic/claude-opus-5",
+            "n_concurrent": null,
+            "concurrency_group": null,
+            "skills": [],
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "resume_trajectory": false,
+            "load_trajectory": null,
+            "extra_allowed_hosts": [],
+            "kwargs": {
+                "reasoning_effort": "medium"
+            },
+            "mcp_servers": []
+        },
+        "user_agent": null,
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "cpu_enforcement_policy": "auto",
+            "memory_enforcement_policy": "auto",
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "override_tpu": null,
+            "mounts": null,
+            "extra_docker_compose": [],
+            "kwargs": {
+                "keepalive": null
+            },
+            "extra_allowed_hosts": []
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "artifacts": [],
+        "extra_instruction_paths": [],
+        "extra_instructions": [],
+        "job_id": "478088ca-1d55-43e7-9dab-838fe2cb81b3",
+        "source_trial": null
+    },
+    "agent_info": {
+        "name": "claude-code",
+        "version": "2.1.283",
+        "model_info": {
+            "name": "claude-opus-5",
+            "provider": "anthropic"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 5196084,
+        "n_cache_tokens": 5054881,
+        "n_output_tokens": 45589,
+        "cost_usd": 5.078655499999999,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 1.0
+        }
+    },
+    "verifier_environment_mode": "shared",
+    "exception_info": null,
+    "started_at": "2026-09-27T16:17:39.614150Z",
+    "finished_at": "2026-09-27T16:41:27.741949Z",
+    "environment_setup": {
+        "started_at": "2026-09-27T16:17:39.653901Z",
+        "finished_at": "2026-09-27T16:17:41.602549Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-09-27T16:17:41.602628Z",
+        "finished_at": "2026-09-27T16:31:32.832710Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-09-27T16:31:32.833194Z",
+        "finished_at": "2026-09-27T16:41:23.471942Z"
+    },
+    "verifier": {
+        "started_at": "2026-09-27T16:41:24.617865Z",
+        "finished_at": "2026-09-27T16:41:24.971696Z"
+    },
+    "step_results": null
+}

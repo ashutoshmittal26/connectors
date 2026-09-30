@@ -1,0 +1,12 @@
+{
+    "task": {
+        "path": "/Users/mandy/Downloads/mining/aster-connector-mining/work/tasks_batch_20260926/notion/which-articles-still-have-an-open-review"
+    },
+    "trial_name": "which-articles-still-have-an-ope__ZJTVChc",
+    "trials_dir": "/Users/mandy/Downloads/mining/aster-connector-mining/work/tasks_batch_20260926/_evidence/which-articles-still-have-an-open-review/oracle-local/oracle-20260927-223430",
+    "environment": {
+        "type": "docker",
+        "override_cpus": 8
+    },
+    "job_id": "9bed2811-65c1-4589-a3ca-56d6e77d41ba"
+}

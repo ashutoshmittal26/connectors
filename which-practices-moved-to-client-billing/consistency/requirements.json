@@ -1,0 +1,302 @@
+{
+ "task": "which-practices-moved-to-client-billing",
+ "note": "One row per requirement_id in tests/manifest.json; every graded value derived three ways (the gws tool path as the Drive's is_me user through the proxy, the state route's cells/sheets/files tables through the same parser, and one SQL statement per figure) on 2026-09-28, all identical.",
+ "requirements": [
+  {
+   "requirement_id": "billed_practices",
+   "ask": "how many of the fourteen practices have one or more billing rows",
+   "prompt_span": "the summary counts of billed practices and of each bill type are counts of practices",
+   "surface": "practice_billing_models.xlsx Summary sheet",
+   "expected": 12,
+   "tolerance": {
+    "value": "pinned at Summary!B<row>, typed number (n and n.0 pass; text, decimals, formulas refused as the prompt states)",
+    "name": "pinned at Summary!A<row>; case, spaces/underscores/hyphens and emphasis free",
+    "row_order_and_no_header": "pinned by the prompt (in this order, from row 1, no header row)",
+    "sheet_name": "pinned by the prompt (Summary)",
+    "other_sheets": "free (only Billing and Summary are read)",
+    "number_format_and_styles_on_graded_cells": "free"
+   },
+   "evidence_path": [
+    "gws drive files list (q: titles containing one of the fourteen practice names; spreadsheets) -> 24 ids, 23 whose titles begin with a listed name",
+    "gws sheets spreadsheets values batchGet x23 -> 36 billing rows; 8 statements empty; tab titles carry 13 practice IDs",
+    "gws drive files list (q: name = each of the 13 practice IDs; spreadsheets) -> 1 live raw export j8lghvv51re0e787xpdvnpaj",
+    "gws sheets spreadsheets values batchGet x1 -> 1 billing row (Empowered Goddess, client bill)"
+   ],
+   "reachability": "proven through the proxy as the Drive's is_me user on 2026-09-28 (both listings and values batchGet of all 24 spreadsheets) and over the state route's files/sheets/cells tables, both through the same parser and as one SQL statement per figure; all identical (evidence gold/proxy_gold.json, gold/sql_gold.json)",
+   "discrimination": [
+    {
+     "wrong_method": "count billing rows (row grain)",
+     "value": 37
+    },
+    {
+     "wrong_method": "miss the ID-titled raw export",
+     "value": 11
+    },
+    {
+     "wrong_method": "each title's full wording as the practice",
+     "value": 13
+    }
+   ],
+   "graded_by": [
+    "summary_billed_practices"
+   ]
+  },
+  {
+   "requirement_id": "cash_pay_practices",
+   "ask": "how many practices have one or more billing rows whose bill type is cash pay",
+   "prompt_span": "reads cash pay or client bill, however written",
+   "surface": "practice_billing_models.xlsx Summary sheet",
+   "expected": 7,
+   "tolerance": {
+    "value": "pinned at Summary!B<row>, typed number (n and n.0 pass; text, decimals, formulas refused as the prompt states)",
+    "name": "pinned at Summary!A<row>; case, spaces/underscores/hyphens and emphasis free",
+    "row_order_and_no_header": "pinned by the prompt (in this order, from row 1, no header row)",
+    "sheet_name": "pinned by the prompt (Summary)",
+    "other_sheets": "free (only Billing and Summary are read)",
+    "number_format_and_styles_on_graded_cells": "free"
+   },
+   "evidence_path": [
+    "gws drive files list (q: titles containing one of the fourteen practice names; spreadsheets) -> 24 ids, 23 whose titles begin with a listed name",
+    "gws sheets spreadsheets values batchGet x23 -> 36 billing rows; 8 statements empty; tab titles carry 13 practice IDs",
+    "gws drive files list (q: name = each of the 13 practice IDs; spreadsheets) -> 1 live raw export j8lghvv51re0e787xpdvnpaj",
+    "gws sheets spreadsheets values batchGet x1 -> 1 billing row (Empowered Goddess, client bill)"
+   ],
+   "reachability": "proven through the proxy as the Drive's is_me user on 2026-09-28 (both listings and values batchGet of all 24 spreadsheets) and over the state route's files/sheets/cells tables, both through the same parser and as one SQL statement per figure; all identical (evidence gold/proxy_gold.json, gold/sql_gold.json)",
+   "discrimination": [
+    {
+     "wrong_method": "count billing rows reading cash pay (row grain)",
+     "value": 20
+    },
+    {
+     "wrong_method": "only practices billed nothing but cash pay",
+     "value": 5
+    }
+   ],
+   "graded_by": [
+    "summary_cash_pay_practices"
+   ]
+  },
+  {
+   "requirement_id": "client_bill_practices",
+   "ask": "how many practices have one or more billing rows whose bill type is client bill",
+   "prompt_span": "a practice counting under each bill type that one or more of its billing rows carry",
+   "surface": "practice_billing_models.xlsx Summary sheet",
+   "expected": 7,
+   "tolerance": {
+    "value": "pinned at Summary!B<row>, typed number (n and n.0 pass; text, decimals, formulas refused as the prompt states)",
+    "name": "pinned at Summary!A<row>; case, spaces/underscores/hyphens and emphasis free",
+    "row_order_and_no_header": "pinned by the prompt (in this order, from row 1, no header row)",
+    "sheet_name": "pinned by the prompt (Summary)",
+    "other_sheets": "free (only Billing and Summary are read)",
+    "number_format_and_styles_on_graded_cells": "free"
+   },
+   "evidence_path": [
+    "gws drive files list (q: titles containing one of the fourteen practice names; spreadsheets) -> 24 ids, 23 whose titles begin with a listed name",
+    "gws sheets spreadsheets values batchGet x23 -> 36 billing rows; 8 statements empty; tab titles carry 13 practice IDs",
+    "gws drive files list (q: name = each of the 13 practice IDs; spreadsheets) -> 1 live raw export j8lghvv51re0e787xpdvnpaj",
+    "gws sheets spreadsheets values batchGet x1 -> 1 billing row (Empowered Goddess, client bill)"
+   ],
+   "reachability": "proven through the proxy as the Drive's is_me user on 2026-09-28 (both listings and values batchGet of all 24 spreadsheets) and over the state route's files/sheets/cells tables, both through the same parser and as one SQL statement per figure; all identical (evidence gold/proxy_gold.json, gold/sql_gold.json)",
+   "discrimination": [
+    {
+     "wrong_method": "count billing rows reading client bill (row grain)",
+     "value": 17
+    },
+    {
+     "wrong_method": "only practices billed nothing but client bill",
+     "value": 5
+    },
+    {
+     "wrong_method": "miss the ID-titled raw export",
+     "value": 6
+    },
+    {
+     "wrong_method": "each title's full wording as the practice",
+     "value": 8
+    }
+   ],
+   "graded_by": [
+    "summary_client_bill_practices"
+   ]
+  },
+  {
+   "requirement_id": "switched_practices",
+   "ask": "how many practices have billing rows of both bill types",
+   "prompt_span": "switched when its billing rows carry both bill types",
+   "surface": "practice_billing_models.xlsx Summary sheet",
+   "expected": 2,
+   "tolerance": {
+    "value": "pinned at Summary!B<row>, typed number (n and n.0 pass; text, decimals, formulas refused as the prompt states)",
+    "name": "pinned at Summary!A<row>; case, spaces/underscores/hyphens and emphasis free",
+    "row_order_and_no_header": "pinned by the prompt (in this order, from row 1, no header row)",
+    "sheet_name": "pinned by the prompt (Summary)",
+    "other_sheets": "free (only Billing and Summary are read)",
+    "number_format_and_styles_on_graded_cells": "free"
+   },
+   "evidence_path": [
+    "gws drive files list (q: titles containing one of the fourteen practice names; spreadsheets) -> 24 ids, 23 whose titles begin with a listed name",
+    "gws sheets spreadsheets values batchGet x23 -> 36 billing rows; 8 statements empty; tab titles carry 13 practice IDs",
+    "gws drive files list (q: name = each of the 13 practice IDs; spreadsheets) -> 1 live raw export j8lghvv51re0e787xpdvnpaj",
+    "gws sheets spreadsheets values batchGet x1 -> 1 billing row (Empowered Goddess, client bill)"
+   ],
+   "reachability": "proven through the proxy as the Drive's is_me user on 2026-09-28 (both listings and values batchGet of all 24 spreadsheets) and over the state route's files/sheets/cells tables, both through the same parser and as one SQL statement per figure; all identical (evidence gold/proxy_gold.json, gold/sql_gold.json)",
+   "discrimination": [
+    {
+     "wrong_method": "count the billing rows of both-way practices",
+     "value": 15
+    },
+    {
+     "wrong_method": "count single-bill-type practices",
+     "value": 10
+    }
+   ],
+   "graded_by": [
+    "summary_switched_practices"
+   ]
+  },
+  {
+   "requirement_id": "silent_practices",
+   "ask": "how many practices have no billing row in any of their statements",
+   "prompt_span": "A practice is silent when it has no billing row",
+   "surface": "practice_billing_models.xlsx Summary sheet",
+   "expected": 2,
+   "tolerance": {
+    "value": "pinned at Summary!B<row>, typed number (n and n.0 pass; text, decimals, formulas refused as the prompt states)",
+    "name": "pinned at Summary!A<row>; case, spaces/underscores/hyphens and emphasis free",
+    "row_order_and_no_header": "pinned by the prompt (in this order, from row 1, no header row)",
+    "sheet_name": "pinned by the prompt (Summary)",
+    "other_sheets": "free (only Billing and Summary are read)",
+    "number_format_and_styles_on_graded_cells": "free"
+   },
+   "evidence_path": [
+    "gws drive files list (q: titles containing one of the fourteen practice names; spreadsheets) -> 24 ids, 23 whose titles begin with a listed name",
+    "gws sheets spreadsheets values batchGet x23 -> 36 billing rows; 8 statements empty; tab titles carry 13 practice IDs",
+    "gws drive files list (q: name = each of the 13 practice IDs; spreadsheets) -> 1 live raw export j8lghvv51re0e787xpdvnpaj",
+    "gws sheets spreadsheets values batchGet x1 -> 1 billing row (Empowered Goddess, client bill)"
+   ],
+   "reachability": "proven through the proxy as the Drive's is_me user on 2026-09-28 (both listings and values batchGet of all 24 spreadsheets) and over the state route's files/sheets/cells tables, both through the same parser and as one SQL statement per figure; all identical (evidence gold/proxy_gold.json, gold/sql_gold.json)",
+   "discrimination": [
+    {
+     "wrong_method": "count empty statements",
+     "value": 8
+    },
+    {
+     "wrong_method": "miss the ID-titled raw export",
+     "value": 3
+    },
+    {
+     "wrong_method": "each title's full wording as the practice",
+     "value": 4
+    },
+    {
+     "wrong_method": "leave practices with no billing row out",
+     "value": 0
+    }
+   ],
+   "graded_by": [
+    "summary_silent_practices"
+   ]
+  },
+  {
+   "requirement_id": "per_row_billing_log",
+   "ask": "every billing row of the 24 spreadsheets on the Billing sheet, in ascending Drive file id then position, with file id, order id and TRUE/FALSE client bill",
+   "prompt_span": "give each billing row its own row, sorted by its spreadsheet's Drive file id, ascending, then position in its statement",
+   "surface": "practice_billing_models.xlsx Billing sheet, A1:C37",
+   "expected": "37 rows; column C TRUE on 17 (client bill), FALSE on 20 (cash pay)",
+   "tolerance": {
+    "ids": "case-insensitive, dashed or undashed, surrounding quotes/emphasis free",
+    "booleans": "Excel boolean or TRUE/FALSE text in any case",
+    "row_order_and_no_header": "pinned by the prompt (ascending file id, then position; from row 1; no header row)",
+    "sheet_name": "pinned by the prompt (Billing)",
+    "columns": "pinned by the prompt (A-C)"
+   },
+   "evidence_path": [
+    "gws drive files list (q: titles containing one of the fourteen practice names; spreadsheets) -> 24 ids, 23 whose titles begin with a listed name",
+    "gws sheets spreadsheets values batchGet x23 -> 36 billing rows; 8 statements empty; tab titles carry 13 practice IDs",
+    "gws drive files list (q: name = each of the 13 practice IDs; spreadsheets) -> 1 live raw export j8lghvv51re0e787xpdvnpaj",
+    "gws sheets spreadsheets values batchGet x1 -> 1 billing row (Empowered Goddess, client bill)"
+   ],
+   "reachability": "proven through the proxy as the Drive's is_me user on 2026-09-28 (both listings and values batchGet of all 24 spreadsheets) and over the state route's files/sheets/cells tables, both through the same parser and as one SQL statement per figure; all identical (evidence gold/proxy_gold.json, gold/sql_gold.json)",
+   "discrimination": [
+    {
+     "wrong_method": "miss the ID-titled raw export",
+     "value": "36 rows"
+    },
+    {
+     "wrong_method": "include the trashed Johnson & Associates raw export",
+     "value": "38 rows"
+    },
+    {
+     "wrong_method": "search the full title Johnson & Associates Midwifery Group",
+     "value": "29 rows"
+    },
+    {
+     "wrong_method": "keep the Total lines under the headers",
+     "value": "48 rows"
+    }
+   ],
+   "graded_by": [
+    "billing_sheet_reconciles_with_the_summary"
+   ]
+  },
+  {
+   "requirement_id": "workbook_layout",
+   "ask": "nothing else on Billing or Summary",
+   "prompt_span": "Leave every other cell of Billing and Summary unformatted and blank (not even an empty string)",
+   "surface": "practice_billing_models.xlsx Billing and Summary sheets",
+   "expected": "Billing 37x3, Summary 5x2",
+   "tolerance": {
+    "other_sheets": "free",
+    "styles_widths_panes": "free",
+    "extra_cells_on_graded_sheets": "refused as the prompt states"
+   },
+   "evidence_path": [
+    "the workbook the agent writes"
+   ],
+   "reachability": "a property of the deliverable",
+   "discrimination": [
+    {
+     "wrong_method": "a header row on Billing",
+     "value": "max_row 38"
+    },
+    {
+     "wrong_method": "a practice column beside the log",
+     "value": "max_column 4"
+    }
+   ],
+   "graded_by": [
+    "billing_and_summary_hold_nothing_else"
+   ]
+  },
+  {
+   "requirement_id": "spreadsheets_read",
+   "ask": "the 24 spreadsheets are actually read",
+   "prompt_span": "A practice's statements are my Drive spreadsheets whose titles begin with its name",
+   "surface": "the agent trajectory (gws call count)",
+   "expected": ">= 24 gws calls",
+   "tolerance": {
+    "which_command": "any gws command counts; the gym names every call gws"
+   },
+   "evidence_path": [
+    "gws drive files list (q: titles containing one of the fourteen practice names; spreadsheets) -> 24 ids, 23 whose titles begin with a listed name",
+    "gws sheets spreadsheets values batchGet x23 -> 36 billing rows; 8 statements empty; tab titles carry 13 practice IDs",
+    "gws drive files list (q: name = each of the 13 practice IDs; spreadsheets) -> 1 live raw export j8lghvv51re0e787xpdvnpaj",
+    "gws sheets spreadsheets values batchGet x1 -> 1 billing row (Empowered Goddess, client bill)"
+   ],
+   "reachability": "measured shortest correct path 25 gws calls",
+   "discrimination": [
+    {
+     "wrong_method": "the statements with rows only (empty ones and the raw export never read)",
+     "value": "16 calls"
+    },
+    {
+     "wrong_method": "a fabricated workbook from a listing",
+     "value": "1 call"
+    }
+   ],
+   "graded_by": [
+    "all_24_spreadsheets_were_read"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,1301 @@
+{
+  "state": {
+    "snapshot": {
+      "mode": "full_hash",
+      "exclude_tables": [
+        "sqlite_sequence",
+        "sqlite_stat1"
+      ],
+      "include_tables": null,
+      "schema_version": "harbor.state_snapshot.v1",
+      "debug_full_rows": "gzip",
+      "diff_schema_version": "harbor.state_diff.v1"
+    },
+    "canonicalize": {
+      "sort_lists": true,
+      "strip_fields": [
+        "id",
+        "created_at",
+        "updated_at",
+        "executed_at",
+        "deleted_at",
+        "execution_time_ms",
+        "fr_due_by",
+        "due_by",
+        "last_used_at",
+        "create_time",
+        "update_time"
+      ],
+      "strip_fields_per_table": {}
+    },
+    "expected_diff_file": "solution/expected_diff.json"
+  },
+  "rubric": {
+    "file": "tests/rubric.toml",
+    "evidence": {
+      "max_chars": 350000,
+      "include_db_diff": true,
+      "include_trajectory": true,
+      "include_final_output": true
+    }
+  },
+  "scoring": {
+    "weights": {
+      "sql": 0.0,
+      "state": 0.0,
+      "rubric": 1.0,
+      "trajectory": 0.0
+    },
+    "round_digits": 4,
+    "side_effect_gate": true,
+    "flat_verifier_scoring": true,
+    "allowed_verifier_types": [
+      "rubric",
+      "agentic_llm_as_judge"
+    ]
+  },
+  "trajectory": {
+    "golden_file": "solution/golden_trajectory.json",
+    "response_match": {
+      "match_is_error": true,
+      "match_status_code": true,
+      "strip_response_fields": [
+        "id",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "forbidden_tools": [],
+    "agent_trace_file": "/logs/agent/trajectory.json",
+    "scoring_per_step": {
+      "args_weight": 0.4,
+      "name_weight": 0.4,
+      "response_weight": 0.2
+    }
+  },
+  "sql_verifiers": [],
+  "verifier_configs": [
+    {
+      "name": "metrics_articles_reviewed",
+      "description": "Finds the metrics.xlsx row labelled articles_reviewed and requires 14, and refuses 19 on that same row.",
+      "category": "core",
+      "weight": 1.0,
+      "target": "workspace_files",
+      "verifier_type": "file_check",
+      "type": "file_check",
+      "pass_threshold": 1.0,
+      "requirement_id": "articles_reviewed",
+      "evidence_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+      "metadata": {
+        "why_justification": "Counting the comments instead of the articles carrying them - the lever's default misreading - answers 19; counting every page in the database, reviewed or not, answers 18; leaving include_all_blocks at its default finds no thread anywhere and answers 0."
+      },
+      "verifier_spec": {
+        "task_id": "metrics_articles_reviewed",
+        "verifiers": [
+          {
+            "name": "metrics_articles_reviewed_value",
+            "metadata": {
+              "how_justification": "Reads every sheet of metrics.xlsx as pipe-joined rows with xlsx.extract_text, finds the row whose label cell reads articles_reviewed and requires the next populated cell of that row to be 14. The label is looked up, never a cell reference: the row may sit anywhere, in any order, with or without a header row, on a sheet named anything, after any number of empty leading columns, and extra columns to the right are ignored. Spaces, underscores or hyphens between the words all pass, case is free, surrounding emphasis or quotes are allowed, and 14 written as 14.0 passes. A longer label that merely starts with articles_reviewed does not match, because the character after the label has to be whitespace or a pipe.",
+              "why_justification": "Counting the comments instead of the articles carrying them - the lever's default misreading - answers 19; counting every page in the database, reviewed or not, answers 18; leaving include_all_blocks at its default finds no thread anywhere and answers 0."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}articles[ _-]reviewed[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}14(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "metrics_articles_reviewed_refuses_the_row_grain_value",
+            "metadata": {
+              "how_justification": "The same label lookup on the same row, as a refusal: the articles_reviewed row must NOT read 19, the value the row-grain reading of this audit produces. A run that counts comments where the summary counts articles lands on 19 and is refused here as well as failing the positive leaf, so no single number can satisfy both.",
+              "why_justification": "19 is the number the same data yields when the unit of audit slips from the article to the comment. Pairing the positive check with an explicit refusal of that value is what stops a lazy run scoring on a lenient lookup."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}articles[ _-]reviewed[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}19(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "not_regex_match"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "metrics_still_open",
+      "description": "Finds the metrics.xlsx row labelled still_open and requires 11, and refuses 15 on that same row.",
+      "category": "core",
+      "weight": 1.0,
+      "target": "workspace_files",
+      "verifier_type": "file_check",
+      "type": "file_check",
+      "pass_threshold": 1.0,
+      "requirement_id": "still_open",
+      "evidence_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+      "metadata": {
+        "why_justification": "Counting the comments sitting on an unsettled thread rather than the articles carrying one - the lever's default misreading - answers 15; counting every article that has no settled thread, which folds in the four that carry no thread at all, also answers 15; leaving include_all_blocks at its default answers 0."
+      },
+      "verifier_spec": {
+        "task_id": "metrics_still_open",
+        "verifiers": [
+          {
+            "name": "metrics_still_open_value",
+            "metadata": {
+              "how_justification": "Reads every sheet of metrics.xlsx as pipe-joined rows with xlsx.extract_text, finds the row whose label cell reads still_open and requires the next populated cell of that row to be 11. The label is looked up, never a cell reference: the row may sit anywhere, in any order, with or without a header row, on a sheet named anything, after any number of empty leading columns, and extra columns to the right are ignored. Spaces, underscores or hyphens between the words all pass, case is free, surrounding emphasis or quotes are allowed, and 11 written as 11.0 passes. A longer label that merely starts with still_open does not match, because the character after the label has to be whitespace or a pipe.",
+              "why_justification": "Counting the comments sitting on an unsettled thread rather than the articles carrying one - the lever's default misreading - answers 15; counting every article that has no settled thread, which folds in the four that carry no thread at all, also answers 15; leaving include_all_blocks at its default answers 0."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}still[ _-]open[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}11(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "metrics_still_open_refuses_the_row_grain_value",
+            "metadata": {
+              "how_justification": "The same label lookup on the same row, as a refusal: the still_open row must NOT read 15, the value the row-grain reading of this audit produces. A run that counts comments where the summary counts articles lands on 15 and is refused here as well as failing the positive leaf, so no single number can satisfy both.",
+              "why_justification": "15 is the number the same data yields when the unit of audit slips from the article to the comment. Pairing the positive check with an explicit refusal of that value is what stops a lazy run scoring on a lenient lookup."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}still[ _-]open[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}15(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "not_regex_match"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "metrics_still_open_new",
+      "description": "Finds the metrics.xlsx row labelled still_open_new and requires 5, and refuses 6 on that same row.",
+      "category": "core",
+      "weight": 1.0,
+      "target": "workspace_files",
+      "verifier_type": "file_check",
+      "type": "file_check",
+      "pass_threshold": 1.0,
+      "requirement_id": "still_open_new",
+      "evidence_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+      "metadata": {
+        "why_justification": "Counting comments rather than articles (the default misreading) answers 6; counting every article whose Doc stage is New, settled or not, answers 7."
+      },
+      "verifier_spec": {
+        "task_id": "metrics_still_open_new",
+        "verifiers": [
+          {
+            "name": "metrics_still_open_new_value",
+            "metadata": {
+              "how_justification": "Reads every sheet of metrics.xlsx as pipe-joined rows with xlsx.extract_text, finds the row whose label cell reads still_open_new and requires the next populated cell of that row to be 5. The label is looked up, never a cell reference: the row may sit anywhere, in any order, with or without a header row, on a sheet named anything, after any number of empty leading columns, and extra columns to the right are ignored. Spaces, underscores or hyphens between the words all pass, case is free, surrounding emphasis or quotes are allowed, and 5 written as 5.0 passes. A longer label that merely starts with still_open_new does not match, because the character after the label has to be whitespace or a pipe.",
+              "why_justification": "Counting comments rather than articles (the default misreading) answers 6; counting every article whose Doc stage is New, settled or not, answers 7."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}still[ _-]open[ _-]new[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}5(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "metrics_still_open_new_refuses_the_row_grain_value",
+            "metadata": {
+              "how_justification": "The same label lookup on the same row, as a refusal: the still_open_new row must NOT read 6, the value the row-grain reading of this audit produces. A run that counts comments where the summary counts articles lands on 6 and is refused here as well as failing the positive leaf, so no single number can satisfy both.",
+              "why_justification": "6 is the number the same data yields when the unit of audit slips from the article to the comment. Pairing the positive check with an explicit refusal of that value is what stops a lazy run scoring on a lenient lookup."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}still[ _-]open[ _-]new[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}6(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "not_regex_match"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "metrics_still_open_draft",
+      "description": "Finds the metrics.xlsx row labelled still_open_draft and requires 2, and refuses 4 on that same row.",
+      "category": "core",
+      "weight": 1.0,
+      "target": "workspace_files",
+      "verifier_type": "file_check",
+      "type": "file_check",
+      "pass_threshold": 1.0,
+      "requirement_id": "still_open_draft",
+      "evidence_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+      "metadata": {
+        "why_justification": "Counting comments rather than articles (the default misreading) answers 4; leaving include_all_blocks at its default answers 0."
+      },
+      "verifier_spec": {
+        "task_id": "metrics_still_open_draft",
+        "verifiers": [
+          {
+            "name": "metrics_still_open_draft_value",
+            "metadata": {
+              "how_justification": "Reads every sheet of metrics.xlsx as pipe-joined rows with xlsx.extract_text, finds the row whose label cell reads still_open_draft and requires the next populated cell of that row to be 2. The label is looked up, never a cell reference: the row may sit anywhere, in any order, with or without a header row, on a sheet named anything, after any number of empty leading columns, and extra columns to the right are ignored. Spaces, underscores or hyphens between the words all pass, case is free, surrounding emphasis or quotes are allowed, and 2 written as 2.0 passes. A longer label that merely starts with still_open_draft does not match, because the character after the label has to be whitespace or a pipe.",
+              "why_justification": "Counting comments rather than articles (the default misreading) answers 4; leaving include_all_blocks at its default answers 0."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}still[ _-]open[ _-]draft[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}2(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "metrics_still_open_draft_refuses_the_row_grain_value",
+            "metadata": {
+              "how_justification": "The same label lookup on the same row, as a refusal: the still_open_draft row must NOT read 4, the value the row-grain reading of this audit produces. A run that counts comments where the summary counts articles lands on 4 and is refused here as well as failing the positive leaf, so no single number can satisfy both.",
+              "why_justification": "4 is the number the same data yields when the unit of audit slips from the article to the comment. Pairing the positive check with an explicit refusal of that value is what stops a lazy run scoring on a lenient lookup."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}still[ _-]open[ _-]draft[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}4(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "not_regex_match"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "metrics_still_open_in_review",
+      "description": "Finds the metrics.xlsx row labelled still_open_in_review and requires 4, and refuses 5 on that same row.",
+      "category": "core",
+      "weight": 1.0,
+      "target": "workspace_files",
+      "verifier_type": "file_check",
+      "type": "file_check",
+      "pass_threshold": 1.0,
+      "requirement_id": "still_open_in_review",
+      "evidence_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+      "metadata": {
+        "why_justification": "Counting comments rather than articles (the default misreading) answers 5; counting every article whose Doc stage is In Review, settled or not, answers 5 as well, so the figure only separates a run that read the resolved flag."
+      },
+      "verifier_spec": {
+        "task_id": "metrics_still_open_in_review",
+        "verifiers": [
+          {
+            "name": "metrics_still_open_in_review_value",
+            "metadata": {
+              "how_justification": "Reads every sheet of metrics.xlsx as pipe-joined rows with xlsx.extract_text, finds the row whose label cell reads still_open_in_review and requires the next populated cell of that row to be 4. The label is looked up, never a cell reference: the row may sit anywhere, in any order, with or without a header row, on a sheet named anything, after any number of empty leading columns, and extra columns to the right are ignored. Spaces, underscores or hyphens between the words all pass, case is free, surrounding emphasis or quotes are allowed, and 4 written as 4.0 passes. A longer label that merely starts with still_open_in_review does not match, because the character after the label has to be whitespace or a pipe.",
+              "why_justification": "Counting comments rather than articles (the default misreading) answers 5; counting every article whose Doc stage is In Review, settled or not, answers 5 as well, so the figure only separates a run that read the resolved flag."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}still[ _-]open[ _-]in[ _-]review[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}4(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "metrics_still_open_in_review_refuses_the_row_grain_value",
+            "metadata": {
+              "how_justification": "The same label lookup on the same row, as a refusal: the still_open_in_review row must NOT read 5, the value the row-grain reading of this audit produces. A run that counts comments where the summary counts articles lands on 5 and is refused here as well as failing the positive leaf, so no single number can satisfy both.",
+              "why_justification": "5 is the number the same data yields when the unit of audit slips from the article to the comment. Pairing the positive check with an explicit refusal of that value is what stops a lazy run scoring on a lenient lookup."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}still[ _-]open[ _-]in[ _-]review[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}5(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "not_regex_match"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "metrics_articles_without_comments",
+      "description": "Finds the metrics.xlsx row labelled articles_without_comments and requires 4, and refuses 7 on that same row.",
+      "category": "core",
+      "weight": 1.0,
+      "target": "workspace_files",
+      "verifier_type": "file_check",
+      "type": "file_check",
+      "pass_threshold": 1.0,
+      "requirement_id": "articles_without_comments",
+      "evidence_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+      "metadata": {
+        "why_justification": "Leaving include_resolved at its default makes the three settled articles look like articles with no thread at all and answers 7; leaving include_all_blocks at its default answers 18."
+      },
+      "verifier_spec": {
+        "task_id": "metrics_articles_without_comments",
+        "verifiers": [
+          {
+            "name": "metrics_articles_without_comments_value",
+            "metadata": {
+              "how_justification": "Reads every sheet of metrics.xlsx as pipe-joined rows with xlsx.extract_text, finds the row whose label cell reads articles_without_comments and requires the next populated cell of that row to be 4. The label is looked up, never a cell reference: the row may sit anywhere, in any order, with or without a header row, on a sheet named anything, after any number of empty leading columns, and extra columns to the right are ignored. Spaces, underscores or hyphens between the words all pass, case is free, surrounding emphasis or quotes are allowed, and 4 written as 4.0 passes. A longer label that merely starts with articles_without_comments does not match, because the character after the label has to be whitespace or a pipe.",
+              "why_justification": "Leaving include_resolved at its default makes the three settled articles look like articles with no thread at all and answers 7; leaving include_all_blocks at its default answers 18."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}articles[ _-]without[ _-]comments[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}4(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "metrics_articles_without_comments_refuses_the_row_grain_value",
+            "metadata": {
+              "how_justification": "The same label lookup on the same row, as a refusal: the articles_without_comments row must NOT read 7, the value the row-grain reading of this audit produces. A run that counts comments where the summary counts articles lands on 7 and is refused here as well as failing the positive leaf, so no single number can satisfy both.",
+              "why_justification": "7 is the number the same data yields when the unit of audit slips from the article to the comment. Pairing the positive check with an explicit refusal of that value is what stops a lazy run scoring on a lenient lookup."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "metrics.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[^\\S\\n]*(?:\\|[^\\S\\n]*)*[*_`\\\"']{0,2}articles[ _-]without[ _-]comments[*_`\\\"']{0,2}[^\\S\\n]*(?:\\|[^\\S\\n]*)+[*_`\\\"']{0,2}7(?:\\.0+)?(?!\\d)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "not_regex_match"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "review_log_lists_every_reviewer_comment",
+      "description": "review_log.md carries exactly one line per reviewer comment (19 of them, each ending in its thread's finding) and names the four articles that carry none, so all 18 articles appear in the file.",
+      "category": "core",
+      "weight": 1.0,
+      "target": "workspace_files",
+      "verifier_type": "file_check",
+      "type": "file_check",
+      "pass_threshold": 1.0,
+      "requirement_id": "review_log_row_coverage",
+      "evidence_span": "One line for every reviewer comment in that database,\nwritten as `article title | Doc stage | open` while the thread that comment belongs to is still\nwaiting on somebody, and `article title | Doc stage | settled` once that thread has been resolved.\nClose the file with a clearly labelled list, one title per line, of the articles carrying no\nreviewer comment at all, so that every article in the database appears somewhere in this file.",
+      "metadata": {
+        "why_justification": "A run that writes one line per ARTICLE instead of one per comment lands on 14 lines, and a run that leaves include_resolved at its default never sees the four settled comments and lands on 15; both fail the count. A run that lists the four uncommented articles as log lines instead of naming them at the end lands on 23 and is refused twice over."
+      },
+      "verifier_spec": {
+        "task_id": "review_log_lists_every_reviewer_comment",
+        "verifiers": [
+          {
+            "name": "review_log_has_one_line_per_comment",
+            "metadata": {
+              "how_justification": "Reads review_log.md as text and requires EXACTLY 19 lines whose last pipe-separated field is open or settled - the shape the prompt asks each comment line to take. The pattern is an exact-count construction (n matches of the line pattern and nothing between them that also matches), not a floor, so 18 lines and 20 lines both fail. Everything before the last separator is free text, so the article title and the Doc stage may be written any way the run likes; leading and trailing pipes, markdown emphasis inside or around the status word, tabs, CRLF line endings and any casing all pass, and a heading or a table rule, having no status field, is not counted.",
+              "why_justification": "A run that writes one line per ARTICLE instead of one per comment lands on 14 lines, and a run that leaves include_resolved at its default never sees the four settled comments and lands on 15; both fail the count. A run that lists the four uncommented articles as log lines instead of naming them at the end lands on 23 and is refused twice over."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ism)\\A(?:(?!^[^\\r\\n]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*(?:(?:^[^\\r\\n]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)(?:(?!^[^\\r\\n]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*){19}\\Z",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_names_article_as_uncommented",
+            "metadata": {
+              "how_justification": "Requires Article, which carries no reviewer comment, to appear on a line of its own - a line holding that title and nothing else - which is the closing list the prompt asks for. The line may be bare or carry any ordinary Markdown list marker ('-', '*', '+', '1.' or '1)'), and it may also be a single-cell table row ('| Article |'); a GFM header row, which is the row the delimiter line follows, is not a list entry and does not satisfy it. Markdown emphasis around or inside the words, any casing, tabs, CRLF and any position in the file pass; the title appearing only inside a heading or inside a comment line does not.",
+              "why_justification": "Without a line of its own for each of the four, the file could cover the 14 articles that were commented on and silently drop the ones that were not, which is the half of the audit the summary figure articles_without_comments reports."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)(?:^[ \\t]*(?:[-*+][ \\t]*|[0-9]{1,9}[.)][ \\t]*)?[*_`]{0,2}(?:Article|Art[*_`]{0,2}icle)[*_`]{0,2}[ \\t\\r]*$|^[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:Article|Art[*_`]{0,2}icle)[*_`]{0,2}[ \\t]*\\|[ \\t\\r]*$(?!\\r?\\n[ \\t]*\\|[ \\t]*:?-))",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_names_exercise_with_bump_as_uncommented",
+            "metadata": {
+              "how_justification": "Requires Exercise with bump, which carries no reviewer comment, to appear on a line of its own - a line holding that title and nothing else - which is the closing list the prompt asks for. The line may be bare or carry any ordinary Markdown list marker ('-', '*', '+', '1.' or '1)'), and it may also be a single-cell table row ('| Exercise with bump |'); a GFM header row, which is the row the delimiter line follows, is not a list entry and does not satisfy it. Markdown emphasis around or inside the words, any casing, tabs, CRLF and any position in the file pass; the title appearing only inside a heading or inside a comment line does not.",
+              "why_justification": "Without a line of its own for each of the four, the file could cover the 14 articles that were commented on and silently drop the ones that were not, which is the half of the audit the summary figure articles_without_comments reports."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)(?:^[ \\t]*(?:[-*+][ \\t]*|[0-9]{1,9}[.)][ \\t]*)?[*_`]{0,2}(?:Exercise|Exe[*_`]{0,2}rcise)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:with|wit[*_`]{0,2}h)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:bump|bum[*_`]{0,2}p)[*_`]{0,2}[ \\t\\r]*$|^[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:Exercise|Exe[*_`]{0,2}rcise)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:with|wit[*_`]{0,2}h)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:bump|bum[*_`]{0,2}p)[*_`]{0,2}[ \\t]*\\|[ \\t\\r]*$(?!\\r?\\n[ \\t]*\\|[ \\t]*:?-))",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_names_new_brainstorm_as_uncommented",
+            "metadata": {
+              "how_justification": "Requires New Brainstorm, which carries no reviewer comment, to appear on a line of its own - a line holding that title and nothing else - which is the closing list the prompt asks for. The line may be bare or carry any ordinary Markdown list marker ('-', '*', '+', '1.' or '1)'), and it may also be a single-cell table row ('| New Brainstorm |'); a GFM header row, which is the row the delimiter line follows, is not a list entry and does not satisfy it. Markdown emphasis around or inside the words, any casing, tabs, CRLF and any position in the file pass; the title appearing only inside a heading or inside a comment line does not.",
+              "why_justification": "Without a line of its own for each of the four, the file could cover the 14 articles that were commented on and silently drop the ones that were not, which is the half of the audit the summary figure articles_without_comments reports."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)(?:^[ \\t]*(?:[-*+][ \\t]*|[0-9]{1,9}[.)][ \\t]*)?[*_`]{0,2}New[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Brainstorm|Bra[*_`]{0,2}instorm)[*_`]{0,2}[ \\t\\r]*$|^[ \\t]*\\|[ \\t]*[*_`]{0,2}New[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Brainstorm|Bra[*_`]{0,2}instorm)[*_`]{0,2}[ \\t]*\\|[ \\t\\r]*$(?!\\r?\\n[ \\t]*\\|[ \\t]*:?-))",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_names_new_product_spec_prd_as_uncommented",
+            "metadata": {
+              "how_justification": "Requires New Product Spec (PRD), which carries no reviewer comment, to appear on a line of its own - a line holding that title and nothing else - which is the closing list the prompt asks for. The line may be bare or carry any ordinary Markdown list marker ('-', '*', '+', '1.' or '1)'), and it may also be a single-cell table row ('| New Product Spec (PRD) |'); a GFM header row, which is the row the delimiter line follows, is not a list entry and does not satisfy it. Markdown emphasis around or inside the words, any casing, tabs, CRLF and any position in the file pass; the title appearing only inside a heading or inside a comment line does not.",
+              "why_justification": "Without a line of its own for each of the four, the file could cover the 14 articles that were commented on and silently drop the ones that were not, which is the half of the audit the summary figure articles_without_comments reports."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)(?:^[ \\t]*(?:[-*+][ \\t]*|[0-9]{1,9}[.)][ \\t]*)?[*_`]{0,2}New[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Product|Pro[*_`]{0,2}duct)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Spec|Spe[*_`]{0,2}c)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:\\(PRD\\)|\\(PR[*_`]{0,2}D\\))[*_`]{0,2}[ \\t\\r]*$|^[ \\t]*\\|[ \\t]*[*_`]{0,2}New[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Product|Pro[*_`]{0,2}duct)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Spec|Spe[*_`]{0,2}c)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:\\(PRD\\)|\\(PR[*_`]{0,2}D\\))[*_`]{0,2}[ \\t]*\\|[ \\t\\r]*$(?!\\r?\\n[ \\t]*\\|[ \\t]*:?-))",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_refuses_a_comment_line_for_an_uncommented_article",
+            "metadata": {
+              "how_justification": "The paired refusal: none of those four titles may carry a COMMENT line - a line whose last pipe-separated field is the finding, open or settled - since they carry no comment for such a line to describe. It is the exact mirror of review_log_refuses_an_open_line_for_a_settled_article and of review_log_refuses_a_settled_line_for_a_still_open_article: the same title sub-patterns, the same optional outer pipes, the same free-text Doc stage field between the separators, the same emphasis, casing, tab and CRLF tolerance, and the same requirement that the line END in the finding. A GFM header row whose title column is spelled 'Article' carries a column name in its last field, not a finding, so rendering the log as a table is not refused; only a manufactured comment line is.",
+              "why_justification": "A run that manufactures a placeholder row for an article with no comments would satisfy a membership check while corrupting both the row count and articles_without_comments."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)(?:^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Article|Art[*_`]{0,2}icle)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Exercise|Exe[*_`]{0,2}rcise)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:with|wit[*_`]{0,2}h)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:bump|bum[*_`]{0,2}p)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}New[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Brainstorm|Bra[*_`]{0,2}instorm)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}New[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Product|Pro[*_`]{0,2}duct)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Spec|Spe[*_`]{0,2}c)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:\\(PRD\\)|\\(PR[*_`]{0,2}D\\))[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "not_regex_match"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "review_log_reconciles_the_open_articles_by_article",
+      "description": "Groups review_log.md's own comment lines by article and requires the set of articles carrying an open line to be exactly the 11 the summary counts in still_open - the reconciliation between the per-row log and the per-article summary.",
+      "category": "core",
+      "weight": 1.0,
+      "target": "workspace_files",
+      "verifier_type": "file_check",
+      "type": "file_check",
+      "pass_threshold": 1.0,
+      "requirement_id": "review_log_reconciliation",
+      "evidence_span": "written as `article title | Doc stage | open` while the thread that comment belongs to is still\nwaiting on somebody, and `article title | Doc stage | settled` once that thread has been resolved.",
+      "metadata": {
+        "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+      },
+      "verifier_spec": {
+        "task_id": "review_log_reconciles_the_open_articles_by_article",
+        "verifiers": [
+          {
+            "name": "review_log_groups_antenatal_testing_under_open",
+            "metadata": {
+              "how_justification": "Requires Antenatal Testing, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Antenatal|Ant[*_`]{0,2}enatal)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Testing|Tes[*_`]{0,2}ting)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_aspirin_in_pregnancy_under_open",
+            "metadata": {
+              "how_justification": "Requires Aspirin in Pregnancy, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Aspirin|Asp[*_`]{0,2}irin)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}in[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Pregnancy|Pre[*_`]{0,2}gnancy)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_fertility_after_pregnancy_under_open",
+            "metadata": {
+              "how_justification": "Requires Fertility after Pregnancy, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Fertility|Fer[*_`]{0,2}tility)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:after|aft[*_`]{0,2}er)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Pregnancy|Pre[*_`]{0,2}gnancy)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_foods_to_avoid_under_open",
+            "metadata": {
+              "how_justification": "Requires Foods to avoid, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Foods|Foo[*_`]{0,2}ds)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}to[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:avoid|avo[*_`]{0,2}id)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_group_b_streptococcus_under_open",
+            "metadata": {
+              "how_justification": "Requires Group B Streptococcus, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Group|Gro[*_`]{0,2}up)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}B[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Streptococcus|Str[*_`]{0,2}eptococcus)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_induction_of_labor_under_open",
+            "metadata": {
+              "how_justification": "Requires Induction of Labor, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Induction|Ind[*_`]{0,2}uction)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}of[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Labor|Lab[*_`]{0,2}or)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_intercourse_during_pregnancy_under_open",
+            "metadata": {
+              "how_justification": "Requires Intercourse During Pregnancy, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Intercourse|Int[*_`]{0,2}ercourse)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:During|Dur[*_`]{0,2}ing)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Pregnancy|Pre[*_`]{0,2}gnancy)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_thinking_about_a_massage_under_open",
+            "metadata": {
+              "how_justification": "Requires Thinking about a massage?, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Thinking|Thi[*_`]{0,2}nking)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:about|abo[*_`]{0,2}ut)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}a[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:massage\\?|mas[*_`]{0,2}sage\\?)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_title_example_under_open",
+            "metadata": {
+              "how_justification": "Requires Title example, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Title|Tit[*_`]{0,2}le)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:example|exa[*_`]{0,2}mple)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_ultrasound_in_pregnancy_under_open",
+            "metadata": {
+              "how_justification": "Requires Ultrasound in Pregnancy, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Ultrasound|Ult[*_`]{0,2}rasound)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}in[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Pregnancy|Pre[*_`]{0,2}gnancy)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_vaginitis_bv_under_open",
+            "metadata": {
+              "how_justification": "Requires Vaginitis & BV, which still carries an unsettled thread, to appear on at least one log line whose last field is open, with a middle field for the Doc stage. Grouping by article is what the leaf does: an article with two open comments satisfies it once, which is the same grouping the summary figure uses. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The summary says 11 articles are still open. A run that took the row-grain reading counts 15 there, and a run that treated the three settled threads as unsettled counts 14; both leave a review log whose open lines no longer group to the article set these leaves pin. Grouping the log's own rows by article is the only way the per-row deliverable and the summary can be shown to be the same audit."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Vaginitis|Vag[*_`]{0,2}initis)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}\\&[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}BV[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_refuses_an_open_line_for_a_settled_article",
+            "metadata": {
+              "how_justification": "The paired refusal: none of the three articles whose thread has been resolved may appear on a log line whose last field is open. With the eleven leaves above it and the uncommented-article refusal beside them, the set of articles marked open in the log is pinned at exactly the 11 that still_open counts, out of the 18 in the database.",
+              "why_justification": "A run that never sets include_resolved, or that reads the resolved flag off the comment instead of the thread, marks Birthing Options, Nausea and Vomiting and Pregnancy Schedules open and reports still_open 14. This is the leaf that catches it in the log itself rather than only in the workbook."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)(?:^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Birthing|Bir[*_`]{0,2}thing)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Options|Opt[*_`]{0,2}ions)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Nausea|Nau[*_`]{0,2}sea)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}and[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Vomiting|Vom[*_`]{0,2}iting)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Pregnancy|Pre[*_`]{0,2}gnancy)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Schedules|Sch[*_`]{0,2}edules)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "not_regex_match"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "review_log_accounts_for_every_article_and_both_findings",
+      "description": "Splits review_log.md's 19 comment lines into the 15 open and the 4 settled the database actually holds, counts the lines carrying each Doc stage, and requires the three settled articles to appear on a settled line - the cardinality and completeness half of the per-row deliverable, so a log that drops the settled threads or fills the stage column with junk cannot score full reward.",
+      "category": "core",
+      "weight": 1.0,
+      "target": "workspace_files",
+      "verifier_type": "file_check",
+      "type": "file_check",
+      "pass_threshold": 1.0,
+      "requirement_id": "review_log_finding_coverage",
+      "evidence_span": "One line for every reviewer comment in that database,\nwritten as `article title | Doc stage | open` while the thread that comment belongs to is still\nwaiting on somebody, and `article title | Doc stage | settled` once that thread has been resolved.",
+      "metadata": {
+        "why_justification": "review_log.md is a 19-row, three-field deliverable. Before this verifier the row total was pinned at 19 and the eleven open articles were pinned to an open line, but nothing required a settled line to exist, nothing required the three settled articles to appear at all, and no assertion reached the Doc stage column. Measured through the bundle's own verifier engine on 2026-09-27, two materially incomplete logs scored 8 of 8 file_checks: one that dropped all four settled comment lines and padded the count with duplicate open lines, and one that kept the shape and wrote a junk Doc stage on every line. This verifier refuses both, and with it every one of the 18 articles in the database is pinned somewhere in the log."
+      },
+      "verifier_spec": {
+        "task_id": "review_log_accounts_for_every_article_and_both_findings",
+        "verifiers": [
+          {
+            "name": "review_log_has_exactly_fifteen_open_comment_lines",
+            "metadata": {
+              "how_justification": "Reads review_log.md as text and requires EXACTLY 15 lines whose last pipe-separated field is open. Same exact-count construction as review_log_has_one_line_per_comment (n matches of the line pattern and nothing between them that also matches), so 14 and 16 both fail; and the same tolerances - free text before the last separator, optional outer pipes, markdown emphasis inside or around the status word, tabs, CRLF and any casing.",
+              "why_justification": "review_log_has_one_line_per_comment pins the TOTAL at 19 and nothing splits that total by finding, so a log that never mentions a settled thread at all - 19 open lines over the eleven open articles, with Birthing Options, Nausea and Vomiting and Pregnancy Schedules absent from the file - clears every other leaf in this bundle. Measured on 2026-09-27 through this bundle's own verifier engine: that log scored 8 of 8 file_checks before this verifier existed. Splitting the count into 15 open and 4 settled is what refuses it. A run that reports the four settled comments as open lands on 19 here."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ism)\\A(?:(?!^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*(?:(?:^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$)(?:(?!^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*){15}\\Z",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_has_exactly_four_settled_comment_lines",
+            "metadata": {
+              "how_justification": "The other half of the same split: EXACTLY 4 lines whose last pipe-separated field is settled, by the same exact-count construction and the same tolerances. 15 + 4 is the 19 the row-coverage leaf counts, so the two halves are pinned as well as the total.",
+              "why_justification": "review_log_has_one_line_per_comment pins the TOTAL at 19 and nothing splits that total by finding, so a log that never mentions a settled thread at all - 19 open lines over the eleven open articles, with Birthing Options, Nausea and Vomiting and Pregnancy Schedules absent from the file - clears every other leaf in this bundle. Measured on 2026-09-27 through this bundle's own verifier engine: that log scored 8 of 8 file_checks before this verifier existed. Splitting the count into 15 open and 4 settled is what refuses it. A run that leaves include_resolved at its default never sees a settled thread and lands on 0 here; a run that reads the resolved flag off the comment rather than the discussion lands on a different number again."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ism)\\A(?:(?!^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*(?:(?:^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$)(?:(?!^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*){4}\\Z",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_has_exactly_nine_comment_lines_at_doc_stage_new",
+            "metadata": {
+              "how_justification": "Requires EXACTLY 9 comment lines whose MIDDLE pipe-separated field is New - the Doc stage the prompt asks each line to carry between the title and the finding. Same exact-count construction and the same tolerances as the two leaves above; the title field stays free text, the stage word tolerates emphasis around it and inside it, and casing, tabs, CRLF and optional outer pipes all pass. The three counts sum to 19, so together they also require every comment line to carry a stage field at all.",
+              "why_justification": "The Doc stage field was the one column of this 19-row deliverable that no assertion reached: before this verifier, a log with every title and every finding right and a junk value in every stage cell scored 8 of 8 file_checks, measured through the bundle's own engine on 2026-09-27. These three counts are the ROW grain the log is written at (7 articles at New carry 9 comments, 2 at Draft carry 4, 5 at In Review carry 6); they are not the article-grain summary figures, which metrics.xlsx grades separately at 5, 2 and 4."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ism)\\A(?:(?!^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}New[*_`]{0,2}[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*(?:(?:^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}New[*_`]{0,2}[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)(?:(?!^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}New[*_`]{0,2}[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*){9}\\Z",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_has_exactly_four_comment_lines_at_doc_stage_draft",
+            "metadata": {
+              "how_justification": "Requires EXACTLY 4 comment lines whose MIDDLE pipe-separated field is Draft - the Doc stage the prompt asks each line to carry between the title and the finding. Same exact-count construction and the same tolerances as the two leaves above; the title field stays free text, the stage word tolerates emphasis around it and inside it, and casing, tabs, CRLF and optional outer pipes all pass. The three counts sum to 19, so together they also require every comment line to carry a stage field at all.",
+              "why_justification": "The Doc stage field was the one column of this 19-row deliverable that no assertion reached: before this verifier, a log with every title and every finding right and a junk value in every stage cell scored 8 of 8 file_checks, measured through the bundle's own engine on 2026-09-27. These three counts are the ROW grain the log is written at (7 articles at New carry 9 comments, 2 at Draft carry 4, 5 at In Review carry 6); they are not the article-grain summary figures, which metrics.xlsx grades separately at 5, 2 and 4."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ism)\\A(?:(?!^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}(?:Draft|Dra[*_`]{0,2}ft)[*_`]{0,2}[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*(?:(?:^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}(?:Draft|Dra[*_`]{0,2}ft)[*_`]{0,2}[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)(?:(?!^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}(?:Draft|Dra[*_`]{0,2}ft)[*_`]{0,2}[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*){4}\\Z",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_has_exactly_six_comment_lines_at_doc_stage_in_review",
+            "metadata": {
+              "how_justification": "Requires EXACTLY 6 comment lines whose MIDDLE pipe-separated field is In Review - the Doc stage the prompt asks each line to carry between the title and the finding. Same exact-count construction and the same tolerances as the two leaves above; the title field stays free text, the stage word tolerates emphasis around it and inside it, and casing, tabs, CRLF and optional outer pipes all pass. The three counts sum to 19, so together they also require every comment line to carry a stage field at all.",
+              "why_justification": "The Doc stage field was the one column of this 19-row deliverable that no assertion reached: before this verifier, a log with every title and every finding right and a junk value in every stage cell scored 8 of 8 file_checks, measured through the bundle's own engine on 2026-09-27. These three counts are the ROW grain the log is written at (7 articles at New carry 9 comments, 2 at Draft carry 4, 5 at In Review carry 6); they are not the article-grain summary figures, which metrics.xlsx grades separately at 5, 2 and 4."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ism)\\A(?:(?!^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}In[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Review|Rev[*_`]{0,2}iew)[*_`]{0,2}[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*(?:(?:^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}In[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Review|Rev[*_`]{0,2}iew)[*_`]{0,2}[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)(?:(?!^[^\\r\\n]*\\|[ \\t]*[*_`]{0,2}In[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Review|Rev[*_`]{0,2}iew)[*_`]{0,2}[ \\t]*\\|[ \\t]*(?:[*_`]{0,2}(?:open|ope[*_`]{0,2}n)[*_`]{0,2}|[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2})[ \\t]*\\|?[ \\t\\r]*$)[\\s\\S])*){6}\\Z",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_birthing_options_under_settled",
+            "metadata": {
+              "how_justification": "Requires Birthing Options, whose thread has been resolved, to appear on at least one log line whose last field is settled, with a middle field for the Doc stage. The mirror of the eleven _under_open leaves, and grouped by article the same way: an article with two settled comments satisfies it once. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The eleven _under_open leaves and the refusal beside them pin which articles are OPEN, but nothing required a settled article to appear in the file at all. These three leaves are the completeness half: with them, all 18 articles in the database are pinned somewhere in the log - 11 on an open line, 3 on a settled line and 4 in the closing list - which is what the prompt means by every article appearing somewhere in this file."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Birthing|Bir[*_`]{0,2}thing)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Options|Opt[*_`]{0,2}ions)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_nausea_and_vomiting_under_settled",
+            "metadata": {
+              "how_justification": "Requires Nausea and Vomiting, whose thread has been resolved, to appear on at least one log line whose last field is settled, with a middle field for the Doc stage. The mirror of the eleven _under_open leaves, and grouped by article the same way: an article with two settled comments satisfies it once. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The eleven _under_open leaves and the refusal beside them pin which articles are OPEN, but nothing required a settled article to appear in the file at all. These three leaves are the completeness half: with them, all 18 articles in the database are pinned somewhere in the log - 11 on an open line, 3 on a settled line and 4 in the closing list - which is what the prompt means by every article appearing somewhere in this file."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Nausea|Nau[*_`]{0,2}sea)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}and[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Vomiting|Vom[*_`]{0,2}iting)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_groups_pregnancy_schedules_under_settled",
+            "metadata": {
+              "how_justification": "Requires Pregnancy Schedules, whose thread has been resolved, to appear on at least one log line whose last field is settled, with a middle field for the Doc stage. The mirror of the eleven _under_open leaves, and grouped by article the same way: an article with two settled comments satisfies it once. Markdown emphasis, casing, tabs, CRLF and optional outer pipes all pass.",
+              "why_justification": "The eleven _under_open leaves and the refusal beside them pin which articles are OPEN, but nothing required a settled article to appear in the file at all. These three leaves are the completeness half: with them, all 18 articles in the database are pinned somewhere in the log - 11 on an open line, 3 on a settled line and 4 in the closing list - which is what the prompt means by every article appearing somewhere in this file."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Pregnancy|Pre[*_`]{0,2}gnancy)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Schedules|Sch[*_`]{0,2}edules)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          {
+            "name": "review_log_refuses_a_settled_line_for_a_still_open_article",
+            "metadata": {
+              "how_justification": "The paired refusal, the mirror of review_log_refuses_an_open_line_for_a_settled_article: none of the eleven articles whose thread is still unsettled may appear on a log line whose last field is settled. The eleven title patterns are byte-identical to the ones the _under_open leaves use. With the three leaves above it, the set of articles marked settled in the log is pinned at exactly the 3 that carry a resolved thread.",
+              "why_justification": "Without it the settled leaves are satisfiable by a log that marks everything settled, and a run that resolves nothing but reports every thread as closed would still be refused only in the summary, not in the per-row log. This is the leaf that catches it in the log itself."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "md",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "review_log.md"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)(?:^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Antenatal|Ant[*_`]{0,2}enatal)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Testing|Tes[*_`]{0,2}ting)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Aspirin|Asp[*_`]{0,2}irin)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}in[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Pregnancy|Pre[*_`]{0,2}gnancy)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Fertility|Fer[*_`]{0,2}tility)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:after|aft[*_`]{0,2}er)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Pregnancy|Pre[*_`]{0,2}gnancy)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Foods|Foo[*_`]{0,2}ds)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}to[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:avoid|avo[*_`]{0,2}id)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Group|Gro[*_`]{0,2}up)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}B[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Streptococcus|Str[*_`]{0,2}eptococcus)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Induction|Ind[*_`]{0,2}uction)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}of[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Labor|Lab[*_`]{0,2}or)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Intercourse|Int[*_`]{0,2}ercourse)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:During|Dur[*_`]{0,2}ing)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Pregnancy|Pre[*_`]{0,2}gnancy)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Thinking|Thi[*_`]{0,2}nking)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:about|abo[*_`]{0,2}ut)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}a[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:massage\\?|mas[*_`]{0,2}sage\\?)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Title|Tit[*_`]{0,2}le)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:example|exa[*_`]{0,2}mple)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Ultrasound|Ult[*_`]{0,2}rasound)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}in[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}(?:Pregnancy|Pre[*_`]{0,2}gnancy)[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$|^[ \\t]*\\|?[ \\t]*[*_`]{0,2}(?:Vaginitis|Vag[*_`]{0,2}initis)[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}\\&[*_`]{0,2}[\\s*_`]{1,8}[*_`]{0,2}BV[*_`]{0,2}[ \\t]*\\|[ \\t]*[^|\\r\\n]*[ \\t]*\\|[ \\t]*[*_`]{0,2}(?:settled|set[*_`]{0,2}tled)[*_`]{0,2}[ \\t]*\\|?[ \\t\\r]*$)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "not_regex_match"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "the_article_pages_were_not_touched",
+      "description": "The Articles database still holds its 18 live pages: nothing was created, trashed or moved.",
+      "category": "core",
+      "verifier_type": "database_state",
+      "type": "database_state",
+      "weight": 1.0,
+      "target_gym_server": "notion-gym",
+      "sql_query": "SELECT COUNT(*) FROM pages WHERE parent_id = '9caee280db7e4c9385908af1164446fb' AND in_trash = 0",
+      "expected_value": 18,
+      "comparison_type": "equals",
+      "requirement_id": "library_unchanged",
+      "evidence_span": "Please do not change anything in\nthe library itself while you are in there",
+      "metadata": {
+        "why_justification": "Measured on seed state: the database holds exactly 18 live pages. notion-create-pages, notion-move-pages and notion-duplicate-page are all on the served surface, so a run that files its findings as a new page in the library, or moves an uncommented article out of the way, moves this count off 18. The query is scoped to the database rather than to a list of the right page ids, so it can actually fire."
+      }
+    },
+    {
+      "name": "no_reviewer_thread_was_resolved_or_reopened",
+      "description": "Exactly 3 of the library's discussions are still marked resolved - the run read the threads, it did not settle them.",
+      "category": "core",
+      "verifier_type": "database_state",
+      "type": "database_state",
+      "weight": 1.0,
+      "target_gym_server": "notion-gym",
+      "sql_query": "SELECT COUNT(*) FROM discussions WHERE resolved = 1 AND page_id IN (SELECT id FROM pages WHERE parent_id = '9caee280db7e4c9385908af1164446fb')",
+      "expected_value": 3,
+      "comparison_type": "equals",
+      "requirement_id": "threads_unchanged",
+      "evidence_span": "Please do not change anything in\nthe library itself while you are in there",
+      "metadata": {
+        "why_justification": "Measured on seed state: 3 resolved, 11 unresolved. Tidying the library up by resolving the threads it just reported, or re-opening one to make the report come out round, moves this off 3 in either direction and equals catches both. It is scoped to the whole database rather than to the three settled ids, so an added or flipped thread anywhere in the library fires it."
+      }
+    },
+    {
+      "name": "no_comment_was_added_to_the_library",
+      "description": "The library still carries exactly its 19 seeded reviewer comments - the audit was written to /workspace, not back onto the pages.",
+      "category": "core",
+      "verifier_type": "database_state",
+      "type": "database_state",
+      "weight": 1.0,
+      "target_gym_server": "notion-gym",
+      "sql_query": "SELECT COUNT(*) FROM comments WHERE page_id IN (SELECT id FROM pages WHERE parent_id = '9caee280db7e4c9385908af1164446fb')",
+      "expected_value": 19,
+      "comparison_type": "equals",
+      "requirement_id": "comments_unchanged",
+      "evidence_span": "Please do not change anything in\nthe library itself while you are in there",
+      "metadata": {
+        "why_justification": "Measured on seed state: 19 comments across the 18 pages. notion-create-comment is served, and the obvious wrong move on a review audit is to leave a nudge on each article that is still open, which would also corrupt the very figures being graded. Scoped to the database rather than to the 14 commented pages, so a comment left on any article fires it."
+      }
+    },
+    {
+      "name": "read_every_article_thread",
+      "description": "Floor a fabricated answer cannot clear: the resolved flag exists only per page, and notion-get-comments has no bulk form.",
+      "category": "core",
+      "weight": 0.5,
+      "verifier_type": "tool_execution",
+      "type": "tool_execution",
+      "requirement_id": "read_depth",
+      "evidence_span": "Go through that database and work out where each article stands.",
+      "expected_tools": [],
+      "minimum_tool_calls": 18,
+      "metadata": {
+        "why_justification": "Measured on this gym: notion-query-data-sources answers any pure row aggregate over the Articles table in one call, but discussions and comments are not columns of that data source at all, and notion-get-comments takes a single page_id with no array form and no bulk mode. So the finding every graded figure turns on costs one call per article: 18, plus the reads that produce the page ids. The floor is set at 18, the structural minimum for the comment reads alone, rather than at the golden trajectory's 21, so a correct run that already knew the database id still clears it while a run that answered from the SQL table alone cannot."
+      }
+    }
+  ],
+  "instruction_sha256": "bdd314115f458df0b4a03ce1ebb658be56b3756be3ffce0aa98a35214bdf2ff6"
+}

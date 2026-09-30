@@ -1,0 +1,451 @@
+{
+  "task": "task",
+  "harness": "the bundle's own tests/manifest.json verifier_specs, unmodified, run through the vendored tests/rl_world_verifiers engine (the same code path benchmark_runner.py uses for file_check) against a workspace built from solution/artifact_plan.json",
+  "scope": "the 7 core file_check verifiers. database_state, rubric_check and tool_execution verifiers are not workspace artifacts and are not mutable this way.",
+  "controls": {
+    "positive": "the oracle's own artifacts score every file_check",
+    "semantic": "one corrupted graded value fails EXACTLY the verifier that grades it",
+    "granularity": "one corrupted value fails exactly one verifier and the rest still pass, so reward drops by that entry's weight rather than to zero",
+    "cosmetic": "presentation changes that leave every number correct still score every file_check",
+    "incompleteness": "an artifact missing a graded value fails the verifier that grades it, rather than passing on a lenient lookup",
+    "adversarial_acceptance": "a plausible WRONG answer -- a superset report, or every figure off by one -- fails rather than scoring"
+  },
+  "strictness_pct": 100.0,
+  "brittleness_pct": 0.0,
+  "all_controls_pass": true,
+  "superset_report_accepted": false,
+  "residual_risk_duplicate_graded_key": {
+    "verifiers_that_wrongly_fail": null,
+    "note": "a correct answer that also writes a breakdown reusing a graded key name. No clean fix: prompt clause is mitigation only, `contains` breaks the single-match case, `$..key[0]` fails every case. Not counted in brittleness."
+  },
+  "cases": [
+    {
+      "control": "positive",
+      "mutation": "oracle artifacts verbatim",
+      "expected_failures": [],
+      "observed_failures": [],
+      "file_check_verifiers_passing": "7/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Summary!B1 corrupted",
+      "expected_failures": [
+        "summary_billed_practices"
+      ],
+      "observed_failures": [
+        "summary_billed_practices"
+      ],
+      "file_check_verifiers_passing": "6/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Summary!B1",
+      "expected_failures": [
+        "summary_billed_practices"
+      ],
+      "observed_failures": [
+        "summary_billed_practices"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Summary!B2 corrupted",
+      "expected_failures": [
+        "summary_cash_pay_practices"
+      ],
+      "observed_failures": [
+        "summary_cash_pay_practices"
+      ],
+      "file_check_verifiers_passing": "6/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Summary!B2",
+      "expected_failures": [
+        "summary_cash_pay_practices"
+      ],
+      "observed_failures": [
+        "summary_cash_pay_practices"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Summary!B3 corrupted",
+      "expected_failures": [
+        "summary_client_bill_practices"
+      ],
+      "observed_failures": [
+        "summary_client_bill_practices"
+      ],
+      "file_check_verifiers_passing": "6/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Summary!B3",
+      "expected_failures": [
+        "summary_client_bill_practices"
+      ],
+      "observed_failures": [
+        "summary_client_bill_practices"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Summary!B4 corrupted",
+      "expected_failures": [
+        "summary_switched_practices"
+      ],
+      "observed_failures": [
+        "summary_switched_practices"
+      ],
+      "file_check_verifiers_passing": "6/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Summary!B4",
+      "expected_failures": [
+        "summary_switched_practices"
+      ],
+      "observed_failures": [
+        "summary_switched_practices"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Summary!B5 corrupted",
+      "expected_failures": [
+        "summary_silent_practices"
+      ],
+      "observed_failures": [
+        "summary_silent_practices"
+      ],
+      "file_check_verifiers_passing": "6/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Summary!B5",
+      "expected_failures": [
+        "summary_silent_practices"
+      ],
+      "observed_failures": [
+        "summary_silent_practices"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "cosmetic",
+      "mutation": "xlsx: an extra unrelated sheet",
+      "expected_failures": [],
+      "observed_failures": [],
+      "file_check_verifiers_passing": "7/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "cosmetic",
+      "mutation": "xlsx: an extra unrelated column",
+      "expected_failures": [],
+      "observed_failures": [],
+      "file_check_verifiers_passing": "7/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "cosmetic",
+      "mutation": "xlsx: every integer written as a float",
+      "expected_failures": [],
+      "observed_failures": [],
+      "file_check_verifiers_passing": "7/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "incompleteness",
+      "mutation": "xlsx: drop the last data row of Billing",
+      "expected_failures": "every column check on Billing",
+      "observed_failures": [
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary"
+      ],
+      "file_check_verifiers_passing": "5/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "incompleteness",
+      "mutation": "xlsx: drop the last data row of Summary",
+      "expected_failures": "every column check on Summary",
+      "observed_failures": [
+        "billing_and_summary_hold_nothing_else",
+        "summary_silent_practices"
+      ],
+      "file_check_verifiers_passing": "5/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "adversarial_acceptance",
+      "mutation": "xlsx: correct answer PLUS one extra row on Notes",
+      "expected_failures": "every column check on Notes",
+      "observed_failures": [],
+      "file_check_verifiers_passing": "7/7",
+      "outcome": "FAIL",
+      "counted_in_all_controls_pass": false,
+      "note": "the batch-8 membership regex accepted a superset; an ordered column list must reject one. Reported but NOT counted in all_controls_pass, for the same reason the report-superset case is not: it measures the CHECK VOCABULARY, not the package. file_check has no set-equality or cardinality operator (see the connector report, verifier issue 3.1), and on a bundle whose figures are all scalars the appended row carries a NEW label (EXTRA-0), which the tolerance policy requires every label lookup to ignore - so this case cannot fail there by construction. Read superset_report_accepted for the finding itself."
+    },
+    {
+      "control": "adversarial_acceptance",
+      "mutation": "xlsx: correct answer PLUS one extra row on Billing",
+      "expected_failures": "every column check on Billing",
+      "observed_failures": [
+        "billing_and_summary_hold_nothing_else"
+      ],
+      "file_check_verifiers_passing": "6/7",
+      "outcome": "PASS",
+      "counted_in_all_controls_pass": false,
+      "note": "the batch-8 membership regex accepted a superset; an ordered column list must reject one. Reported but NOT counted in all_controls_pass, for the same reason the report-superset case is not: it measures the CHECK VOCABULARY, not the package. file_check has no set-equality or cardinality operator (see the connector report, verifier issue 3.1), and on a bundle whose figures are all scalars the appended row carries a NEW label (EXTRA-0), which the tolerance policy requires every label lookup to ignore - so this case cannot fail there by construction. Read superset_report_accepted for the finding itself."
+    },
+    {
+      "control": "adversarial_acceptance",
+      "mutation": "xlsx: correct answer PLUS one extra row on Summary",
+      "expected_failures": "every column check on Summary",
+      "observed_failures": [
+        "billing_and_summary_hold_nothing_else"
+      ],
+      "file_check_verifiers_passing": "6/7",
+      "outcome": "PASS",
+      "counted_in_all_controls_pass": false,
+      "note": "the batch-8 membership regex accepted a superset; an ordered column list must reject one. Reported but NOT counted in all_controls_pass, for the same reason the report-superset case is not: it measures the CHECK VOCABULARY, not the package. file_check has no set-equality or cardinality operator (see the connector report, verifier issue 3.1), and on a bundle whose figures are all scalars the appended row carries a NEW label (EXTRA-0), which the tolerance policy requires every label lookup to ignore - so this case cannot fail there by construction. Read superset_report_accepted for the finding itself."
+    },
+    {
+      "control": "adversarial_acceptance",
+      "mutation": "xlsx: every figure off by one (a consistent wrong method)",
+      "expected_failures": "the value-column check",
+      "observed_failures": [
+        "summary_billed_practices",
+        "summary_cash_pay_practices",
+        "summary_client_bill_practices",
+        "summary_silent_practices",
+        "summary_switched_practices"
+      ],
+      "file_check_verifiers_passing": "2/7",
+      "outcome": "PASS"
+    },
+    {
+      "control": "positive",
+      "mutation": "the golden trajectory (26 calls) and the gold workbook",
+      "expected_failures": [],
+      "observed_failures": [],
+      "reward": 1.0,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "R0-gold"
+    },
+    {
+      "control": "cosmetic",
+      "mutation": "measured shortest correct path (25 calls: one listing of every spreadsheet, whose titles include the ID-titled export, then the 24 reads); workbook with Summary first, names in title case and bold, values as floats with a 0.00 format, file ids upper case, order ids without dashes, booleans as text in mixed case, a column width and frozen panes on Billing",
+      "expected_failures": [],
+      "observed_failures": [],
+      "reward": 1.0,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "M1-cosmetic-shortest-path"
+    },
+    {
+      "control": "lever-default-misreading",
+      "mutation": "the lever's DEFAULT MISREADING: the Summary counts billing rows instead of practices (37/20/17; switched 2 and silent 2 unchanged); the Billing sheet is correct",
+      "expected_failures": [
+        "summary_billed_practices",
+        "summary_cash_pay_practices",
+        "summary_client_bill_practices"
+      ],
+      "observed_failures": [
+        "summary_billed_practices",
+        "summary_cash_pay_practices",
+        "summary_client_bill_practices"
+      ],
+      "reward": 0.6,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "R1-default-misreading"
+    },
+    {
+      "control": "wrong-scope",
+      "mutation": "the statements only: the raw export titled with Empowered Goddess's ID is never listed or read (24 calls, 36 rows; 11/7/6/2/3); the tool floor counts 25 calls (24 gws + the harness finish call) against 24, so the workbook checks are what catch it",
+      "expected_failures": [
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary",
+        "summary_billed_practices",
+        "summary_client_bill_practices",
+        "summary_silent_practices"
+      ],
+      "observed_failures": [
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary",
+        "summary_billed_practices",
+        "summary_client_bill_practices",
+        "summary_silent_practices"
+      ],
+      "reward": 0.3333,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "R2-raw-export-skipped"
+    },
+    {
+      "control": "wrong-scope",
+      "mutation": "the trashed Johnson & Associates raw export k0e6bqe181u8qqx1fo08y8yb (a1310565) listed with trashed = true, read and kept: one client-bill row more (38 rows); every Summary figure unchanged",
+      "expected_failures": [
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary"
+      ],
+      "observed_failures": [
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary"
+      ],
+      "reward": 0.7333,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "R3-trash-included"
+    },
+    {
+      "control": "wrong-grain",
+      "mutation": "silent_practices counted as the empty statements (8: Des Moines 2, Elke Barnes 2, Empowered Goddess 4) instead of practices with no billing row (2)",
+      "expected_failures": [
+        "summary_silent_practices"
+      ],
+      "observed_failures": [
+        "summary_silent_practices"
+      ],
+      "reward": 0.8667,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "R4-empty-statements-counted"
+    },
+    {
+      "control": "laziest",
+      "mutation": "the first listing only (1 call), one row per titled statement with no order ids read, a summary guessed from the fourteen names (14/14/0/0/0)",
+      "expected_failures": [
+        "all_24_spreadsheets_were_read",
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary",
+        "summary_billed_practices",
+        "summary_cash_pay_practices",
+        "summary_client_bill_practices",
+        "summary_silent_practices",
+        "summary_switched_practices"
+      ],
+      "observed_failures": [
+        "all_24_spreadsheets_were_read",
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary",
+        "summary_billed_practices",
+        "summary_cash_pay_practices",
+        "summary_client_bill_practices",
+        "summary_silent_practices",
+        "summary_switched_practices"
+      ],
+      "reward": 0.0,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "R5-laziest-listing-only"
+    },
+    {
+      "control": "wrong-layout",
+      "mutation": "correct figures and log, but a header row on the Billing sheet pushes every billing row down one (38 rows)",
+      "expected_failures": [
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary"
+      ],
+      "observed_failures": [
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary"
+      ],
+      "reward": 0.7333,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "R6-greediest-header-row"
+    },
+    {
+      "control": "wrong-rule",
+      "mutation": "cash_pay_practices and client_bill_practices read as practices billed ONLY that way (5 and 5), dropping the two switched practices from both, against the lever's \"one or more of its billing rows\"",
+      "expected_failures": [
+        "summary_cash_pay_practices",
+        "summary_client_bill_practices"
+      ],
+      "observed_failures": [
+        "summary_cash_pay_practices",
+        "summary_client_bill_practices"
+      ],
+      "reward": 0.7333,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "R7-exclusive-bill-type-reading"
+    },
+    {
+      "control": "wrong-entity",
+      "mutation": "the practice read as each title's full wording (month dropped) instead of the listed name: Johnson & Associates Midwifery Group and Johnson & Associates Midwifery, Empowered Goddess Birth and Empowered Goddess Birth, PLLC, Elke Barnes and Elke Barnes, LM, CPM split (13/7/8/2/4)",
+      "expected_failures": [
+        "summary_billed_practices",
+        "summary_client_bill_practices",
+        "summary_silent_practices"
+      ],
+      "observed_failures": [
+        "summary_billed_practices",
+        "summary_client_bill_practices",
+        "summary_silent_practices"
+      ],
+      "reward": 0.6,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "R8-title-wording-as-practice"
+    },
+    {
+      "control": "wrong-scope",
+      "mutation": "Johnson & Associates searched by the fuller title Johnson & Associates Midwifery Group, which misses Johnson & Associates Midwifery May 2025 (8 client-bill rows): 29 rows, every Summary figure unchanged because the August statement is client bill too; 25 gws calls clear the floor",
+      "expected_failures": [
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary"
+      ],
+      "observed_failures": [
+        "billing_and_summary_hold_nothing_else",
+        "billing_sheet_reconciles_with_the_summary"
+      ],
+      "reward": 0.7333,
+      "verifiers_checked": 8,
+      "tool_errors": [],
+      "harness": "write-back",
+      "route": "R9-johnson-may-missed"
+    }
+  ],
+  "write_back_battery": {
+    "cases_run": 11,
+    "cosmetic_write_back_mutants_failed": 0,
+    "wrong_routes_scoring_1_0": 0,
+    "last_run": "2026-09-28"
+  }
+}

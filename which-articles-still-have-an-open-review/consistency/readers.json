@@ -1,0 +1,148 @@
+{
+  "method": "TASK_GEN 8.2 reader diff: 4 independent single-turn calls to glm-5.2 (temperatures 0.2, 0.6, 1.0, 1.0) given instruction.md and nothing else - no tools, no gym, no solve - and asked GOAL and METHOD as two separate questions. Run by tools/readers.py on 2026-09-27; raw prompts and replies are in _evidence/which-articles-still-have-an-open-review/readers-20260927-r2/.",
+  "source_run": "readers-20260927-r2",
+  "prompt_sha256_at_run_time": "bdd314115f458df0b4a03ce1ebb658be56b3756be3ffce0aa98a35214bdf2ff6",
+  "goal_agreement": "4 of 4",
+  "goal_agreement_detail": "All four readers named the same two deliverables, the same review-log line shape, the same closing list of uncommented articles and the same six metric names. No reader asked for anything the prompt does not ask for, and no reader reported the prompt as ambiguous.",
+  "under_specification": [],
+  "over_specification": [],
+  "findings_acted_on": [
+    {
+      "finding": "In the first round (readers-20260927-r1, same prompt text for this figure) all four readers read articles_reviewed as the number of articles carrying at least one reviewer comment, not as the number of pages in the database. The prompt's key list is bare by the fairness contract, so the key name has to carry the meaning, and on four of four readings it carries that one.",
+      "action": "The gold for articles_reviewed was set to 14 - the articles that carry at least one reviewer comment - and re-derived two ways on the gym before anything was graded (gym: 14 of 18 pages return a discussion with include_all_blocks and include_resolved set; state SQL: SELECT COUNT(DISTINCT c.page_id) FROM comments c JOIN pages p ON p.id = c.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' -> 14). 14 + articles_without_comments 4 = the 18 pages in the database."
+    },
+    {
+      "finding": "qc_precheck --pre-oracle BLOCKed the clause 'State your conclusion in your reply.': it is an obligation no deterministic verifier can reach, and this lane ships zero judges.",
+      "action": "The clause was deleted and 'so long as it is an ordinary worksheet' added (a chart sheet crashes openpyxl's row walk, which qc_precheck raised as a brittleness RISK). That prompt edit invalidated the first reader round, so readers.py was re-run in full and this file reports readers-20260927-r2, not the superseded round."
+    }
+  ],
+  "method_divergences_kept": [
+    {
+      "figure": "still_open",
+      "split": "0 of 4 took the default reading",
+      "the_other_reading": "count the comments instead of the articles carrying them",
+      "readers_on_gold": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "readers_on_the_other_reading": [],
+      "value_under_gold": 11,
+      "value_under_the_other_reading": 15,
+      "note": "The designed divergence. Every reader's METHOD section was read, not just its GOAL: reader 1 states the summary is counted per article; reader 2 states the summary is counted per article; reader 3 states the summary is counted per article; reader 4 states the summary is counted per article. A blind reader holding the whole prompt at once is the weakest proxy there is for a rule stated inside that same prompt, which is what LIVES IN: instruction.md costs; it is the documented fallback here because this workspace has no gym object that could hold the rule instead and no write may be made to the gym in this batch."
+    },
+    {
+      "figure": "articles_reviewed",
+      "split": "0 of 4 took the default reading",
+      "the_other_reading": "count the comments instead of the articles carrying them",
+      "readers_on_gold": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "readers_on_the_other_reading": [],
+      "value_under_gold": 14,
+      "value_under_the_other_reading": 19
+    },
+    {
+      "figure": "still_open_new",
+      "split": "0 of 4 took the default reading",
+      "the_other_reading": "count the comments instead of the articles carrying them",
+      "readers_on_gold": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "readers_on_the_other_reading": [],
+      "value_under_gold": 5,
+      "value_under_the_other_reading": 6
+    },
+    {
+      "figure": "still_open_draft",
+      "split": "0 of 4 took the default reading",
+      "the_other_reading": "count the comments instead of the articles carrying them",
+      "readers_on_gold": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "readers_on_the_other_reading": [],
+      "value_under_gold": 2,
+      "value_under_the_other_reading": 4
+    },
+    {
+      "figure": "still_open_in_review",
+      "split": "0 of 4 took the default reading",
+      "the_other_reading": "count the comments instead of the articles carrying them",
+      "readers_on_gold": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "readers_on_the_other_reading": [],
+      "value_under_gold": 4,
+      "value_under_the_other_reading": 5
+    }
+  ],
+  "blind_reader_split": "0 of 4 took the default reading (still_open 15 instead of 11) in readers-20260927-r2 - a weak bite, recorded as measured, not waived. The one strengthening HARDENING-LEVERS offers for a weak split is to move the sentence into a gym object the prompt only names; measured on this workspace there is none (the Articles data source description is the empty string, no data source carries a relation property pointing at Articles, and no page outside the database mentions an article by title), and creating one would need a gym write, which this batch forbids. The lever is still enforced in the grading: all five moved counts are graded at article grain and each refuses its comment-grain value, and the reconciliation check ties the summary back to the per-row log.",
+  "readers": [
+    {
+      "reader_id": 1,
+      "raw": "readers-20260927-r2/reader-1.md",
+      "goal_answer": "Two deliverables are requested.\n\n**1. `/workspace/review_log.md`** \u2014 a plain-text review log covering every article in the Articles database.\n- One line per reviewer comment, formatted as `article title | Doc stage | open` when the comment's thread is still unresolved, and `article title | Doc stage | settled` when the thread has been resolved.\n- A clearly labelled closing section listing, one title per line, every article that has no reviewer comments at all, so that the union of the comment lines and this closing list accounts for every article in the database.\n\n**2. `/workspace/metrics.xlsx`** \u2014 an ordinary worksheet with one row per metric, metric name in column A and the numeric value in column B. The six required metrics are:\n- **articles_reviewed** \u2014 the number of articles that carry at least one reviewer comment.\n- **still_open** \u2014 the number of articles that have at least one still-open (unresolved) comment thread.\n- **still_open_new** \u2014 the number of articles whose Doc stage is \"new\" and that have at least one open thread.\n- **still_open_draft** \u2014 the number of articles whose Doc stage is \"draft\" and that have at least one open thread.\n- **still_open_in_review** \u2014 the number of articles whose Doc stage is \"in review\" and that have at least one open thread.\n- **articles_without_comments** \u2014 the number of articles that carry no reviewer comments at all.",
+      "method_answer": "1. **Enumerate the database.** Query the Notion \"Articles\" database and collect, for every page, its page ID, title, and the value of its \"Doc stage\" property. Keep this as the master list of articles so nothing is missed.\n\n2. **Retrieve comments per article.** For each article page, retrieve all comments via the Notion comments/discussion tools. For each comment, determine the thread it belongs to and whether that thread is resolved (settled) or unresolved (open). Notion exposes thread resolution status on discussion threads, so map each comment to its thread's resolved state.\n\n3. **Build the review log body.** For every comment retrieved, write one line: `article title | Doc stage | settled` if the comment's thread is resolved, or `article title | Doc stage | open` if it is not. Preserve the article's Doc stage as stored on the page.\n\n4. **Identify comment-free articles.** From the master list of article IDs, subtract every article ID that appeared in step 2. The remainder are articles with zero reviewer comments. Append a clearly labelled section to `review_log.md` listing each of those article titles, one per line.\n\n5. **Compute the metrics as counts of distinct articles:**\n   - **articles_reviewed** = number of distinct articles that appeared with at least one comment in step 2.\n   - **still_open** = number of distinct articles that have at least one comment whose thread status is open.\n   - **still_open_new** = number of distinct articles with Doc stage equal to \"new\" that have at least one open thread.\n   - **still_open_draft** = number of distinct articles with Doc stage equal to \"draft\" that have at least one open thread.\n   - **still_open_in_review** = number of distinct articles with Doc stage equal to \"in review\" (matching whatever casing/spacing the database uses) that have at least one open thread.\n   - **articles_without_comments** = number of distinct articles in the comment-free set from step 4.\n\n6. **Write the spreadsheet.** Create an `.xlsx` workbook with a single ordinary worksheet. Place each metric name (exactly as specified) in column A and its integer value in column B, one row per metric. A header row is optional; row order is arbitrary.\n\n7. **Do not modify anything in Notion.** All Notion interactions are read-only (database queries, page reads, comment/discussion reads); no pages, properties, comments, or threads are created, edited, resolved, or deleted.",
+      "goal_deliverables": [
+        "/workspace/review_log.md",
+        "/workspace/metrics.xlsx"
+      ],
+      "counting_unit_stated_for_the_summary": "article",
+      "took_the_default_row_grain_reading": false,
+      "read_articles_reviewed_as": "articles carrying at least one reviewer comment"
+    },
+    {
+      "reader_id": 2,
+      "raw": "readers-20260927-r2/reader-2.md",
+      "goal_answer": "**Deliverable 1 \u2014 `/workspace/review_log.md`**\n\nA plain-text file that accounts for every article in the Articles database:\n\n- **One line per reviewer comment**, formatted as `article title | Doc stage | open` or `article title | Doc stage | settled`, depending on whether the thread that comment belongs to is unresolved or resolved.\n- **A clearly labelled closing list**, one title per line, of every article that has zero reviewer comments, so that the file collectively mentions every article in the database.\n\n**Deliverable 2 \u2014 `/workspace/metrics.xlsx`**\n\nAn ordinary worksheet with one row per metric (name in column A, number in column B). The six required figures are:\n\n| Metric | What the number IS |\n|---|---|\n| `articles_reviewed` | Count of articles that carry at least one reviewer comment. |\n| `still_open` | Count of articles that have at least one unresolved (open) comment thread. |\n| `still_open_new` | Count of articles whose Doc stage is \"new\" that have at least one open thread. |\n| `still_open_draft` | Count of articles whose Doc stage is \"draft\" that have at least one open thread. |\n| `still_open_in_review` | Count of articles whose Doc stage is \"in review\" that have at least one open thread. |\n| `articles_without_comments` | Count of articles that carry no reviewer comment at all. |\n\nAll six figures are counts of **articles** (not comments, not threads).\n\n---",
+      "method_answer": "1. **Retrieve every article page** from the Notion \"Articles\" database. For each page, capture its page id, title, and the value of its \"Doc stage\" property.\n\n2. **Retrieve the discussion comments** on each page. For every comment thread, determine whether it is resolved or still open (Notion exposes a resolved/unresolved status on discussion threads). Record, for each individual comment: the article title, the article's Doc stage, and whether the thread it belongs to is open or settled.\n\n3. **Build the review log** (`/workspace/review_log.md`):\n   - Write one line per comment: `article title | Doc stage | open` or `article title | Doc stage | settled`.\n   - After all comment lines, add a clearly labelled section (e.g., a heading such as \"Articles without comments\") and list, one per line, every article title for which no comments were found.\n   - Verify that the set of titles appearing in comment lines plus the set in the no-comments list equals the full set of articles retrieved in step 1.\n\n4. **Compute the six metrics** (each is a count of distinct articles):\n   - `articles_reviewed` \u2014 number of distinct articles that have one or more comments.\n   - `still_open` \u2014 number of distinct articles that have one or more threads whose status is unresolved/open.\n   - `still_open_new` \u2014 from the `still_open` set, count articles whose Doc stage equals \"new\".\n   - `still_open_draft` \u2014 from the `still_open` set, count articles whose Doc stage equals \"draft\".\n   - `still_open_in_review` \u2014 from the `still_open` set, count articles whose Doc stage equals \"in review\".\n   - `articles_without_comments` \u2014 number of distinct articles with zero comments (equivalently, total articles minus `articles_reviewed`).\n\n5. **Write the metrics** to `/workspace/metrics.xlsx`: place each metric name in column A and its numeric value in column B, one row per metric. A header row is optional; the sheet name is arbitrary. Ensure each value is a bare number, not text or a sentence.",
+      "goal_deliverables": [
+        "/workspace/review_log.md",
+        "/workspace/metrics.xlsx"
+      ],
+      "counting_unit_stated_for_the_summary": "article",
+      "took_the_default_row_grain_reading": false,
+      "read_articles_reviewed_as": "articles carrying at least one reviewer comment"
+    },
+    {
+      "reader_id": 3,
+      "raw": "readers-20260927-r2/reader-3.md",
+      "goal_answer": "Two read-only deliverables (no edits to the Notion library):\n\n1. `/workspace/review_log.md`\n   - One line per reviewer comment left on any article page in the Articles database, written as `article title | Doc stage | open` when that comment's discussion thread is unresolved, or `article title | Doc stage | settled` when the thread has been resolved. The \"Doc stage\" is the article's Doc-stage property value.\n   - The file ends with a clearly labelled list, one title per line, of every article in the database that has no reviewer comments at all, so that every article in the Articles database appears somewhere in this file (either on a comment line or in the no-comments list).\n\n2. `/workspace/metrics.xlsx`\n   An ordinary worksheet with one row per metric: metric name in the first column, the numeric value in the second column. The six metrics are:\n   - `articles_reviewed` \u2014 number of articles that have at least one reviewer comment.\n   - `still_open` \u2014 number of articles that have at least one unresolved (open) comment thread.\n   - `still_open_new` \u2014 number of articles whose Doc stage is \"New\" and that have at least one open thread.\n   - `still_open_draft` \u2014 number of articles whose Doc stage is \"Draft\" and that have at least one open thread.\n   - `still_open_in_review` \u2014 number of articles whose Doc stage is \"In review\" and that have at least one open thread.\n   - `articles_without_comments` \u2014 number of articles with zero reviewer comments.",
+      "method_answer": "1. Query the Notion \"Articles\" database and retrieve every article page, capturing page id, title, and the Doc-stage property for each.\n2. For each article page, retrieve its comment/discussion threads and, for each thread, determine whether it is resolved (settled) or unresolved (open) via the thread's resolved state.\n3. Build `/workspace/review_log.md`:\n   - For every comment on every article, emit one line `title | Doc stage | open` if the comment's thread is unresolved, or `title | Doc stage | settled` if it is resolved.\n   - After the comment lines, add a clearly labelled section listing the title of each article whose comment-thread list was empty (zero comments).\n4. Tally metrics by counting distinct article page ids (not comments), using each article's current Doc stage:\n   - `articles_reviewed` = count of articles with \u22651 comment thread.\n   - `still_open` = count of articles with \u22651 unresolved thread.\n   - `still_open_new` = count of articles with Doc stage \"New\" and \u22651 unresolved thread.\n   - `still_open_draft` = count of articles with Doc stage \"Draft\" and \u22651 unresolved thread.\n   - `still_open_in_review` = count of articles with Doc stage \"In review\" and \u22651 unresolved thread.\n   - `articles_without_comments` = count of articles with 0 comment threads.\n5. Write `/workspace/metrics.xlsx` as a normal worksheet, putting each metric name in column A and its integer value in column B (header row optional; sheet name and row order arbitrary). Do not modify any page, property, or comment in Notion \u2014 retrieval only.",
+      "goal_deliverables": [
+        "/workspace/review_log.md",
+        "/workspace/metrics.xlsx"
+      ],
+      "counting_unit_stated_for_the_summary": "article",
+      "took_the_default_row_grain_reading": false,
+      "read_articles_reviewed_as": "articles carrying at least one reviewer comment"
+    },
+    {
+      "reader_id": 4,
+      "raw": "readers-20260927-r2/reader-4.md",
+      "goal_answer": "**Deliverable 1 \u2014 `/workspace/review_log.md`**\n\nA plain-text log file containing:\n\n- One line for every reviewer comment that exists on any article page, written as `article title | Doc stage | open` (if that comment's discussion thread is unresolved) or `article title | Doc stage | settled` (if the thread is resolved).\n- A clearly labelled list at the end of the file naming every article that carries zero reviewer comments, one title per line, so that the set of all articles appearing in comment lines plus the set appearing in the no-comments list equals the entire Articles database.\n\n**Deliverable 2 \u2014 `/workspace/metrics.xlsx`**\n\nAn ordinary worksheet with six rows, one per metric (metric name in column 1, the number in column 2):\n\n| Metric | What the figure is |\n|---|---|\n| **articles_reviewed** | The number of articles in the database that carry at least one reviewer comment (open or settled). |\n| **still_open** | The number of articles that have at least one unresolved (open) discussion thread. |\n| **still_open_new** | The number of articles that have at least one open thread *and* whose Doc stage is \"new\". |\n| **still_open_draft** | The number of articles that have at least one open thread *and* whose Doc stage is \"draft\". |\n| **still_open_in_review** | The number of articles that have at least one open thread *and* whose Doc stage is \"in_review\". |\n| **articles_without_comments** | The number of articles in the database that have no reviewer comments at all. |\n\n---",
+      "method_answer": "**Step 1 \u2014 Enumerate every article**\n\nQuery the Notion \"Articles\" database. Retrieve every page's ID, title, and the value of its Doc-stage property (e.g., \"new\", \"draft\", \"in_review\"). Record the full list; this is the denominator that must be fully accounted for.\n\n**Step 2 \u2014 Retrieve comments and thread status for each article**\n\nFor each article page, retrieve all discussion comments. For each comment, determine whether the thread it belongs to is **resolved** (settled) or **unresolved** (open). Notion's API exposes discussion threads and their resolved/unresolved state per page.\n\n**Step 3 \u2014 Build `/workspace/review_log.md`**\n\n- For every comment found in Step 2, emit one line: `article title | Doc stage | open` or `article title | Doc stage | settled`, using that article's current Doc-stage value from Step 1 and the thread status from Step 2.\n- Track which article IDs appeared in at least one comment line.\n- After all comment lines, append a clearly labelled section (e.g., a heading such as \"Articles without comments\") listing the titles of every article whose ID never appeared in a comment line, one per line.\n- Verify that every article ID from Step 1 is represented either in a comment line or in the no-comments list.\n\n**Step 4 \u2014 Compute each metric**\n\n| Metric | Computation |\n|---|---|\n| **articles_reviewed** | Count the number of distinct article page IDs that have \u2265 1 comment thread (open or settled). |\n| **still_open** | Count the number of distinct article page IDs that have \u2265 1 thread whose status is unresolved/open. |\n| **still_open_new** | From the set of articles counted in *still_open*, count those whose Doc-stage property equals \"new\". |\n| **still_open_draft** | From the set of articles counted in *still_open*, count those whose Doc-stage property equals \"draft\". |\n| **still_open_in_review** | From the set of articles counted in *still_open*, count those whose Doc-stage property equals \"in_review\". |\n| **articles_without_comments** | Count the number of article page IDs from Step 1 that had 0 comment threads in Step 2. |\n\n**Step 5 \u2014 Write `/workspace/metrics.xlsx`**\n\nCreate a worksheet (any sheet name). Write each of the six metric names (exactly as specified: `articles_reviewed`, `still_open`, `still_open_new`, `still_open_draft`, `still_open_in_review`, `articles_without_comments`) in column 1 and the corresponding integer in column 2 of the same row. A header row is optional; row order is arbitrary. The values must be bare numbers, not text or sentences.\n\n**Step 6 \u2014 Read-only compliance**\n\nDo not create, edit, resolve, or delete any comment, page, or property in the Notion workspace. All operations are queries/reads except writing the two local output files.",
+      "goal_deliverables": [
+        "/workspace/review_log.md",
+        "/workspace/metrics.xlsx"
+      ],
+      "counting_unit_stated_for_the_summary": "article",
+      "took_the_default_row_grain_reading": false,
+      "read_articles_reviewed_as": "articles carrying at least one reviewer comment"
+    }
+  ],
+  "run_note": "The first invocation of readers.py for this round was killed by the harness (exit 144) after all four readers and renderers 2 and 3 had landed, before it wrote _status.txt, so renderer-1 was re-run on its own and _status.txt in readers-20260927-r2 carries only that job's line. The seven per-job .md files in that folder are complete and are the evidence; their mtimes span 11:00 to 11:19 on 2026-09-27. Nothing was re-prompted: every job in this round saw the same instruction.md, whose sha256 is recorded above."
+}

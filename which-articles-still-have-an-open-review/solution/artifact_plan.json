@@ -1,0 +1,31 @@
+{
+  "report_path": "review_log.md",
+  "report": "# Review log\n\nOne line per reviewer comment: article, its Doc stage, and whether that comment's\nthread has been settled.\n\nAntenatal Testing | New | open\nAntenatal Testing | New | open\nAspirin in Pregnancy | New | open\nBirthing Options | New | settled\nBirthing Options | New | settled\nFertility after Pregnancy | New | open\nFoods to avoid | Draft | open\nFoods to avoid | Draft | open\nGroup B Streptococcus | New | open\nInduction of Labor | In Review | open\nIntercourse During Pregnancy | In Review | open\nNausea and Vomiting | New | settled\nPregnancy Schedules | In Review | settled\nThinking about a massage? | New | open\nTitle example | In Review | open\nTitle example | In Review | open\nUltrasound in Pregnancy | Draft | open\nUltrasound in Pregnancy | Draft | open\nVaginitis & BV | In Review | open\n\n## Articles carrying no reviewer comment at all\n\nArticle\nExercise with bump\nNew Brainstorm\nNew Product Spec (PRD)\n",
+  "xlsx_path": "metrics.xlsx",
+  "xlsx": {
+    "Review": {
+      "A1": "metric",
+      "B1": "value",
+      "A2": "articles_reviewed",
+      "B2": 14,
+      "A3": "still_open",
+      "B3": 11,
+      "A4": "still_open_new",
+      "B4": 5,
+      "A5": "still_open_draft",
+      "B5": 2,
+      "A6": "still_open_in_review",
+      "B6": 4,
+      "A7": "articles_without_comments",
+      "B7": 4
+    }
+  },
+  "gold": {
+    "articles_reviewed": 14,
+    "still_open": 11,
+    "still_open_new": 5,
+    "still_open_draft": 2,
+    "still_open_in_review": 4,
+    "articles_without_comments": 4
+  }
+}

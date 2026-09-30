@@ -1,0 +1,2019 @@
+{
+  "total": 1.0,
+  "pass": true,
+  "threshold": 1.0,
+  "composite": 1.0,
+  "mode": "benchmark",
+  "allowed_verifier_types": [
+    "agentic_llm_as_judge",
+    "rubric"
+  ],
+  "weights": {
+    "state": 0.0,
+    "sql": 0.0,
+    "rubric": 1.0
+  },
+  "state": {
+    "enabled": false,
+    "score": null,
+    "matched_expected": 0,
+    "soft_unauthorized": 0,
+    "hard_unauthorized": 0
+  },
+  "sql": {
+    "enabled": false,
+    "score": null,
+    "passed": 0,
+    "total": 0,
+    "verifiers": []
+  },
+  "rubric": {
+    "enabled": true,
+    "score": 1.0,
+    "prompt_version": "v2.1-likert",
+    "mode": "benchmark",
+    "core_passed": true,
+    "weighted_pass_rate": 1.0,
+    "failure_mode": "pass",
+    "items": [
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "documents_sheet_has_one_row_per_document",
+            "definition": {
+              "metadata": {
+                "how_justification": "Counts the non-empty rows xlsx.extract_text renders between the Documents sheet marker and the next sheet marker (or the end of the workbook) and requires exactly 16: the header plus 15 documents. Exclusivity as a count, not a list of forbidden names, so a round-up that adds a sixteenth document fails on the count alone whatever it named, and so does a short answer. A missing sheet or an empty workbook cannot pass. Extra sheets elsewhere in the workbook are not read.",
+                "why_justification": "15 is the number of distinct document names the log carries. Folding the two Emily names together answers 14; conflating the three names ending in results (4).pdf answers 13; dropping the aggregate key 2 documents because it names no file answers 14; adding a row for the standing consent-form notice, which names no document at all, answers 16; reporting only the register answers 10."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?ims)^\\[Sheet: Documents\\]\\n(?:[^\\n]+\\n){15}[^\\n]+(?=\\n\\[Sheet: |\\Z)",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?ims)^\\[Sheet: Documents\\]\\n(?:[^\\n]+\\n){15}[^\\n]+(?=\\n\\[Sheet: |\\Z)",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 1.5,
+        "score": 1.0,
+        "name": "documents_sheet_has_one_row_per_document",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "summary_sheet_has_one_row_per_metric",
+            "definition": {
+              "metadata": {
+                "how_justification": "Counts the non-empty rows xlsx.extract_text renders between the Summary sheet marker and the next sheet marker (or the end of the workbook) and requires exactly 5: the header plus the four metrics. Exclusivity as a count: a sheet that reports the whole-log figures alongside the four asked for fails here even when all four labelled rows are right, and a missing sheet cannot pass.",
+                "why_justification": "Each of the four metrics has a whole-log counterpart - 15, 4, 7 and 4 against 10, 2, 5 and 3 - and a run that is unsure which population was asked for reports both, which is eight metric rows. This check is what makes the run commit to one."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?ims)^\\[Sheet: Summary\\]\\n(?:[^\\n]+\\n){4}[^\\n]+(?=\\n\\[Sheet: |\\Z)",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?ims)^\\[Sheet: Summary\\]\\n(?:[^\\n]+\\n){4}[^\\n]+(?=\\n\\[Sheet: |\\Z)",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 0.6,
+        "score": 1.0,
+        "name": "summary_sheet_has_one_row_per_metric",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "documents_sheet_header",
+            "definition": {
+              "metadata": {
+                "how_justification": "Matches the header row case-insensitively, allowing spaces or tabs around the pipe separators xlsx.extract_text writes between cells and any extra trailing columns, but requiring the five names in the order the task gives them.",
+                "why_justification": "Every row assertion reads the request count before the reminder count. A sheet whose two count columns are the other way round reports 8 and 6 for Carmen Squires and 13 and 5 for Michele Nizza while looking well formed, and the header is the only place that can settle which order a run chose."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?im)^[ \\t]*document[ \\t]*\\|[ \\t]*requests[ \\t]*\\|[ \\t]*reminders[ \\t]*\\|[ \\t]*signed[ \\t]*\\|[ \\t]*tracked[ \\t]*(?:\\||\\r?$)",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?im)^[ \\t]*document[ \\t]*\\|[ \\t]*requests[ \\t]*\\|[ \\t]*reminders[ \\t]*\\|[ \\t]*signed[ \\t]*\\|[ \\t]*tracked[ \\t]*(?:\\||\\r?$)",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 0.6,
+        "score": 1.0,
+        "name": "documents_sheet_header",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "documents_the_two_near_identical_names",
+            "definition": {
+              "metadata": {
+                "how_justification": "Requires the two Emily rows and the Jasmine row, each matched on its own line by its full document name, so a run that normalised the bracketed suffix away cannot satisfy any of the three: the single merged row it writes carries neither name's counts. Each row is matched on its own line by document name in the text xlsx.extract_text renders, which is one line per non-empty row with the cells joined by a pipe. Spaces and tabs around the separators, a trailing carriage return, extra trailing columns and a number written as 2 or 2.0 are all tolerated; yes and no are matched case-insensitively and true and false are accepted in their place. Row order is free and nothing about the workbook's styling is read.",
+                "why_justification": "The two Emily names are the trap: the plain one was requested twice, chased four times and is still unsigned, while the bracketed one was requested three times, chased twice and is signed. Normalising the bracket away merges two documents into one, answers 14 rows instead of 15 and drops tracked_never_signed from 2 to 1. The bracketed one is also the document whose third request arrived under a different sender name, so a run that keys a document on its sender as well as its name answers 2 requests there instead of 3. The Jasmine row sits beside them because its name ends the same way and its completion notice carries that other sender name."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?ims)\\A(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Jasmine\\ Underwood\\ \\(Em\\)\\ Justin\\ Glass\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?ims)\\A(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Jasmine\\ Underwood\\ \\(Em\\)\\ Justin\\ Glass\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 0.8,
+        "score": 1.0,
+        "name": "documents_the_two_near_identical_names",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "documents_the_three_names_sharing_a_tail",
+            "definition": {
+              "metadata": {
+                "how_justification": "Requires all three rows whose names end in the same eight characters, each with its own request and reminder counts, so the only way to pass is to have kept the three apart while counting. Each row is matched on its own line by document name in the text xlsx.extract_text renders, which is one line per non-empty row with the cells joined by a pipe. Spaces and tabs around the separators, a trailing carriage return, extra trailing columns and a number written as 2 or 2.0 are all tolerated; yes and no are matched case-insensitively and true and false are accepted in their place. Row order is free and nothing about the workbook's styling is read.",
+                "why_justification": "Three distinct documents whose names end in the same eight characters. A quoted free-text search for results (4).pdf returns 33 messages spanning all three, so a run that keys a document on a substring of its name conflates them into a single row carrying 12 requests and 14 reminders and answers 13 rows. Graded as three rows with 2 and 2, 6 and 8, and 4 and 4."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?ims)\\A(?=.*^[ \\t]*results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Carmen\\ Squires\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*6(?:\\.0+)?[ \\t]*\\|[ \\t]*8(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Joshua\\ Graham\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?ims)\\A(?=.*^[ \\t]*results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Carmen\\ Squires\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*6(?:\\.0+)?[ \\t]*\\|[ \\t]*8(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Joshua\\ Graham\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 0.8,
+        "score": 1.0,
+        "name": "documents_the_three_names_sharing_a_tail",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "documents_the_ones_still_unsigned",
+            "definition": {
+              "metadata": {
+                "how_justification": "Requires the three rows whose signed flag is no, each with the reminder count that shows it was chased anyway and the register flag that decides whether it reaches the summary at all. Each row is matched on its own line by document name in the text xlsx.extract_text renders, which is one line per non-empty row with the cells joined by a pipe. Spaces and tabs around the separators, a trailing carriage return, extra trailing columns and a number written as 2 or 2.0 are all tolerated; yes and no are matched case-insensitively and true and false are accepted in their place. Row order is free and nothing about the workbook's styling is read.",
+                "why_justification": "The three documents the log never confirms a signature for, apart from the fourth, the Emily row graded above. 2 documents is a request naming no file, and dropping it because it is not a file name answers 14 rows and moves the whole-log unsigned count from 4 to 3. Michele Nizza was chased thirteen times, more than any other document, and is in the register while the other two are not, so a run that reads persistent chasing as register membership gets this row's tracked flag right for the wrong reason and the other two wrong."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?ims)\\A(?=.*^[ \\t]*2\\ documents[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Dr\\.\\ Joel\\ Rivera\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Michele\\ Nizza\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*5(?:\\.0+)?[ \\t]*\\|[ \\t]*13(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?ims)\\A(?=.*^[ \\t]*2\\ documents[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Dr\\.\\ Joel\\ Rivera\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Michele\\ Nizza\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*5(?:\\.0+)?[ \\t]*\\|[ \\t]*13(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 0.8,
+        "score": 1.0,
+        "name": "documents_the_ones_still_unsigned",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "documents_the_ones_signed_with_no_chasing",
+            "definition": {
+              "metadata": {
+                "how_justification": "Requires the three rows whose reminder count is exactly 0 and whose signed flag is yes - the only rows in the sheet where a zero is the right answer, and the ones a reminder count taken from a search total rather than from classified subjects gets wrong. Each row is matched on its own line by document name in the text xlsx.extract_text renders, which is one line per non-empty row with the cells joined by a pipe. Spaces and tabs around the separators, a trailing carriage return, extra trailing columns and a number written as 2 or 2.0 are all tolerated; yes and no are matched case-insensitively and true and false are accepted in their place. Row order is free and nothing about the workbook's styling is read.",
+                "why_justification": "The three documents that were requested once, never chased and signed; together they are the whole of tracked_signed_with_no_reminder. Each carries a reminder count of exactly 0, which is the figure a run that reads a quoted name search's total_matches as its reminder count gets wrong: those searches return 3, 2 and 2 messages for these names because they also return the request and the completion. A run that assumes every document was chased at least once turns all three counts non-zero and moves tracked_signed_with_no_reminder from 3 to 0."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?ims)\\A(?=.*^[ \\t]*Chuntelle\\ \\(Chan\\)\\ Williams\\-Jones\\ \\-\\ Urban\\ Lotus\\ Informed\\ Consent\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*prenatalDebbie\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?ims)\\A(?=.*^[ \\t]*Chuntelle\\ \\(Chan\\)\\ Williams\\-Jones\\ \\-\\ Urban\\ Lotus\\ Informed\\ Consent\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*prenatalDebbie\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 0.8,
+        "score": 1.0,
+        "name": "documents_the_ones_signed_with_no_chasing",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "documents_the_remaining_rows",
+            "definition": {
+              "metadata": {
+                "how_justification": "Requires the three rows that each turn on a different scope clause: the image that is a document all the same, the signed document that sits outside the register, and the one confirmed only by a notice that everyone has signed it. Each row is matched on its own line by document name in the text xlsx.extract_text renders, which is one line per non-empty row with the cells joined by a pipe. Spaces and tabs around the separators, a trailing carriage return, extra trailing columns and a number written as 2 or 2.0 are all tolerated; yes and no are matched case-insensitively and true and false are accepted in their place. Row order is free and nothing about the workbook's styling is read.",
+                "why_justification": "These three rows decide three separate scope questions. Multiple Services Superbill is confirmed by a notice that everyone has signed it and by nothing else, so it is the only row that tests that clause: reading such a notice as something other than a signature turns it to no and moves the whole-log unsigned count from 4 to 5. hi.jpeg is a document although it is an image, and a run that keeps only document files drops it and answers 14 rows. labels (1).pdf is signed, chased four times and out of the register, so a run that infers register membership from having been chased marks it yes and moves documents_tracked from 10 to 11."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?ims)\\A(?=.*^[ \\t]*hi\\.jpeg[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*labels\\ \\(1\\)\\.pdf[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Multiple\\ Services\\ Superbill\\ \\-\\ 06\\-27\\-2025\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?ims)\\A(?=.*^[ \\t]*hi\\.jpeg[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*labels\\ \\(1\\)\\.pdf[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Multiple\\ Services\\ Superbill\\ \\-\\ 06\\-27\\-2025\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 0.8,
+        "score": 1.0,
+        "name": "documents_the_remaining_rows",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "summary_documents_tracked",
+            "definition": {
+              "metadata": {
+                "how_justification": "Finds the row of the Summary sheet whose first cell is documents_tracked and requires the next cell to be 10. Label lookup, not a cell reference: the metric rows may sit in any order, the label may be written with spaces instead of underscores, case is free, extra trailing columns are ignored, and 10 written as 10.0 passes. The register is the ten documents at least one of whose request messages carries the Opened label. Derived twice and agreeing: the tool route returns 18 of the 36 request messages for the quoted request phrase with label:Opened, and the state route returns the same 18 by joining message_labels to the label named Opened; those 18 fall across ten distinct document names.",
+                "why_justification": "Counting every document in the log answers 15. Requiring every one of a document's request messages to carry the label rather than at least one answers 3, because only Chuntelle, D7VISA and prenatalDebbie have all of theirs filed there. Inferring the register from a document having been chased answers 11. The label is in no search result payload, so a run that never issues a label query cannot arrive at 10 by reading the messages."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?im)^[ \\t]*documents[ _]tracked[ \\t]*\\|[ \\t]*10(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?im)^[ \\t]*documents[ _]tracked[ \\t]*\\|[ \\t]*10(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 1.0,
+        "score": 1.0,
+        "name": "summary_documents_tracked",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "summary_tracked_never_signed",
+            "definition": {
+              "metadata": {
+                "how_justification": "Finds the row of the Summary sheet whose first cell is tracked_never_signed and requires the next cell to be 2. Label lookup, not a cell reference: the metric rows may sit in any order, the label may be written with spaces instead of underscores, case is free, extra trailing columns are ignored, and 2 written as 2.0 passes. Of the ten register documents, Emily (Em) Clark-05-20-25.pdf and Michele Nizza-05-20-25.pdf are the two the log never confirms a signature for. They are also the write-back set.",
+                "why_justification": "Taking the count over the whole log instead of the register answers 4, adding the aggregate 2 documents and Dr. Joel Rivera-05-20-25.pdf, neither of which is in the register. Folding the two Emily names together answers 1."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?im)^[ \\t]*tracked[ _]never[ _]signed[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?im)^[ \\t]*tracked[ _]never[ _]signed[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 1.0,
+        "score": 1.0,
+        "name": "summary_tracked_never_signed",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "summary_tracked_signed_after_a_reminder",
+            "definition": {
+              "metadata": {
+                "how_justification": "Finds the row of the Summary sheet whose first cell is tracked_signed_after_a_reminder and requires the next cell to be 5. Label lookup, not a cell reference: the metric rows may sit in any order, the label may be written with spaces instead of underscores, case is free, extra trailing columns are ignored, and 5 written as 5.0 passes. Five of the ten register documents are signed and carry at least one reminder: Carmen Squires - results (4).pdf, Emily (Em) Clark-05-20-25 (2).pdf, Joshua Graham - results (4).pdf, hi.jpeg and results (4).pdf. With the other two register figures this partitions the register exactly, 2 plus 5 plus 3 being 10.",
+                "why_justification": "Taking it over the whole log answers 7, adding Jasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf and labels (1).pdf, both signed and chased but out of the register. Conflating the three names that end in results (4).pdf answers 3."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?im)^[ \\t]*tracked[ _]signed[ _]after[ _]a[ _]reminder[ \\t]*\\|[ \\t]*5(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?im)^[ \\t]*tracked[ _]signed[ _]after[ _]a[ _]reminder[ \\t]*\\|[ \\t]*5(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 1.0,
+        "score": 1.0,
+        "name": "summary_tracked_signed_after_a_reminder",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "summary_tracked_signed_with_no_reminder",
+            "definition": {
+              "metadata": {
+                "how_justification": "Finds the row of the Summary sheet whose first cell is tracked_signed_with_no_reminder and requires the next cell to be 3. Label lookup, not a cell reference: the metric rows may sit in any order, the label may be written with spaces instead of underscores, case is free, extra trailing columns are ignored, and 3 written as 3.0 passes. Three register documents were signed without the service ever chasing them: Chuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf, D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf and prenatalDebbie.pdf.",
+                "why_justification": "Taking it over the whole log answers 4, adding Multiple Services Superbill - 06-27-2025.pdf, which is signed, never chased and out of the register. Reading a quoted name search's total_matches as the reminder count makes all three non-zero and answers 0."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?im)^[ \\t]*tracked[ _]signed[ _]with[ _]no[ _]reminder[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?im)^[ \\t]*tracked[ _]signed[ _]with[ _]no[ _]reminder[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 1.0,
+        "score": 1.0,
+        "name": "summary_tracked_signed_with_no_reminder",
+        "id": null
+      },
+      {
+        "passed": true,
+        "reward": 1.0,
+        "threshold": 1.0,
+        "workspace_files": [
+          "audit.xlsx"
+        ],
+        "summary": {
+          "total_verifiers": 1,
+          "passed": 1,
+          "failed": 0,
+          "errored": 0,
+          "total_weight": 1.0,
+          "passed_weight": 1.0
+        },
+        "assertion_results": [
+          {
+            "name": "register_column_reconciles_with_the_summary",
+            "definition": {
+              "metadata": {
+                "how_justification": "Matches all 15 rows of the Documents sheet by document name and reads only their last two cells, leaving the request and reminder counts free so this check and the per-row count checks can disagree. Spaces and tabs around the pipe separators, trailing carriage returns and extra trailing columns are tolerated; yes and no are case-insensitive and true and false are accepted in their place.",
+                "why_justification": "The summary is 10 tracked, of which 2 unsigned, 5 signed after a reminder and 3 signed with no reminder. Those four numbers only mean anything if the sheet's own register and signed columns add up to them: a run that reports the register counts correctly while marking rows tracked on some other basis - being chased, say, which marks labels (1).pdf yes and prenatalDebbie.pdf no - passes the four summary checks and fails here. 10 yes and 5 no is the grouping; 11 and 4 is what the chased-means-tracked reading gives."
+              },
+              "source": {
+                "type": "file",
+                "file": {
+                  "type": "xlsx",
+                  "command": "extract_text",
+                  "arguments": {
+                    "path": "audit.xlsx"
+                  }
+                }
+              },
+              "assertion": {
+                "type": "deterministic",
+                "expected": "(?ims)\\A(?=.*^[ \\t]*2\\ documents[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Carmen\\ Squires\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Chuntelle\\ \\(Chan\\)\\ Williams\\-Jones\\ \\-\\ Urban\\ Lotus\\ Informed\\ Consent\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Dr\\.\\ Joel\\ Rivera\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Jasmine\\ Underwood\\ \\(Em\\)\\ Justin\\ Glass\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Joshua\\ Graham\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Michele\\ Nizza\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Multiple\\ Services\\ Superbill\\ \\-\\ 06\\-27\\-2025\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*hi\\.jpeg[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*labels\\ \\(1\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*prenatalDebbie\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+                "deterministic": {
+                  "path": "$.text",
+                  "comparison": "regex_match"
+                }
+              }
+            },
+            "result": {
+              "success": true,
+              "expected": "(?ims)\\A(?=.*^[ \\t]*2\\ documents[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Carmen\\ Squires\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Chuntelle\\ \\(Chan\\)\\ Williams\\-Jones\\ \\-\\ Urban\\ Lotus\\ Informed\\ Consent\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Dr\\.\\ Joel\\ Rivera\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Jasmine\\ Underwood\\ \\(Em\\)\\ Justin\\ Glass\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Joshua\\ Graham\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Michele\\ Nizza\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Multiple\\ Services\\ Superbill\\ \\-\\ 06\\-27\\-2025\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*hi\\.jpeg[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*labels\\ \\(1\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*prenatalDebbie\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+              "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+              "effective_weight": 1.0,
+              "error": null,
+              "reason": null,
+              "evaluation": {
+                "path": "$.text",
+                "matched_values": [
+                  "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+                ],
+                "comparison": "regex_match"
+              }
+            }
+          }
+        ],
+        "gym_name": null,
+        "verifier_type": "file_check",
+        "category": "core",
+        "weight": 1.0,
+        "score": 1.0,
+        "name": "register_column_reconciles_with_the_summary",
+        "id": null
+      },
+      {
+        "passed": true,
+        "expected": 1,
+        "actual": 1,
+        "comparison_type": "equals",
+        "query": "SELECT COUNT(*) FROM drafts d JOIN messages m ON m.id = d.message_id JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND lower(trim(h.value)) = 'documents still awaiting my signature' AND m.snippet LIKE '%Emily (Em) Clark-05-20-25.pdf%' AND m.snippet LIKE '%Michele Nizza-05-20-25.pdf%' AND length(m.snippet) - length(replace(m.snippet, '.pdf', '')) = 8 AND length(trim(m.snippet)) <= 64",
+        "gym_name": "email-calendar-gym",
+        "details": "Comparison equals: 1 vs 1",
+        "verifier_type": "database_state",
+        "category": "core",
+        "weight": 3.0,
+        "score": 1.0,
+        "name": "draft_names_the_unsigned_register_documents",
+        "id": null
+      },
+      {
+        "passed": true,
+        "expected": 1,
+        "actual": 1,
+        "comparison_type": "equals",
+        "query": "SELECT COUNT(*) FROM drafts d JOIN messages m ON m.id = d.message_id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38'",
+        "gym_name": "email-calendar-gym",
+        "details": "Comparison equals: 1 vs 1",
+        "verifier_type": "database_state",
+        "category": "core",
+        "weight": 1.0,
+        "score": 1.0,
+        "name": "draft_is_the_only_one_written",
+        "id": null
+      },
+      {
+        "passed": true,
+        "expected_tools": [],
+        "tools_called": [
+          "search_email",
+          "search_email",
+          "search_email",
+          "draft_email",
+          "finish"
+        ],
+        "missing_tools": [],
+        "minimum_tool_calls": 2,
+        "actual_tool_calls": 5,
+        "occurrence_check": null,
+        "call_bounds": null,
+        "exclude_errored_calls": true,
+        "errored_calls": [],
+        "verifier_type": "tool_execution",
+        "category": "core",
+        "weight": 0.5,
+        "score": 1.0,
+        "name": "the_log_was_actually_read",
+        "id": null
+      }
+    ]
+  },
+  "verification_results": {
+    "documents_sheet_has_one_row_per_document": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "documents_sheet_has_one_row_per_document",
+          "definition": {
+            "metadata": {
+              "how_justification": "Counts the non-empty rows xlsx.extract_text renders between the Documents sheet marker and the next sheet marker (or the end of the workbook) and requires exactly 16: the header plus 15 documents. Exclusivity as a count, not a list of forbidden names, so a round-up that adds a sixteenth document fails on the count alone whatever it named, and so does a short answer. A missing sheet or an empty workbook cannot pass. Extra sheets elsewhere in the workbook are not read.",
+              "why_justification": "15 is the number of distinct document names the log carries. Folding the two Emily names together answers 14; conflating the three names ending in results (4).pdf answers 13; dropping the aggregate key 2 documents because it names no file answers 14; adding a row for the standing consent-form notice, which names no document at all, answers 16; reporting only the register answers 10."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ims)^\\[Sheet: Documents\\]\\n(?:[^\\n]+\\n){15}[^\\n]+(?=\\n\\[Sheet: |\\Z)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?ims)^\\[Sheet: Documents\\]\\n(?:[^\\n]+\\n){15}[^\\n]+(?=\\n\\[Sheet: |\\Z)",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 1.5,
+      "score": 1.0,
+      "name": "documents_sheet_has_one_row_per_document",
+      "id": null
+    },
+    "summary_sheet_has_one_row_per_metric": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "summary_sheet_has_one_row_per_metric",
+          "definition": {
+            "metadata": {
+              "how_justification": "Counts the non-empty rows xlsx.extract_text renders between the Summary sheet marker and the next sheet marker (or the end of the workbook) and requires exactly 5: the header plus the four metrics. Exclusivity as a count: a sheet that reports the whole-log figures alongside the four asked for fails here even when all four labelled rows are right, and a missing sheet cannot pass.",
+              "why_justification": "Each of the four metrics has a whole-log counterpart - 15, 4, 7 and 4 against 10, 2, 5 and 3 - and a run that is unsure which population was asked for reports both, which is eight metric rows. This check is what makes the run commit to one."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ims)^\\[Sheet: Summary\\]\\n(?:[^\\n]+\\n){4}[^\\n]+(?=\\n\\[Sheet: |\\Z)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?ims)^\\[Sheet: Summary\\]\\n(?:[^\\n]+\\n){4}[^\\n]+(?=\\n\\[Sheet: |\\Z)",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 0.6,
+      "score": 1.0,
+      "name": "summary_sheet_has_one_row_per_metric",
+      "id": null
+    },
+    "documents_sheet_header": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "documents_sheet_header",
+          "definition": {
+            "metadata": {
+              "how_justification": "Matches the header row case-insensitively, allowing spaces or tabs around the pipe separators xlsx.extract_text writes between cells and any extra trailing columns, but requiring the five names in the order the task gives them.",
+              "why_justification": "Every row assertion reads the request count before the reminder count. A sheet whose two count columns are the other way round reports 8 and 6 for Carmen Squires and 13 and 5 for Michele Nizza while looking well formed, and the header is the only place that can settle which order a run chose."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*document[ \\t]*\\|[ \\t]*requests[ \\t]*\\|[ \\t]*reminders[ \\t]*\\|[ \\t]*signed[ \\t]*\\|[ \\t]*tracked[ \\t]*(?:\\||\\r?$)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?im)^[ \\t]*document[ \\t]*\\|[ \\t]*requests[ \\t]*\\|[ \\t]*reminders[ \\t]*\\|[ \\t]*signed[ \\t]*\\|[ \\t]*tracked[ \\t]*(?:\\||\\r?$)",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 0.6,
+      "score": 1.0,
+      "name": "documents_sheet_header",
+      "id": null
+    },
+    "documents_the_two_near_identical_names": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "documents_the_two_near_identical_names",
+          "definition": {
+            "metadata": {
+              "how_justification": "Requires the two Emily rows and the Jasmine row, each matched on its own line by its full document name, so a run that normalised the bracketed suffix away cannot satisfy any of the three: the single merged row it writes carries neither name's counts. Each row is matched on its own line by document name in the text xlsx.extract_text renders, which is one line per non-empty row with the cells joined by a pipe. Spaces and tabs around the separators, a trailing carriage return, extra trailing columns and a number written as 2 or 2.0 are all tolerated; yes and no are matched case-insensitively and true and false are accepted in their place. Row order is free and nothing about the workbook's styling is read.",
+              "why_justification": "The two Emily names are the trap: the plain one was requested twice, chased four times and is still unsigned, while the bracketed one was requested three times, chased twice and is signed. Normalising the bracket away merges two documents into one, answers 14 rows instead of 15 and drops tracked_never_signed from 2 to 1. The bracketed one is also the document whose third request arrived under a different sender name, so a run that keys a document on its sender as well as its name answers 2 requests there instead of 3. The Jasmine row sits beside them because its name ends the same way and its completion notice carries that other sender name."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ims)\\A(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Jasmine\\ Underwood\\ \\(Em\\)\\ Justin\\ Glass\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?ims)\\A(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Jasmine\\ Underwood\\ \\(Em\\)\\ Justin\\ Glass\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 0.8,
+      "score": 1.0,
+      "name": "documents_the_two_near_identical_names",
+      "id": null
+    },
+    "documents_the_three_names_sharing_a_tail": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "documents_the_three_names_sharing_a_tail",
+          "definition": {
+            "metadata": {
+              "how_justification": "Requires all three rows whose names end in the same eight characters, each with its own request and reminder counts, so the only way to pass is to have kept the three apart while counting. Each row is matched on its own line by document name in the text xlsx.extract_text renders, which is one line per non-empty row with the cells joined by a pipe. Spaces and tabs around the separators, a trailing carriage return, extra trailing columns and a number written as 2 or 2.0 are all tolerated; yes and no are matched case-insensitively and true and false are accepted in their place. Row order is free and nothing about the workbook's styling is read.",
+              "why_justification": "Three distinct documents whose names end in the same eight characters. A quoted free-text search for results (4).pdf returns 33 messages spanning all three, so a run that keys a document on a substring of its name conflates them into a single row carrying 12 requests and 14 reminders and answers 13 rows. Graded as three rows with 2 and 2, 6 and 8, and 4 and 4."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ims)\\A(?=.*^[ \\t]*results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Carmen\\ Squires\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*6(?:\\.0+)?[ \\t]*\\|[ \\t]*8(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Joshua\\ Graham\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?ims)\\A(?=.*^[ \\t]*results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Carmen\\ Squires\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*6(?:\\.0+)?[ \\t]*\\|[ \\t]*8(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Joshua\\ Graham\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 0.8,
+      "score": 1.0,
+      "name": "documents_the_three_names_sharing_a_tail",
+      "id": null
+    },
+    "documents_the_ones_still_unsigned": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "documents_the_ones_still_unsigned",
+          "definition": {
+            "metadata": {
+              "how_justification": "Requires the three rows whose signed flag is no, each with the reminder count that shows it was chased anyway and the register flag that decides whether it reaches the summary at all. Each row is matched on its own line by document name in the text xlsx.extract_text renders, which is one line per non-empty row with the cells joined by a pipe. Spaces and tabs around the separators, a trailing carriage return, extra trailing columns and a number written as 2 or 2.0 are all tolerated; yes and no are matched case-insensitively and true and false are accepted in their place. Row order is free and nothing about the workbook's styling is read.",
+              "why_justification": "The three documents the log never confirms a signature for, apart from the fourth, the Emily row graded above. 2 documents is a request naming no file, and dropping it because it is not a file name answers 14 rows and moves the whole-log unsigned count from 4 to 3. Michele Nizza was chased thirteen times, more than any other document, and is in the register while the other two are not, so a run that reads persistent chasing as register membership gets this row's tracked flag right for the wrong reason and the other two wrong."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ims)\\A(?=.*^[ \\t]*2\\ documents[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Dr\\.\\ Joel\\ Rivera\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Michele\\ Nizza\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*5(?:\\.0+)?[ \\t]*\\|[ \\t]*13(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?ims)\\A(?=.*^[ \\t]*2\\ documents[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Dr\\.\\ Joel\\ Rivera\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Michele\\ Nizza\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*5(?:\\.0+)?[ \\t]*\\|[ \\t]*13(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 0.8,
+      "score": 1.0,
+      "name": "documents_the_ones_still_unsigned",
+      "id": null
+    },
+    "documents_the_ones_signed_with_no_chasing": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "documents_the_ones_signed_with_no_chasing",
+          "definition": {
+            "metadata": {
+              "how_justification": "Requires the three rows whose reminder count is exactly 0 and whose signed flag is yes - the only rows in the sheet where a zero is the right answer, and the ones a reminder count taken from a search total rather than from classified subjects gets wrong. Each row is matched on its own line by document name in the text xlsx.extract_text renders, which is one line per non-empty row with the cells joined by a pipe. Spaces and tabs around the separators, a trailing carriage return, extra trailing columns and a number written as 2 or 2.0 are all tolerated; yes and no are matched case-insensitively and true and false are accepted in their place. Row order is free and nothing about the workbook's styling is read.",
+              "why_justification": "The three documents that were requested once, never chased and signed; together they are the whole of tracked_signed_with_no_reminder. Each carries a reminder count of exactly 0, which is the figure a run that reads a quoted name search's total_matches as its reminder count gets wrong: those searches return 3, 2 and 2 messages for these names because they also return the request and the completion. A run that assumes every document was chased at least once turns all three counts non-zero and moves tracked_signed_with_no_reminder from 3 to 0."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ims)\\A(?=.*^[ \\t]*Chuntelle\\ \\(Chan\\)\\ Williams\\-Jones\\ \\-\\ Urban\\ Lotus\\ Informed\\ Consent\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*prenatalDebbie\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?ims)\\A(?=.*^[ \\t]*Chuntelle\\ \\(Chan\\)\\ Williams\\-Jones\\ \\-\\ Urban\\ Lotus\\ Informed\\ Consent\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*prenatalDebbie\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 0.8,
+      "score": 1.0,
+      "name": "documents_the_ones_signed_with_no_chasing",
+      "id": null
+    },
+    "documents_the_remaining_rows": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "documents_the_remaining_rows",
+          "definition": {
+            "metadata": {
+              "how_justification": "Requires the three rows that each turn on a different scope clause: the image that is a document all the same, the signed document that sits outside the register, and the one confirmed only by a notice that everyone has signed it. Each row is matched on its own line by document name in the text xlsx.extract_text renders, which is one line per non-empty row with the cells joined by a pipe. Spaces and tabs around the separators, a trailing carriage return, extra trailing columns and a number written as 2 or 2.0 are all tolerated; yes and no are matched case-insensitively and true and false are accepted in their place. Row order is free and nothing about the workbook's styling is read.",
+              "why_justification": "These three rows decide three separate scope questions. Multiple Services Superbill is confirmed by a notice that everyone has signed it and by nothing else, so it is the only row that tests that clause: reading such a notice as something other than a signature turns it to no and moves the whole-log unsigned count from 4 to 5. hi.jpeg is a document although it is an image, and a run that keeps only document files drops it and answers 14 rows. labels (1).pdf is signed, chased four times and out of the register, so a run that infers register membership from having been chased marks it yes and moves documents_tracked from 10 to 11."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ims)\\A(?=.*^[ \\t]*hi\\.jpeg[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*labels\\ \\(1\\)\\.pdf[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Multiple\\ Services\\ Superbill\\ \\-\\ 06\\-27\\-2025\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?ims)\\A(?=.*^[ \\t]*hi\\.jpeg[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*labels\\ \\(1\\)\\.pdf[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*\\|[ \\t]*4(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Multiple\\ Services\\ Superbill\\ \\-\\ 06\\-27\\-2025\\.pdf[ \\t]*\\|[ \\t]*1(?:\\.0+)?[ \\t]*\\|[ \\t]*0(?:\\.0+)?[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 0.8,
+      "score": 1.0,
+      "name": "documents_the_remaining_rows",
+      "id": null
+    },
+    "summary_documents_tracked": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "summary_documents_tracked",
+          "definition": {
+            "metadata": {
+              "how_justification": "Finds the row of the Summary sheet whose first cell is documents_tracked and requires the next cell to be 10. Label lookup, not a cell reference: the metric rows may sit in any order, the label may be written with spaces instead of underscores, case is free, extra trailing columns are ignored, and 10 written as 10.0 passes. The register is the ten documents at least one of whose request messages carries the Opened label. Derived twice and agreeing: the tool route returns 18 of the 36 request messages for the quoted request phrase with label:Opened, and the state route returns the same 18 by joining message_labels to the label named Opened; those 18 fall across ten distinct document names.",
+              "why_justification": "Counting every document in the log answers 15. Requiring every one of a document's request messages to carry the label rather than at least one answers 3, because only Chuntelle, D7VISA and prenatalDebbie have all of theirs filed there. Inferring the register from a document having been chased answers 11. The label is in no search result payload, so a run that never issues a label query cannot arrive at 10 by reading the messages."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*documents[ _]tracked[ \\t]*\\|[ \\t]*10(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?im)^[ \\t]*documents[ _]tracked[ \\t]*\\|[ \\t]*10(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 1.0,
+      "score": 1.0,
+      "name": "summary_documents_tracked",
+      "id": null
+    },
+    "summary_tracked_never_signed": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "summary_tracked_never_signed",
+          "definition": {
+            "metadata": {
+              "how_justification": "Finds the row of the Summary sheet whose first cell is tracked_never_signed and requires the next cell to be 2. Label lookup, not a cell reference: the metric rows may sit in any order, the label may be written with spaces instead of underscores, case is free, extra trailing columns are ignored, and 2 written as 2.0 passes. Of the ten register documents, Emily (Em) Clark-05-20-25.pdf and Michele Nizza-05-20-25.pdf are the two the log never confirms a signature for. They are also the write-back set.",
+              "why_justification": "Taking the count over the whole log instead of the register answers 4, adding the aggregate 2 documents and Dr. Joel Rivera-05-20-25.pdf, neither of which is in the register. Folding the two Emily names together answers 1."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*tracked[ _]never[ _]signed[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?im)^[ \\t]*tracked[ _]never[ _]signed[ \\t]*\\|[ \\t]*2(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 1.0,
+      "score": 1.0,
+      "name": "summary_tracked_never_signed",
+      "id": null
+    },
+    "summary_tracked_signed_after_a_reminder": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "summary_tracked_signed_after_a_reminder",
+          "definition": {
+            "metadata": {
+              "how_justification": "Finds the row of the Summary sheet whose first cell is tracked_signed_after_a_reminder and requires the next cell to be 5. Label lookup, not a cell reference: the metric rows may sit in any order, the label may be written with spaces instead of underscores, case is free, extra trailing columns are ignored, and 5 written as 5.0 passes. Five of the ten register documents are signed and carry at least one reminder: Carmen Squires - results (4).pdf, Emily (Em) Clark-05-20-25 (2).pdf, Joshua Graham - results (4).pdf, hi.jpeg and results (4).pdf. With the other two register figures this partitions the register exactly, 2 plus 5 plus 3 being 10.",
+              "why_justification": "Taking it over the whole log answers 7, adding Jasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf and labels (1).pdf, both signed and chased but out of the register. Conflating the three names that end in results (4).pdf answers 3."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*tracked[ _]signed[ _]after[ _]a[ _]reminder[ \\t]*\\|[ \\t]*5(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?im)^[ \\t]*tracked[ _]signed[ _]after[ _]a[ _]reminder[ \\t]*\\|[ \\t]*5(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 1.0,
+      "score": 1.0,
+      "name": "summary_tracked_signed_after_a_reminder",
+      "id": null
+    },
+    "summary_tracked_signed_with_no_reminder": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "summary_tracked_signed_with_no_reminder",
+          "definition": {
+            "metadata": {
+              "how_justification": "Finds the row of the Summary sheet whose first cell is tracked_signed_with_no_reminder and requires the next cell to be 3. Label lookup, not a cell reference: the metric rows may sit in any order, the label may be written with spaces instead of underscores, case is free, extra trailing columns are ignored, and 3 written as 3.0 passes. Three register documents were signed without the service ever chasing them: Chuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf, D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf and prenatalDebbie.pdf.",
+              "why_justification": "Taking it over the whole log answers 4, adding Multiple Services Superbill - 06-27-2025.pdf, which is signed, never chased and out of the register. Reading a quoted name search's total_matches as the reminder count makes all three non-zero and answers 0."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?im)^[ \\t]*tracked[ _]signed[ _]with[ _]no[ _]reminder[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?im)^[ \\t]*tracked[ _]signed[ _]with[ _]no[ _]reminder[ \\t]*\\|[ \\t]*3(?:\\.0+)?[ \\t]*(?:\\||\\r?$)",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 1.0,
+      "score": 1.0,
+      "name": "summary_tracked_signed_with_no_reminder",
+      "id": null
+    },
+    "register_column_reconciles_with_the_summary": {
+      "passed": true,
+      "reward": 1.0,
+      "threshold": 1.0,
+      "workspace_files": [
+        "audit.xlsx"
+      ],
+      "summary": {
+        "total_verifiers": 1,
+        "passed": 1,
+        "failed": 0,
+        "errored": 0,
+        "total_weight": 1.0,
+        "passed_weight": 1.0
+      },
+      "assertion_results": [
+        {
+          "name": "register_column_reconciles_with_the_summary",
+          "definition": {
+            "metadata": {
+              "how_justification": "Matches all 15 rows of the Documents sheet by document name and reads only their last two cells, leaving the request and reminder counts free so this check and the per-row count checks can disagree. Spaces and tabs around the pipe separators, trailing carriage returns and extra trailing columns are tolerated; yes and no are case-insensitive and true and false are accepted in their place.",
+              "why_justification": "The summary is 10 tracked, of which 2 unsigned, 5 signed after a reminder and 3 signed with no reminder. Those four numbers only mean anything if the sheet's own register and signed columns add up to them: a run that reports the register counts correctly while marking rows tracked on some other basis - being chased, say, which marks labels (1).pdf yes and prenatalDebbie.pdf no - passes the four summary checks and fails here. 10 yes and 5 no is the grouping; 11 and 4 is what the chased-means-tracked reading gives."
+            },
+            "source": {
+              "type": "file",
+              "file": {
+                "type": "xlsx",
+                "command": "extract_text",
+                "arguments": {
+                  "path": "audit.xlsx"
+                }
+              }
+            },
+            "assertion": {
+              "type": "deterministic",
+              "expected": "(?ims)\\A(?=.*^[ \\t]*2\\ documents[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Carmen\\ Squires\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Chuntelle\\ \\(Chan\\)\\ Williams\\-Jones\\ \\-\\ Urban\\ Lotus\\ Informed\\ Consent\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Dr\\.\\ Joel\\ Rivera\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Jasmine\\ Underwood\\ \\(Em\\)\\ Justin\\ Glass\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Joshua\\ Graham\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Michele\\ Nizza\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Multiple\\ Services\\ Superbill\\ \\-\\ 06\\-27\\-2025\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*hi\\.jpeg[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*labels\\ \\(1\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*prenatalDebbie\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+              "deterministic": {
+                "path": "$.text",
+                "comparison": "regex_match"
+              }
+            }
+          },
+          "result": {
+            "success": true,
+            "expected": "(?ims)\\A(?=.*^[ \\t]*2\\ documents[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Carmen\\ Squires\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Chuntelle\\ \\(Chan\\)\\ Williams\\-Jones\\ \\-\\ Urban\\ Lotus\\ Informed\\ Consent\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Dr\\.\\ Joel\\ Rivera\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Emily\\ \\(Em\\)\\ Clark\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Jasmine\\ Underwood\\ \\(Em\\)\\ Justin\\ Glass\\-05\\-20\\-25\\ \\(2\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Joshua\\ Graham\\ \\-\\ results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Michele\\ Nizza\\-05\\-20\\-25\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*Multiple\\ Services\\ Superbill\\ \\-\\ 06\\-27\\-2025\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*hi\\.jpeg[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*labels\\ \\(1\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:no|false)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*prenatalDebbie\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))(?=.*^[ \\t]*results\\ \\(4\\)\\.pdf[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*[^|\\n]*[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*\\|[ \\t]*(?:yes|true)[ \\t]*(?:\\||\\r?$))",
+            "actual": "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3",
+            "effective_weight": 1.0,
+            "error": null,
+            "reason": null,
+            "evaluation": {
+              "path": "$.text",
+              "matched_values": [
+                "[Sheet: Documents]\ndocument | requests | reminders | signed | tracked\n2 documents | 1 | 2 | no | no\nCarmen Squires - results (4).pdf | 6 | 8 | yes | yes\nChuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf | 1 | 0 | yes | yes\nD7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf | 1 | 0 | yes | yes\nDr. Joel Rivera-05-20-25.pdf | 2 | 1 | no | no\nEmily (Em) Clark-05-20-25 (2).pdf | 3 | 2 | yes | yes\nEmily (Em) Clark-05-20-25.pdf | 2 | 4 | no | yes\nJasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf | 1 | 2 | yes | no\nJoshua Graham - results (4).pdf | 4 | 4 | yes | yes\nMichele Nizza-05-20-25.pdf | 5 | 13 | no | yes\nMultiple Services Superbill - 06-27-2025.pdf | 1 | 0 | yes | no\nhi.jpeg | 3 | 4 | yes | yes\nlabels (1).pdf | 3 | 4 | yes | no\nprenatalDebbie.pdf | 1 | 0 | yes | yes\nresults (4).pdf | 2 | 2 | yes | yes\n[Sheet: Summary]\nmetric | value\ndocuments_tracked | 10\ntracked_never_signed | 2\ntracked_signed_after_a_reminder | 5\ntracked_signed_with_no_reminder | 3"
+              ],
+              "comparison": "regex_match"
+            }
+          }
+        }
+      ],
+      "gym_name": null,
+      "verifier_type": "file_check",
+      "category": "core",
+      "weight": 1.0,
+      "score": 1.0,
+      "name": "register_column_reconciles_with_the_summary",
+      "id": null
+    },
+    "draft_names_the_unsigned_register_documents": {
+      "passed": true,
+      "expected": 1,
+      "actual": 1,
+      "comparison_type": "equals",
+      "query": "SELECT COUNT(*) FROM drafts d JOIN messages m ON m.id = d.message_id JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND lower(trim(h.value)) = 'documents still awaiting my signature' AND m.snippet LIKE '%Emily (Em) Clark-05-20-25.pdf%' AND m.snippet LIKE '%Michele Nizza-05-20-25.pdf%' AND length(m.snippet) - length(replace(m.snippet, '.pdf', '')) = 8 AND length(trim(m.snippet)) <= 64",
+      "gym_name": "email-calendar-gym",
+      "details": "Comparison equals: 1 vs 1",
+      "verifier_type": "database_state",
+      "category": "core",
+      "weight": 3.0,
+      "score": 1.0,
+      "name": "draft_names_the_unsigned_register_documents",
+      "id": null
+    },
+    "draft_is_the_only_one_written": {
+      "passed": true,
+      "expected": 1,
+      "actual": 1,
+      "comparison_type": "equals",
+      "query": "SELECT COUNT(*) FROM drafts d JOIN messages m ON m.id = d.message_id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38'",
+      "gym_name": "email-calendar-gym",
+      "details": "Comparison equals: 1 vs 1",
+      "verifier_type": "database_state",
+      "category": "core",
+      "weight": 1.0,
+      "score": 1.0,
+      "name": "draft_is_the_only_one_written",
+      "id": null
+    },
+    "the_log_was_actually_read": {
+      "passed": true,
+      "expected_tools": [],
+      "tools_called": [
+        "search_email",
+        "search_email",
+        "search_email",
+        "draft_email",
+        "finish"
+      ],
+      "missing_tools": [],
+      "minimum_tool_calls": 2,
+      "actual_tool_calls": 5,
+      "occurrence_check": null,
+      "call_bounds": null,
+      "exclude_errored_calls": true,
+      "errored_calls": [],
+      "verifier_type": "tool_execution",
+      "category": "core",
+      "weight": 0.5,
+      "score": 1.0,
+      "name": "the_log_was_actually_read",
+      "id": null
+    }
+  },
+  "verification_summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "pass_rate": 1.0,
+    "core_total": 16,
+    "core_passed": true,
+    "weighted_pass_rate": 1.0,
+    "scored_weighted_pass_rate": 1.0,
+    "unscored": 0,
+    "type_scores": {
+      "file_check": 1.0,
+      "database_state": 1.0,
+      "tool_execution": 1.0
+    }
+  },
+  "failure_mode": "pass",
+  "statistics": {
+    "total_runs": 1,
+    "gradable_runs": 1,
+    "successful_runs": 1,
+    "overall_success_rate": 1.0,
+    "pass_at_1": 1.0,
+    "verifier_level_pass_rate": 1.0,
+    "weighted_pass_rate": 1.0,
+    "failure_modes": {
+      "pass": 1
+    },
+    "exhausted_runs": 0,
+    "total_verifiers_checked": 16,
+    "total_verifiers_passed": 16,
+    "individual_verifier_stats": {
+      "documents_sheet_has_one_row_per_document": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "summary_sheet_has_one_row_per_metric": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "documents_sheet_header": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "documents_the_two_near_identical_names": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "documents_the_three_names_sharing_a_tail": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "documents_the_ones_still_unsigned": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "documents_the_ones_signed_with_no_chasing": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "documents_the_remaining_rows": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "summary_documents_tracked": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "summary_tracked_never_signed": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "summary_tracked_signed_after_a_reminder": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "summary_tracked_signed_with_no_reminder": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "register_column_reconciles_with_the_summary": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "draft_names_the_unsigned_register_documents": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "draft_is_the_only_one_written": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      },
+      "the_log_was_actually_read": {
+        "passed": 1,
+        "total": 1,
+        "pass_rate": 1.0
+      }
+    },
+    "mean_execution_time_ms": 0.0,
+    "tool_usage": {
+      "draft_email": 1,
+      "finish": 1,
+      "search_email": 1
+    },
+    "tool_available": [],
+    "tool_unused": []
+  },
+  "rubric_score": 1.0,
+  "state_score": null,
+  "side_effect_gate": 1.0,
+  "judge_prompt_version": "v2.1-likert"
+}

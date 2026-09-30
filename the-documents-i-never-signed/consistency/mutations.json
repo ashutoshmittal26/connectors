@@ -1,0 +1,970 @@
+{
+  "task": "task",
+  "harness": "the bundle's own tests/manifest.json verifier_specs, unmodified, run through the vendored tests/rl_world_verifiers engine (the same code path benchmark_runner.py uses for file_check) against a workspace built from solution/artifact_plan.json",
+  "scope": "the 13 core file_check verifiers. database_state, rubric_check and tool_execution verifiers are not workspace artifacts and are not mutable this way.",
+  "controls": {
+    "positive": "the oracle's own artifacts score every file_check",
+    "semantic": "one corrupted graded value fails EXACTLY the verifier that grades it",
+    "granularity": "one corrupted value fails exactly one verifier and the rest still pass, so reward drops by that entry's weight rather than to zero",
+    "cosmetic": "presentation changes that leave every number correct still score every file_check",
+    "incompleteness": "an artifact missing a graded value fails the verifier that grades it, rather than passing on a lenient lookup",
+    "adversarial_acceptance": "a plausible WRONG answer -- a superset report, or every figure off by one -- fails rather than scoring"
+  },
+  "strictness_pct": 100.0,
+  "brittleness_pct": 0.0,
+  "all_controls_pass": true,
+  "superset_report_accepted": false,
+  "residual_risk_duplicate_graded_key": {
+    "verifiers_that_wrongly_fail": null,
+    "note": "a correct answer that also writes a breakdown reusing a graded key name. No clean fix: prompt clause is mitigation only, `contains` breaks the single-match case, `$..key[0]` fails every case. Not counted in brittleness."
+  },
+  "cases": [
+    {
+      "control": "positive",
+      "mutation": "oracle artifacts verbatim",
+      "expected_failures": [],
+      "observed_failures": [],
+      "file_check_verifiers_passing": "13/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B2 corrupted",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B2",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C2 corrupted",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C2",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B3 corrupted",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B3",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C3 corrupted",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C3",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B4 corrupted",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B4",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C4 corrupted",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C4",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B5 corrupted",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B5",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C5 corrupted",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C5",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B6 corrupted",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B6",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C6 corrupted",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C6",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B7 corrupted",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B7",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C7 corrupted",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C7",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B8 corrupted",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B8",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C8 corrupted",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C8",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B9 corrupted",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B9",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C9 corrupted",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C9",
+      "expected_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "observed_failures": [
+        "documents_the_two_near_identical_names"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B10 corrupted",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B10",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C10 corrupted",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C10",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B11 corrupted",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B11",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C11 corrupted",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C11",
+      "expected_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "observed_failures": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B12 corrupted",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B12",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C12 corrupted",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C12",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B13 corrupted",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B13",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C13 corrupted",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C13",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B14 corrupted",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B14",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C14 corrupted",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C14",
+      "expected_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "observed_failures": [
+        "documents_the_remaining_rows"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B15 corrupted",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B15",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C15 corrupted",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C15",
+      "expected_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!B16 corrupted",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!B16",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Documents!C16 corrupted",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Documents!C16",
+      "expected_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "observed_failures": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Summary!B2 corrupted",
+      "expected_failures": [
+        "summary_documents_tracked"
+      ],
+      "observed_failures": [
+        "summary_documents_tracked"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Summary!B2",
+      "expected_failures": [
+        "summary_documents_tracked"
+      ],
+      "observed_failures": [
+        "summary_documents_tracked"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Summary!B3 corrupted",
+      "expected_failures": [
+        "summary_tracked_never_signed"
+      ],
+      "observed_failures": [
+        "summary_tracked_never_signed"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Summary!B3",
+      "expected_failures": [
+        "summary_tracked_never_signed"
+      ],
+      "observed_failures": [
+        "summary_tracked_never_signed"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Summary!B4 corrupted",
+      "expected_failures": [
+        "summary_tracked_signed_after_a_reminder"
+      ],
+      "observed_failures": [
+        "summary_tracked_signed_after_a_reminder"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Summary!B4",
+      "expected_failures": [
+        "summary_tracked_signed_after_a_reminder"
+      ],
+      "observed_failures": [
+        "summary_tracked_signed_after_a_reminder"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "semantic",
+      "mutation": "Summary!B5 corrupted",
+      "expected_failures": [
+        "summary_tracked_signed_with_no_reminder"
+      ],
+      "observed_failures": [
+        "summary_tracked_signed_with_no_reminder"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "granularity",
+      "mutation": "exactly one number corrupted: Summary!B5",
+      "expected_failures": [
+        "summary_tracked_signed_with_no_reminder"
+      ],
+      "observed_failures": [
+        "summary_tracked_signed_with_no_reminder"
+      ],
+      "n_failing_verifiers": 1,
+      "reward_not_zero": true,
+      "outcome": "PASS"
+    },
+    {
+      "control": "cosmetic",
+      "mutation": "xlsx: an extra unrelated sheet",
+      "expected_failures": [],
+      "observed_failures": [],
+      "file_check_verifiers_passing": "13/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "cosmetic",
+      "mutation": "xlsx: an extra unrelated column",
+      "expected_failures": [],
+      "observed_failures": [],
+      "file_check_verifiers_passing": "13/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "cosmetic",
+      "mutation": "xlsx: every integer written as a float",
+      "expected_failures": [],
+      "observed_failures": [],
+      "file_check_verifiers_passing": "13/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "incompleteness",
+      "mutation": "xlsx: drop the last data row of Documents",
+      "expected_failures": "every column check on Documents",
+      "observed_failures": [
+        "documents_sheet_has_one_row_per_document",
+        "documents_the_three_names_sharing_a_tail",
+        "register_column_reconciles_with_the_summary"
+      ],
+      "file_check_verifiers_passing": "10/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "incompleteness",
+      "mutation": "xlsx: drop the last data row of Summary",
+      "expected_failures": "every column check on Summary",
+      "observed_failures": [
+        "summary_sheet_has_one_row_per_metric",
+        "summary_tracked_signed_with_no_reminder"
+      ],
+      "file_check_verifiers_passing": "11/13",
+      "outcome": "PASS"
+    },
+    {
+      "control": "adversarial_acceptance",
+      "mutation": "xlsx: correct answer PLUS one extra row on Documents",
+      "expected_failures": "every column check on Documents",
+      "observed_failures": [
+        "documents_sheet_has_one_row_per_document"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS",
+      "counted_in_all_controls_pass": false,
+      "note": "the batch-8 membership regex accepted a superset; an ordered column list must reject one. Reported but NOT counted in all_controls_pass, for the same reason the report-superset case is not: it measures the CHECK VOCABULARY, not the package. file_check has no set-equality or cardinality operator (see the connector report, verifier issue 3.1), and on a bundle whose figures are all scalars the appended row carries a NEW label (EXTRA-0), which the tolerance policy requires every label lookup to ignore - so this case cannot fail there by construction. Read superset_report_accepted for the finding itself."
+    },
+    {
+      "control": "adversarial_acceptance",
+      "mutation": "xlsx: correct answer PLUS one extra row on Summary",
+      "expected_failures": "every column check on Summary",
+      "observed_failures": [
+        "summary_sheet_has_one_row_per_metric"
+      ],
+      "file_check_verifiers_passing": "12/13",
+      "outcome": "PASS",
+      "counted_in_all_controls_pass": false,
+      "note": "the batch-8 membership regex accepted a superset; an ordered column list must reject one. Reported but NOT counted in all_controls_pass, for the same reason the report-superset case is not: it measures the CHECK VOCABULARY, not the package. file_check has no set-equality or cardinality operator (see the connector report, verifier issue 3.1), and on a bundle whose figures are all scalars the appended row carries a NEW label (EXTRA-0), which the tolerance policy requires every label lookup to ignore - so this case cannot fail there by construction. Read superset_report_accepted for the finding itself."
+    },
+    {
+      "control": "adversarial_acceptance",
+      "mutation": "xlsx: every figure off by one (a consistent wrong method)",
+      "expected_failures": "the value-column check",
+      "observed_failures": [
+        "documents_the_ones_signed_with_no_chasing",
+        "documents_the_ones_still_unsigned",
+        "documents_the_remaining_rows",
+        "documents_the_three_names_sharing_a_tail",
+        "documents_the_two_near_identical_names",
+        "summary_documents_tracked",
+        "summary_tracked_never_signed",
+        "summary_tracked_signed_after_a_reminder",
+        "summary_tracked_signed_with_no_reminder"
+      ],
+      "file_check_verifiers_passing": "4/13",
+      "outcome": "PASS"
+    }
+  ]
+}

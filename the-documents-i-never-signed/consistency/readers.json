@@ -1,0 +1,85 @@
+{
+  "reader_n": 4,
+  "raw_output": "readers-20260927-204905",
+  "protocol": "Four independent readers, single turn, no tools, no gym. Each received instruction.md VERBATIM and NOTHING else - no gold, no verifiers, no trajectory - and was asked two SEPARATE questions: (1) GOAL - what deliverables does this ask for and what is each figure, not how to compute it; (2) METHOD - how would you compute each one. Run 2026-09-27 by tools/readers.py against instruction.md sha256 6d3dc83ce8..., the bytes that ship. Raw output in _evidence/the-documents-i-never-signed/readers-20260927-204905/.",
+  "instruction_sha256": "6d3dc83ce8626cdf69c92cac02a636047cf5c35662be8ebd351a8e3948325623",
+  "models": [
+    "glm-5.2 @ t=0.2",
+    "glm-5.2 @ t=0.6",
+    "glm-5.2 @ t=1.0",
+    "glm-5.2 @ t=1.0"
+  ],
+  "status": [
+    "model glm-5.2 | gym email-calendar-gym | 2026-09-27T20:50:24",
+    "reader-1 ok temp=0.2 attempts=1 max_tokens=32000 60s 3862 chars",
+    "reader-2 ok temp=0.6 attempts=1 max_tokens=32000 24s 3175 chars",
+    "reader-3 ok temp=1.0 attempts=1 max_tokens=32000 79s 4175 chars",
+    "reader-4 ok temp=1.0 attempts=1 max_tokens=32000 33s 3218 chars"
+  ],
+  "goal_agreement": {
+    "deliverable_set": "4 of 4",
+    "detail": "All four named the same two deliverables and read them the same way: /workspace/audit.xlsx with a Documents sheet (header row, then one row per document in the log, five columns in the stated order) and a Summary sheet (header row, then one row per named metric); and one drafted email whose subject is the stated string and whose body is the unsigned register documents, one name per line, with nothing else. All four read signed and tracked as yes / no flags and the two counts as numbers.",
+    "per_figure_meaning": {
+      "document": "4 of 4 - the document's name exactly as the subject line writes it, with names differing by a bracket kept apart and a name that is not a file name kept.",
+      "requests": "4 of 4 - a count of log messages asking for a signature on that document.",
+      "reminders": "4 of 4 - a count of log messages chasing that document.",
+      "signed": "4 of 4 - yes when any log message says the document was signed, the everyone-has-signed notice included.",
+      "tracked": "4 of 4 - yes when at least one of that document's REQUEST messages is filed under the Opened label. All four attached the test to the request messages specifically, and all four used at least one rather than all.",
+      "documents_tracked": "4 of 4 - the number of rows where tracked is yes.",
+      "tracked_never_signed": "4 of 4 - tracked yes and signed no.",
+      "tracked_signed_after_a_reminder": "4 of 4 - tracked yes, signed yes, reminders >= 1.",
+      "tracked_signed_with_no_reminder": "4 of 4 - tracked yes, signed yes, reminders = 0."
+    },
+    "write_back_target": "4 of 4 - the documents where tracked is yes and signed is no, and no others; all four said the body carries nothing but the names.",
+    "scope_exclusion": "4 of 4 excluded the person-keyed notices from the log without being told which messages those are.",
+    "verdict": "PASSES the 3-of-4 bar on the deliverable set and on every figure's meaning."
+  },
+  "blind_reader_split": {
+    "split": "0 of 4 took the default reading (wrong instead of gold)",
+    "took_default": 0,
+    "of": 4,
+    "default_reading": "Taking the four summary counts over every document in the log instead of over the register, which answers documents_tracked 15, tracked_never_signed 4, tracked_signed_after_a_reminder 7 and tracked_signed_with_no_reminder 4 against the gold 10, 2, 5 and 3, and writes four names into the drafted email instead of two.",
+    "reading": "Not one reader took it. All four wrote the register test into their METHOD and scoped every summary count to it, and all four scoped the write-back to it as well. On this lane's own measurements a 0 of 4 split is the normal reading of a FAIR prompt - 23 bundles across two client trajectories, with the same unchanged axis reading 0, 1, 0, 2, 4, 2 of 4 over six rounds - so it is weak evidence of bite, not evidence of a defect, and the number was not chased. What it does establish positively is fairness: the stated rule and the graded rule select the same set, because four readers who never saw the gold computed the graded rule from the prompt alone.",
+    "why_the_lever_still_costs_something": "The readers can state the rule; they cannot evaluate it. Membership is a per-message property the search payload never serves - a result carries email_id, thread_id, snippet, internal_date_ms, from, to, cc, subject and date and no labelIds at any page size - so an agent that has enumerated the whole log still cannot fill the tracked column without issuing a further query with the label operator and intersecting the id sets. That is the substitute for a per-entity read on a gym that has none, and it is measured: 18 of the 36 request messages carry the label, across 10 of the 15 documents.",
+    "firm_evidence_instead": "The default misreading was built as a real workbook and replayed through the bundle's own scorer. See DEFAULT MISREADING in task.toml and the replay recorded in consistency/mutations.json's sibling run; the lazy reading scores far below a correct one because it fails all four summary checks, the reconciliation check, three of the five row groups and the write-back."
+  },
+  "method_divergences_kept": [
+    {
+      "reader": "reader-1, reader-2, reader-3, reader-4",
+      "axis": "which message family the document population is enumerated from",
+      "split": "4 of 4 took the other reading",
+      "value_under_gold": "15 documents, 15 audit rows, register 10",
+      "value_under_the_other_reading": "15 documents, 15 audit rows, register 10",
+      "reading_taken_by_the_bundle": "the request family, because every request names the document the audit is about",
+      "disposition": "KEPT, and it moves nothing: the two readings select the identical population, so the bundle grades both alike",
+      "divergence": "All four enumerated the document population from EVERY message in the log (\"one row per document that appears anywhere in the log\"), where the gold takes the population from the request family.",
+      "graded_figure": null,
+      "verified_null_because": "Measured on the served gym: every document name carried by a reminder, by a completion or by the everyone-has-signed notice is also carried by a request. The reminder set minus the request set is empty, and so are the completion and everyone-has-signed sets; the union of all four families holds 15 names, the same 15 the request family alone holds. The two readings select the identical population, so no row and no count moves. Replayed through the bundle's own vendored verifier library, the readers' reading reproduces the gold workbook and scores 1.0000."
+    },
+    {
+      "reader": "reader-2",
+      "axis": "how much of the document name is significant",
+      "split": "1 of 4 took the stricter reading",
+      "value_under_gold": "15 documents",
+      "value_under_the_other_reading": "15 documents",
+      "reading_taken_by_the_bundle": "exact, and matched case-insensitively by every assertion",
+      "disposition": "KEPT, and it moves nothing: the 15 names are already distinct under a case-folded comparison",
+      "divergence": "Read the document key as sensitive to case and punctuation as well as to brackets (\"case- and punctuation-sensitive; bracket differences make different documents\"). The prompt says exactly as written and names only the bracket.",
+      "graded_figure": null,
+      "verified_null_because": "Measured: the 15 document names are distinct under a case-folded comparison as well as an exact one - 15 distinct names, 15 distinct casefolded names - so no two rows can merge under either reading, and every assertion matches its row case-insensitively anyway."
+    },
+    {
+      "reader": "reader-4",
+      "axis": "whether the counted messages must also be addressed to the acting user",
+      "split": "1 of 4 added the qualification",
+      "value_under_gold": "36 requests and 46 reminders across 15 documents",
+      "value_under_the_other_reading": "36 requests and 46 reminders across 15 documents",
+      "reading_taken_by_the_bundle": "in the acting user's mailbox, which is all search_email can return",
+      "disposition": "KEPT, and it moves nothing: no assertion reads a To header and no run can see another mailbox",
+      "divergence": "Qualified the two counts as \"in-scope log messages ADDRESSED TO THE USER that ask the user to sign\", where the other three said only that the message is in the log.",
+      "graded_figure": null,
+      "verified_null_because": "A restatement of the prompt's \"sent me\", not an extra filter: search_email is scoped to the acting user's own mailbox by the token, so every message a run can see is one this mailbox received, and there is no cross-mailbox search on this gym. No assertion reads a To header - the write-back SQL reads the Subject header and the snippet, and every workbook assertion reads a rendered cell - so the qualification cannot move a graded value. Worth recording because the corpus's To headers carry unrelated addresses rather than the acting user's own, so a run that took the phrase as a header filter would answer 0 everywhere; nothing in the prompt invites that, and no reader did it."
+    }
+  ],
+  "divergences_none_on": "Nothing in the four METHOD sections diverged on the register test, on the signed test, on the exclusion of the person-keyed notices, on the unit of audit, or on which population each summary count is taken over. Those are the five places this task could have been ambiguous and none of them was."
+}

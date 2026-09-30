@@ -1,0 +1,157 @@
+{
+  "metrics": {
+    "steps": 21,
+    "hops": 20,
+    "chain_depth": 4,
+    "graded_hops": 20,
+    "hop_coverage": 1.0,
+    "note": "hops counts steps whose ARGUMENTS came from an earlier step's output and whose result is load-bearing for a graded figure. s1 is not a hop (depends_on is empty). s2 is the only source of the data source url s3 needs; s3 is the only source of the 18 page ids, because SELECT id fails on this connector; and each of the 18 notion-get-comments reads is the only place the resolved flag for that article exists, so all five graded counts and the review log depend on all 18. chain_depth 4 is s1 -> s2 -> s3 -> c01..c18. No pagination tiles: s3 returned all 18 rows with has_more false at page_size 100."
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "depends_on": [],
+      "name": "notion-search"
+    },
+    {
+      "id": "s2",
+      "depends_on": [
+        "s1"
+      ],
+      "name": "notion-fetch"
+    },
+    {
+      "id": "s3",
+      "depends_on": [
+        "s2"
+      ],
+      "name": "notion-query-data-sources"
+    },
+    {
+      "id": "c01",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c02",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c03",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c04",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c05",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c06",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c07",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c08",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c09",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c10",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c11",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c12",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c13",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c14",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c15",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c16",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c17",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    },
+    {
+      "id": "c18",
+      "depends_on": [
+        "s3"
+      ],
+      "name": "notion-get-comments"
+    }
+  ]
+}

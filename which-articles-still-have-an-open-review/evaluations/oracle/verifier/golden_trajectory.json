@@ -1,0 +1,674 @@
+[
+  {
+    "id": "s1",
+    "depends_on": [],
+    "purpose": "Locate the library. The prompt names the Articles database but not its id, and titles repeat in this workspace, so the id has to be looked up rather than assumed.",
+    "name": "notion-search",
+    "server": "notion-gym",
+    "arguments": {
+      "query": "Articles"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "query": "Articles"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"results\": [{\"id\": \"ds-9caee280db7e4c9385908af1164446fb\", \"title\": \"Articles\", \"url\": \"collection://ds-9caee280db7e4c9385908af1164446fb\", \"type\": \"data_source\", \"highlight\": \"\", \"timestamp\": \"2024-01-22T15:46:00.000Z\"}, {\"id\": \"9caee280db7e4c9385908af1164446fb\", \"title\": \"Articles\", \"url\": \"https://www.notion.so/9caee280db7e4c9385908af1164446fb\", \"type\": \"page\", \"highlight\": \"\", \"timestamp\": \"\"}], \"type\": \"workspace_search\"}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:55.522317+00:00"
+    }
+  },
+  {
+    "id": "s2",
+    "depends_on": [
+      "s1"
+    ],
+    "purpose": "Hydrate the database id that s1 returned. This is the only call that yields the data source url the SQL tool needs (collection://ds-...) and the column names behind it; the database id itself is not a usable table name.",
+    "name": "notion-fetch",
+    "server": "notion-gym",
+    "arguments": {
+      "id": "9caee280db7e4c9385908af1164446fb"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "id": "9caee280db7e4c9385908af1164446fb"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<database url=\"{{https://www.notion.so/9caee280db7e4c9385908af1164446fb}}\" inline=\"false\">\nThe title of this Database is: Articles\n<ancestor-path>\n</ancestor-path>\nHere are the Database's Data Sources:\nYou can use the \"view\" tool on the URL of any Data Source to see its full schema configuration.\n<data-sources>\n<data-source url=\"{{collection://ds-9caee280db7e4c9385908af1164446fb}}\">\nThe title of this Data Source is: Articles\n\nHere is the database's configurable state:\nProperties with `readOnly: true` are synced or system-managed. Do not try to update their values with page update tools.\n<data-source-state>\n{\"name\":\"Articles\",\"schema\":{\"Title\":{\"description\":\"\",\"name\":\"Title\",\"type\":\"title\"},\"Author\":{\"description\":\"\",\"name\":\"Author\",\"type\":\"person\"},\"Created time\":{\"description\":\"\",\"name\":\"Created time\",\"type\":\"date\",\"querySqlColumns\":{\"columns\":[{\"name\":\"date:Created time:start\",\"sqlType\":\"TEXT\"},{\"name\":\"date:Created time:end\",\"sqlType\":\"TEXT\"},{\"name\":\"date:Created time:is_datetime\",\"sqlType\":\"INTEGER\"}],\"usage\":\"For connections.notion.querySql. Main schema name not queryable.\"}},\"Date\":{\"description\":\"\",\"name\":\"Date\",\"type\":\"date\",\"querySqlColumns\":{\"columns\":[{\"name\":\"date:Date:start\",\"sqlType\":\"TEXT\"},{\"name\":\"date:Date:end\",\"sqlType\":\"TEXT\"},{\"name\":\"date:Date:is_datetime\",\"sqlType\":\"INTEGER\"}],\"usage\":\"For connections.notion.querySql. Main schema name not queryable.\"}},\"Doc stage\":{\"description\":\"\",\"name\":\"Doc stage\",\"type\":\"rich_text\"},\"Last edited by\":{\"description\":\"\",\"name\":\"Last edited by\",\"type\":\"rich_text\"},\"Last edited time\":{\"description\":\"\",\"name\":\"Last edited time\",\"type\":\"rich_text\"},\"TL,DR\":{\"description\":\"\",\"name\":\"TL,DR\",\"type\":\"rich_text\"},\"Tags\":{\"description\":\"\",\"name\":\"Tags\",\"type\":\"multi_select\",\"options\":[{\"color\":\"default\",\"description\":\"\",\"name\":\"Common Discomfort\",\"url\":\"collectionPropertyOption://ds-9caee280db7e4c9385908af1164446fb/aa359ae5a506eec77578466bd26f\"},{\"color\":\"gray\",\"description\":\"\",\"name\":\"First Trimester\",\"url\":\"collectionPropertyOption://ds-9caee280db7e4c9385908af1164446fb/097c85fc54edf41982cd5ccb2681\"},{\"color\":\"brown\",\"description\":\"\",\"name\":\"Physical Activities\",\"url\":\"collectionPropertyOption://ds-9caee280db7e4c9385908af1164446fb/e8b965bc262709f1528bc126b6e3\"},{\"color\":\"orange\",\"description\":\"\",\"name\":\"Second Trimester\",\"url\":\"collectionPropertyOption://ds-9caee280db7e4c9385908af1164446fb/aa5f3ff819ce54a602510c9f7092\"},{\"color\":\"yellow\",\"description\":\"\",\"name\":\"Third Trimester\",\"url\":\"collectionPropertyOption://ds-9caee280db7e4c9385908af1164446fb/abdff6ae4b1b72ec7ab6c56a01ad\"},{\"color\":\"green\",\"description\":\"\",\"name\":\"Ultrasound scans are crucial for ensuring the health of the baby and the mother.\",\"url\":\"collectionPropertyOption://ds-9caee280db7e4c9385908af1164446fb/fef945ffbc76a9a654fbb40823f3\"}]}},\"url\":\"collection://ds-9caee280db7e4c9385908af1164446fb\"}\n</data-source-state>\n\nHere is the SQLite table definition for this data source.\n<sqlite-table>\nCREATE TABLE IF NOT EXISTS \"collection://ds-9caee280db7e4c9385908af1164446fb\" (\n\turl TEXT UNIQUE,\n\tcreatedTime TEXT, -- ISO-8601 datetime string, automatically set. This is the canonical time for when the page was created.,\n\t\"Title\" TEXT,\n\t\"Author\" TEXT -- JSON array,\n\t\"date:Created time:start\" TEXT,\n\t\"date:Created time:end\" TEXT,\n\t\"date:Created time:is_datetime\" INTEGER,\n\t\"date:Date:start\" TEXT,\n\t\"date:Date:end\" TEXT,\n\t\"date:Date:is_datetime\" INTEGER,\n\t\"Doc stage\" TEXT,\n\t\"Last edited by\" TEXT,\n\t\"Last edited time\" TEXT,\n\t\"TL,DR\" TEXT,\n\t\"Tags\" TEXT -- JSON array\n)\n</sqlite-table>\n<templates>\n<template id=\"bba04c21663444cd8a2455b9d0079a4e\" url=\"https://www.notion.so/bba04c21663444cd8a2455b9d0079a4e\" name=\"New Technical Spec\"/>\n</templates>\n</data-source>\n</data-sources>\nHere are the Database's Views:\nYou can use the \"view\" tool on the URL of any View to see its full configuration.\n<views>\n<view url=\"{{view://view-9caee280db7e4c93}}\">\n{\"dataSourceUrl\":\"{{collection://ds-9caee280db7e4c9385908af1164446fb}}\",\"name\":\"All\",\"type\":\"table\",\"configure\":\"SORT BY Title ASC\"}\n</view>\n<view url=\"{{view://view-9caee280db7e4c93-1}}\">\n{\"dataSourceUrl\":\"{{collection://ds-9caee280db7e4c9385908af1164446fb}}\",\"name\":\"Gallery\",\"type\":\"gallery\",\"configure\":\"SORT BY Title ASC\"}\n</view>\n</views>\n</database>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:55.604472+00:00"
+    }
+  },
+  {
+    "id": "s3",
+    "depends_on": [
+      "s2"
+    ],
+    "purpose": "One SQL read over the data source url s2 returned: every article row with its title, its Doc stage and its url. The url is where the 18 page ids come from - SQL refuses to return an id column on this connector - so every per-page read below depends on this result. Nothing about comments or discussions is in this table.",
+    "name": "notion-query-data-sources",
+    "server": "notion-gym",
+    "arguments": {
+      "data": {
+        "data_source_urls": [
+          "collection://ds-9caee280db7e4c9385908af1164446fb"
+        ],
+        "mode": "sql",
+        "query": "SELECT url, \"Title\", \"Doc stage\" FROM \"collection://ds-9caee280db7e4c9385908af1164446fb\" ORDER BY \"Title\"",
+        "page_size": 100
+      }
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "data": {
+          "data_source_urls": [
+            "collection://ds-9caee280db7e4c9385908af1164446fb"
+          ],
+          "mode": "sql",
+          "query": "SELECT url, \"Title\", \"Doc stage\" FROM \"collection://ds-9caee280db7e4c9385908af1164446fb\" ORDER BY \"Title\"",
+          "page_size": 100
+        }
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"results\": [{\"url\": \"https://www.notion.so/8ac3fa845b114981bb91cb1f4b2d089a\", \"Title\": \"Antenatal Testing\", \"Doc stage\": \"New\"}, {\"url\": \"https://www.notion.so/496c1307e5df45c1a1d26070b4ab606d\", \"Title\": \"Article\", \"Doc stage\": null}, {\"url\": \"https://www.notion.so/9ba9faba0cda4b0690ff1bd65bd2b41f\", \"Title\": \"Aspirin in Pregnancy\", \"Doc stage\": \"New\"}, {\"url\": \"https://www.notion.so/af5a87de325242d2a55d43fd9a3e68b7\", \"Title\": \"Birthing Options\", \"Doc stage\": \"New\"}, {\"url\": \"https://www.notion.so/16dc4e0087e6479d8eefa45341c73ea8\", \"Title\": \"Exercise with bump\", \"Doc stage\": null}, {\"url\": \"https://www.notion.so/fbd4a44e4bce4ee8bd94699c3fffaa3e\", \"Title\": \"Fertility after Pregnancy\", \"Doc stage\": \"New\"}, {\"url\": \"https://www.notion.so/0838853293924c0983805dacd275067c\", \"Title\": \"Foods to avoid\", \"Doc stage\": \"Draft\"}, {\"url\": \"https://www.notion.so/45d64e7853ec48e3805cbaebd4581a03\", \"Title\": \"Group B Streptococcus\", \"Doc stage\": \"New\"}, {\"url\": \"https://www.notion.so/fdf4675f0b784b609cbc0beaf4795421\", \"Title\": \"Induction of Labor\", \"Doc stage\": \"In Review\"}, {\"url\": \"https://www.notion.so/e41385382b604fa19714052f4c8a2913\", \"Title\": \"Intercourse During Pregnancy\", \"Doc stage\": \"In Review\"}, {\"url\": \"https://www.notion.so/82657cac45bd45f4a5b11776cd5f4dd7\", \"Title\": \"Nausea and Vomiting\", \"Doc stage\": \"New\"}, {\"url\": \"https://www.notion.so/43f1f5ee8fce49eb86e5696af40c0ffe\", \"Title\": \"New Brainstorm\", \"Doc stage\": null}, {\"url\": \"https://www.notion.so/fd6b54a246dd4926a8db16e888f3f7d0\", \"Title\": \"New Product Spec (PRD)\", \"Doc stage\": null}, {\"url\": \"https://www.notion.so/c37b57236665484a9053e5db36042f10\", \"Title\": \"Pregnancy Schedules\", \"Doc stage\": \"In Review\"}, {\"url\": \"https://www.notion.so/6920b961d7ad496da24012bc02bc8a13\", \"Title\": \"Thinking about a massage?\", \"Doc stage\": \"New\"}, {\"url\": \"https://www.notion.so/ea4f1018df7f410083e8f5cf87b200e7\", \"Title\": \"Title example\", \"Doc stage\": \"In Review\"}, {\"url\": \"https://www.notion.so/e353cadc5c144df7b46bb23b3eebacde\", \"Title\": \"Ultrasound in Pregnancy\", \"Doc stage\": \"Draft\"}, {\"url\": \"https://www.notion.so/7c08344e98da4c4a8b79b52233198f3c\", \"Title\": \"Vaginitis & BV\", \"Doc stage\": \"In Review\"}], \"has_more\": false, \"data_source_ids\": [\"ds-9caee280db7e4c9385908af1164446fb\"]}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:55.708702+00:00"
+    }
+  },
+  {
+    "id": "c01",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Antenatal Testing, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "8ac3fa845b114981bb91cb1f4b2d089a",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "8ac3fa845b114981bb91cb1f4b2d089a",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://8ac3fa845b114981bb91cb1f4b2d089a/cc247f3fa59c8392a109d263/disc-8ac3fa845b11-93\" comment-count=\"2\" resolved=\"false\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-8ac3fa845b11-93-0\" url=\"https://app.notion.com/p/8ac3fa845b114981bb91cb1f4b2d089a?d=disc8ac3fa845b1193&pvs=42\" user-url=\"user://u-jamie-ross\" datetime=\"2023-07-12T22:16:00.000Z\">This template is pre-populated with the most common meeting notes fields (like attendees and meeting date), but you can add your own when you add in a new field/column.</comment>\n<comment id=\"cmt-disc-8ac3fa845b11-93-1\" url=\"https://app.notion.com/p/8ac3fa845b114981bb91cb1f4b2d089a?d=disc8ac3fa845b1193&pvs=42\" user-url=\"user://u-cameron-shaw\" datetime=\"2023-08-25T22:16:00.000Z\">\ud83d\udca1 Notion tip: This guide is also a fully functional project page. Try changing properties or adding tasks to see how your set-up changes.</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:55.784673+00:00"
+    }
+  },
+  {
+    "id": "c02",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Article, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "496c1307e5df45c1a1d26070b4ab606d",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "496c1307e5df45c1a1d26070b4ab606d",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"0\" shown-count=\"0\">\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:55.843348+00:00"
+    }
+  },
+  {
+    "id": "c03",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Aspirin in Pregnancy, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "9ba9faba0cda4b0690ff1bd65bd2b41f",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "9ba9faba0cda4b0690ff1bd65bd2b41f",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://9ba9faba0cda4b0690ff1bd65bd2b41f/fca992b8516eff52bdfb549a/disc-9ba9faba0cda-89\" comment-count=\"1\" resolved=\"false\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-9ba9faba0cda-89-0\" url=\"https://app.notion.com/p/9ba9faba0cda4b0690ff1bd65bd2b41f?d=disc9ba9faba0cda89&pvs=42\" user-url=\"user://u-morgan-lee\" datetime=\"2023-10-06T15:45:00.000Z\">You can use Notion pages to collaborate on meeting notes with your team, such as 1:1s, stand-ups, and team meetings. Each meeting can be stored in this database, to help your team stay organized.</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:55.901751+00:00"
+    }
+  },
+  {
+    "id": "c04",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Birthing Options, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "af5a87de325242d2a55d43fd9a3e68b7",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "af5a87de325242d2a55d43fd9a3e68b7",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://af5a87de325242d2a55d43fd9a3e68b7/4e6dc19e5698f2e5b6cc58d0/disc-af5a87de3252-90\" comment-count=\"2\" resolved=\"true\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-af5a87de3252-90-0\" url=\"https://app.notion.com/p/af5a87de325242d2a55d43fd9a3e68b7?d=discaf5a87de325290&pvs=42\" user-url=\"user://u-avery-brooks\" datetime=\"2023-07-21T20:19:00.000Z\">1. This is your team\u2019s meeting notes database. You can click on each item to open it up to its own page where you can add categorical information, create an agenda, and record action items \u2014 right alongside your teammates.</comment>\n<comment id=\"cmt-disc-af5a87de3252-90-1\" url=\"https://app.notion.com/p/af5a87de325242d2a55d43fd9a3e68b7?d=discaf5a87de325290&pvs=42\" user-url=\"user://u-quinn-diaz\" datetime=\"2023-07-24T20:19:00.000Z\">\ud83d\udcce Learn more about Notion\u2019s database layouts, including when to use each type of database view in this guide: https://brown-decker.com/</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:55.987233+00:00"
+    }
+  },
+  {
+    "id": "c05",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Exercise with bump, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "16dc4e0087e6479d8eefa45341c73ea8",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "16dc4e0087e6479d8eefa45341c73ea8",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"0\" shown-count=\"0\">\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.103891+00:00"
+    }
+  },
+  {
+    "id": "c06",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Fertility after Pregnancy, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "fbd4a44e4bce4ee8bd94699c3fffaa3e",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "fbd4a44e4bce4ee8bd94699c3fffaa3e",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://fbd4a44e4bce4ee8bd94699c3fffaa3e/fd2def264d89369812792b21/disc-fbd4a44e4bce-91\" comment-count=\"1\" resolved=\"false\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-fbd4a44e4bce-91-0\" url=\"https://app.notion.com/p/fbd4a44e4bce4ee8bd94699c3fffaa3e?d=discfbd4a44e4bce91&pvs=42\" user-url=\"user://u-quinn-diaz\" datetime=\"2023-07-17T14:26:00.000Z\">1. Click \u201c+ New\u201d to add an upcoming meeting into the database.</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.168153+00:00"
+    }
+  },
+  {
+    "id": "c07",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Foods to avoid, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "0838853293924c0983805dacd275067c",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "0838853293924c0983805dacd275067c",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://0838853293924c0983805dacd275067c/3629e80fa2e38b316a0bcb87/disc-083885329392-102\" comment-count=\"2\" resolved=\"false\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-083885329392-102-0\" url=\"https://app.notion.com/p/0838853293924c0983805dacd275067c?d=disc083885329392102&pvs=42\" user-url=\"user://u-avery-brooks\" datetime=\"2023-09-14T10:00:00.000Z\">1. Projects \u2014 Each project has its own page (like this one!) where you can add tasks and project details. All of your projects are also housed in your newly created Projects page.</comment>\n<comment id=\"cmt-disc-083885329392-102-1\" url=\"https://app.notion.com/p/0838853293924c0983805dacd275067c?d=disc083885329392102&pvs=42\" user-url=\"user://u-quinn-diaz\" datetime=\"2023-12-31T10:00:00.000Z\">Because our app has so many features, and serves so many personas and use cases, many users find the current onboarding process overwhelming, and don\u2019t experience their \u201ca ha\u201d moment quickly enough.</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.230454+00:00"
+    }
+  },
+  {
+    "id": "c08",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Group B Streptococcus, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "45d64e7853ec48e3805cbaebd4581a03",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "45d64e7853ec48e3805cbaebd4581a03",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://45d64e7853ec48e3805cbaebd4581a03/729a0279c27f7d97dcf997a0/disc-45d64e7853ec-94\" comment-count=\"1\" resolved=\"false\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-45d64e7853ec-94-0\" url=\"https://app.notion.com/p/45d64e7853ec48e3805cbaebd4581a03?d=disc45d64e7853ec94&pvs=42\" user-url=\"user://u-cameron-shaw\" datetime=\"2023-07-08T15:59:00.000Z\">To make it easier to create meetings of the same type (such as bug reports, design specs), database templates let you define and replicate certain page elements with just one click.</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.290035+00:00"
+    }
+  },
+  {
+    "id": "c09",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Induction of Labor, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "fdf4675f0b784b609cbc0beaf4795421",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "fdf4675f0b784b609cbc0beaf4795421",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://fdf4675f0b784b609cbc0beaf4795421/e4ddadbc6ef532dd003c1c64/disc-fdf4675f0b78-92\" comment-count=\"1\" resolved=\"false\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-fdf4675f0b78-92-0\" url=\"https://app.notion.com/p/fdf4675f0b784b609cbc0beaf4795421?d=discfdf4675f0b7892&pvs=42\" user-url=\"user://u-taylor-kim\" datetime=\"2023-07-12T22:39:00.000Z\">1. Use the view tabs to visualize your meeting notes in different ways \u2014 like by date, by type, or filtered to only include the ones that you\u2019ve attended.</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.348206+00:00"
+    }
+  },
+  {
+    "id": "c10",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Intercourse During Pregnancy, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "e41385382b604fa19714052f4c8a2913",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "e41385382b604fa19714052f4c8a2913",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://e41385382b604fa19714052f4c8a2913/e4015c903970c7466449898c/disc-e41385382b60-98\" comment-count=\"1\" resolved=\"false\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-e41385382b60-98-0\" url=\"https://app.notion.com/p/e41385382b604fa19714052f4c8a2913?d=disce41385382b6098&pvs=42\" user-url=\"user://u-sam-okonkwo\" datetime=\"2023-06-15T13:36:00.000Z\">Team updates & gut checks Add your team members updates and gut checks here ...</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.406588+00:00"
+    }
+  },
+  {
+    "id": "c11",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Nausea and Vomiting, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "82657cac45bd45f4a5b11776cd5f4dd7",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "82657cac45bd45f4a5b11776cd5f4dd7",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://82657cac45bd45f4a5b11776cd5f4dd7/8c188794d43edc4e46ed83b0/disc-82657cac45bd-100\" comment-count=\"1\" resolved=\"true\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-82657cac45bd-100-0\" url=\"https://app.notion.com/p/82657cac45bd45f4a5b11776cd5f4dd7?d=disc82657cac45bd100&pvs=42\" user-url=\"user://u-casey-patel\" datetime=\"2023-06-15T11:44:00.000Z\">\ud83d\udca1 Notion tip: This guide is also a fully functional project page. Try changing properties or adding tasks to see how your set-up changes.</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.463110+00:00"
+    }
+  },
+  {
+    "id": "c12",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on New Brainstorm, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "43f1f5ee8fce49eb86e5696af40c0ffe",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "43f1f5ee8fce49eb86e5696af40c0ffe",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"0\" shown-count=\"0\">\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.522439+00:00"
+    }
+  },
+  {
+    "id": "c13",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on New Product Spec (PRD), whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "fd6b54a246dd4926a8db16e888f3f7d0",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "fd6b54a246dd4926a8db16e888f3f7d0",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"0\" shown-count=\"0\">\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.652848+00:00"
+    }
+  },
+  {
+    "id": "c14",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Pregnancy Schedules, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "c37b57236665484a9053e5db36042f10",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "c37b57236665484a9053e5db36042f10",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://c37b57236665484a9053e5db36042f10/6ad9dbab053dbe3eaede3447/disc-c37b57236665-95\" comment-count=\"1\" resolved=\"true\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-c37b57236665-95-0\" url=\"https://app.notion.com/p/c37b57236665484a9053e5db36042f10?d=discc37b5723666595&pvs=42\" user-url=\"user://u-drew-martin\" datetime=\"2023-07-08T13:52:00.000Z\">To edit, install more, or create your own, click on the dropdown next to the blue \u201cNew\u201d button:</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.711897+00:00"
+    }
+  },
+  {
+    "id": "c15",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Thinking about a massage?, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "6920b961d7ad496da24012bc02bc8a13",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "6920b961d7ad496da24012bc02bc8a13",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://6920b961d7ad496da24012bc02bc8a13/6920b961d7ad496da24012bc02bc8a13/disc-6920b961d7ad-101\" comment-count=\"1\" resolved=\"false\" type=\"comment\" context=\"page\">\n<comment id=\"cmt-disc-6920b961d7ad-101-0\" url=\"https://app.notion.com/p/6920b961d7ad496da24012bc02bc8a13?d=disc6920b961d7ad101&pvs=42\" user-url=\"user://u-morgan-lee\" datetime=\"2023-09-22T10:00:00.000Z\">Projects and Tasks are built with 4 core concepts</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.773960+00:00"
+    }
+  },
+  {
+    "id": "c16",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Title example, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "ea4f1018df7f410083e8f5cf87b200e7",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "ea4f1018df7f410083e8f5cf87b200e7",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://ea4f1018df7f410083e8f5cf87b200e7/2efdd6ff23643a14342a3189/disc-ea4f1018df7f-99\" comment-count=\"2\" resolved=\"false\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-ea4f1018df7f-99-0\" url=\"https://app.notion.com/p/ea4f1018df7f410083e8f5cf87b200e7?d=discea4f1018df7f99&pvs=42\" user-url=\"user://u-riley-nguyen\" datetime=\"2023-06-15T11:44:00.000Z\">Team updates & gut checks Add your team members updates and gut checks here ...</comment>\n<comment id=\"cmt-disc-ea4f1018df7f-99-1\" url=\"https://app.notion.com/p/ea4f1018df7f410083e8f5cf87b200e7?d=discea4f1018df7f99&pvs=42\" user-url=\"user://u-casey-patel\" datetime=\"2023-06-23T11:44:00.000Z\">You can customize your Projects and Tasks setup to match your team\u2019s style of work. Learn more in our help center \u2192</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.840562+00:00"
+    }
+  },
+  {
+    "id": "c17",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Ultrasound in Pregnancy, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "e353cadc5c144df7b46bb23b3eebacde",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "e353cadc5c144df7b46bb23b3eebacde",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://e353cadc5c144df7b46bb23b3eebacde/f4b57cd459023f412d8121a6/disc-e353cadc5c14-96\" comment-count=\"2\" resolved=\"false\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-e353cadc5c14-96-0\" url=\"https://app.notion.com/p/e353cadc5c144df7b46bb23b3eebacde?d=disce353cadc5c1496&pvs=42\" user-url=\"user://u-alex-chen\" datetime=\"2023-06-19T15:53:00.000Z\">Views are customizable, flexible layouts to visualize your databases and properties as a table, board, calendar, timeline, or list. This template comes with several views of meeting notes \u2014 you can customize each or create your own!</comment>\n<comment id=\"cmt-disc-e353cadc5c14-96-1\" url=\"https://app.notion.com/p/e353cadc5c144df7b46bb23b3eebacde?d=disce353cadc5c1496&pvs=42\" user-url=\"user://u-jordan-smith\" datetime=\"2023-07-02T15:53:00.000Z\">1. Tasks \u2014 All of your tasks live in the Tasks page. Like projects, tasks open as their own pages where you can add subtasks and assign them to projects.</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.913310+00:00"
+    }
+  },
+  {
+    "id": "c18",
+    "depends_on": [
+      "s3"
+    ],
+    "purpose": "Open the reviewer threads on Vaginitis & BV, whose page id came from the url column of s3. include_all_blocks is required or this page reports zero discussions, and include_resolved is required or a settled thread is invisible. The resolved flag this returns is the finding every graded figure turns on and it exists nowhere else on the surface.",
+    "name": "notion-get-comments",
+    "server": "notion-gym",
+    "arguments": {
+      "page_id": "7c08344e98da4c4a8b79b52233198f3c",
+      "include_all_blocks": true,
+      "include_resolved": true
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "page_id": "7c08344e98da4c4a8b79b52233198f3c",
+        "include_all_blocks": true,
+        "include_resolved": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<discussions total-count=\"1\" shown-count=\"1\">\n<discussion id=\"discussion://7c08344e98da4c4a8b79b52233198f3c/e57f542c729bea9c70ffdc10/disc-7c08344e98da-97\" comment-count=\"1\" resolved=\"false\" type=\"comment\" context=\"block\">\n<comment id=\"cmt-disc-7c08344e98da-97-0\" url=\"https://app.notion.com/p/7c08344e98da4c4a8b79b52233198f3c?d=disc7c08344e98da97&pvs=42\" user-url=\"user://u-jordan-smith\" datetime=\"2023-06-15T13:51:00.000Z\">\ud83d\udcce Learn more about Notion\u2019s database layouts, including when to use each type of database view in this guide: https://brown-decker.com/</comment>\n</discussion>\n</discussions>"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-27T17:04:56.988899+00:00"
+    }
+  }
+]

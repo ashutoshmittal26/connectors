@@ -1,0 +1,247 @@
+{
+  "results": [
+    {
+      "checks": {
+        "layer1_package_consistency": {
+          "explanation": "task.toml, instruction.md, solution/ (solve.sh -> solve.py replay + emit_oracle_trajectory.py + write_artifacts.py from artifact_plan.json), tests/manifest.json (13 verifier_configs), tests/test.sh -> test_gvs.sh -> test_outputs.py + verifier_engine.py + rl_world_verifiers, and environment/ (Dockerfile, entrypoint.sh, mcp proxy, _app mirror) jointly describe one executable, gradable task. instruction_sha256 in tests/manifest.json (bdd3141...) matches instruction.md byte-for-byte, and environment/_app/ is an exact mirror of task.toml, instruction.md and tests/ (diff -r clean). Every mandatory subcheck passes.",
+          "outcome": "pass"
+        },
+        "layer1_package_consistency__cross_artifact_consistency": {
+          "explanation": "No source is missing. Deliverable paths agree everywhere: instruction.md asks for /workspace/review_log.md and /workspace/metrics.xlsx; solution/artifact_plan.json emits exactly those names through write_artifacts.py into $WORKSPACE (default /workspace); tests/manifest.json file_check sources read 'review_log.md' and 'metrics.xlsx' relative to the workspace resolved by _run_file_check (TH_WORKSPACE_DIR or /workspace, which is the Dockerfile WORKDIR owned by rlgymagent). Connector declarations (notion-gym, port 8019, proxy http://localhost:7000/mcp/notion-gym, x-notion-user-token) match environment/mcp/proxy/server.py and the healthcheck. environment/_app mirror is byte-identical to the task root files it mirrors.",
+          "outcome": "pass"
+        },
+        "layer1_package_consistency__instruction_verifier_consistency": {
+          "explanation": "Every reward-bearing check traces to instruction text: the six metrics_* file_checks to the named metric list; review_log_lists_every_reviewer_comment / _reconciles_the_open_articles_by_article / _accounts_for_every_article_and_both_findings to the disclosed line template 'article title | Doc stage | open|settled' plus the closing list clause; the three database_state checks to 'Please do not change anything in the library itself'. read_every_article_thread (weight 0.5, minimum_tool_calls 18) is an anti-fabrication floor structurally entailed by the surface (notion-get-comments has no bulk form; 18 pages), so no correct run can miss it. No material instruction requirement is ungraded: both deliverables, all six figures, per-comment coverage, uncommented-article coverage and the read-only constraint are all checked.",
+          "outcome": "pass"
+        },
+        "layer1_package_consistency__solution_instruction_consistency": {
+          "explanation": "solution/solve.sh replays the 21-step golden trajectory through the same public MCP proxy surface a model uses, then stages review_log.md and metrics.xlsx (the two requested deliverables, no extras) and writes an ATIF trajectory plus final_answer.md summarising the six figures. The staged content matches what the gym actually returns: re-deriving the figures from the recorded tool results in evaluations/oracle/verifier/golden_trajectory.json yields 18 pages, 14 commented, 19 comments, 3 resolved / 11 unresolved, stages New 5 / Draft 2 / In Review 4 open — identical to artifact_plan.json's gold. No undisclosed contract or extra deliverable.",
+          "outcome": "pass"
+        },
+        "layer1_package_consistency__solution_verifier_consistency": {
+          "explanation": "I re-ran every manifest leaf regex against the golden artifact_plan report and a reconstructed xlsx.extract_text rendering of its workbook: all 22 leaves across the 9 file_check verifiers pass, with no leaf satisfied by an unrelated shortcut. evaluations/oracle/verifier/verifier_summary.json records all 13 verifiers passing (weighted_pass_rate 1.0) on the actually materialised oracle files, so the golden is neither rejected nor short-circuited, and write_artifacts.py guarantees the golden's files exist in the graded workspace.",
+          "outcome": "pass"
+        },
+        "layer1_package_consistency__manifest_environment_consistency": {
+          "explanation": "Image digest in task.toml [[metadata.mcp_servers_extended]] equals the Dockerfile FROM digest (sha256:3623dc5a...); host/container port 8019, proxy port 7000, healthcheck 'curl -fsS http://localhost:7000/health' and [[environment.mcp_servers]] url all agree with entrypoint.sh and mcp/proxy/server.py; resources (2 cpu/4GB) and verifier/agent timeouts are declared; environment/_app is a current mirror (sync_app_mirror.sh, verified by diff). Only cosmetic drift: task.toml keywords/tags and task_type still say 'write-back' although this variant forbids gym writes — metadata only, not agent- or grader-visible, and it changes no path, mount, dependency or score.",
+          "outcome": "pass"
+        },
+        "layer1_package_consistency__declared_executed_verifier_consistency": {
+          "explanation": "tests/test.sh runs tests/test_gvs.sh, which execs tests/test_outputs.py. scoring.allowed_verifier_types contains 'agentic_llm_as_judge', so main() takes the engine-owned path (_emit_engine_owned_reward -> score_benchmark_verifiers -> run_benchmark_verifiers) and every one of the 13 manifest.verifier_configs is dispatched by verifier_type (file_check / database_state / tool_execution). No reward-bearing check is undeclared. The state, sql and trajectory buckets are declared at weight 0.0 with empty sql_verifiers and an empty solution/expected_diff.json, i.e. explicitly inactive rather than claimed coverage; the oracle run confirms 13/13 items executed.",
+          "outcome": "pass"
+        },
+        "layer1_package_consistency__artifact_contract_consistency": {
+          "explanation": "One submission surface: two files in the agent's workspace. Dockerfile sets WORKDIR /workspace owned by rlgymagent, _run_file_check grades TH_WORKSPACE_DIR or /workspace and fails loudly if the directory is absent, and the file_check source paths are exactly 'review_log.md' and 'metrics.xlsx'. The xlsx source requires a .xlsx/.xlsm extension and the md source a .md extension, both matching the instruction's filenames. No connector-side output is required or graded as a deliverable (only the three no-change assertions).",
+          "outcome": "pass"
+        },
+        "layer1_clarity_scope": {
+          "explanation": "All four mandatory subchecks pass. The prompt discloses both output paths, the exact review-log line template, the closing-list requirement, the exact metric names, the workbook layout and the freedoms (row order, optional header, any sheet name). The one representation the verifier pins beyond that (the three-field line ending in open/settled) is the template the instruction itself states.",
+          "outcome": "pass"
+        },
+        "layer1_clarity_scope__output_surface_contract": {
+          "explanation": "Graded surfaces are exactly the ones the instruction names: /workspace/review_log.md and /workspace/metrics.xlsx (nine file_checks) plus the connector side effect the instruction forbids ('do not change anything in the library'), graded by three database_state counts. No chat-response requirement is graded (the earlier 'state your conclusion in your reply' clause was removed, per consistency/readers.json, and no response_check or rubric item exists).",
+          "outcome": "pass"
+        },
+        "layer1_clarity_scope__representation_contract": {
+          "explanation": "Executed the shipped matchers against correct-content variants: gold, GFM table with a header row plus a numbered closing list, upper-cased status words with CRLF, bold titles, bulleted closing list, lower-cased stage values, and a workbook with no header row, a different sheet name and float values — all score 22/22 leaves. The only rejected renderings depart from something the prompt states explicitly (a fourth column appended to the three-field line, a Markdown link in place of the plain title, a closing-list entry that is not just the title). Ordering, sheet name, header presence, int-vs-float, emphasis, tabs and outer pipes are all free, matching the tolerances the prompt advertises.",
+          "outcome": "pass"
+        },
+        "layer1_clarity_scope__process_requirement_disclosure": {
+          "explanation": "No narration, no named tool and no prescribed sequence is graded: read_every_article_thread sets expected_tools=[] and only a floor of 18 successful non-harness tool calls. That floor is entailed by the outcome, not by a hidden workflow — consistency/shortcut_audit.md measures that discussions/resolved are unreachable from the SQL data source and that notion-get-comments takes one page_id with no bulk form, so any run that can produce the graded figures necessarily exceeds 18 calls (the oracle recorded 22). It carries 0.5 of 12.5 total weight and cannot fail a genuine solution.",
+          "outcome": "pass"
+        },
+        "layer1_clarity_scope__redaction_readability": {
+          "explanation": "No placeholders, elisions or broken references in instruction.md. The injected grain sentence ('Findings are assessed comment by comment; the summary counts of flagged and of each finding are counts of articles...') reads as boilerplate and uses the word 'flagged', which has no referent in this scenario, but the operative statement — the summary counts articles while the log has one line per comment — is unambiguous, and consistency/readers.json records 4/4 blind readers stating the article-grain method and none reporting ambiguity.",
+          "outcome": "pass"
+        },
+        "layer1_realism_leakage": {
+          "explanation": "All four mandatory subchecks pass: the Notion domain model is used correctly, every reference resolves on the served gym, the workflow is a plausible editorial review sweep, and the answer key is unreachable by the agent.",
+          "outcome": "pass"
+        },
+        "layer1_realism_leakage__domain_correctness": {
+          "explanation": "Notion semantics are correct and confirmed by the recorded gym responses in evaluations/oracle/verifier/golden_trajectory.json: resolved is an attribute of the discussion (<discussion ... resolved=\"false\">), not of individual comments; Doc stage is a rich_text property with values New/Draft/In Review/null; the data source must be addressed as collection://ds-<id>. My independent recount of those recorded responses reproduces every graded figure (14, 11, 5/2/4, 4) and the log-grain counts (15 open / 4 settled; 9 New / 4 Draft / 6 In Review).",
+          "outcome": "pass"
+        },
+        "layer1_realism_leakage__authoritative_reference_validity": {
+          "explanation": "The only authorities are the gym's own objects. Database id 9caee280db7e4c9385908af1164446fb, data source collection://ds-9caee280db7e4c9385908af1164446fb and the 18 page ids all resolve in the recorded oracle execution; the three database_state SQL predicates return the seed values 18, 3 and 19 in the oracle verifier run. No external or dated authority is relied on.",
+          "outcome": "pass"
+        },
+        "layer1_realism_leakage__workflow_realism": {
+          "explanation": "A content lead auditing which patient-education articles still have an unresolved reviewer thread, producing a per-comment log plus a metrics workbook and explicitly not editing the library, is an ordinary operations task. The 18 per-page comment reads are forced by the connector surface rather than by a contrived trap, and both deliverables have obvious downstream value.",
+          "outcome": "pass"
+        },
+        "layer1_realism_leakage__golden_isolation": {
+          "explanation": "Dockerfile copies only _app/task.toml, _app/instruction.md and _app/tests/ into /app and then runs 'chmod -R go-rwx /app'; the agent runs as rlgymagent ([agent] user) so it cannot read manifest.json or task.toml. solution/ is never baked into the image (the oracle gets it docker-cp'd to /solution). entrypoint.sh locks /gyms to 710 root:gym, /logs/verifier to 700 root:root, and keeps the proxy capability files at mode 040 root:harborproxy. No answer-bearing fixture is reachable from /workspace.",
+          "outcome": "pass"
+        },
+        "layer2_difficulty": {
+          "explanation": "evaluations/ contains only the oracle trial (config.json, lock.json, result.json, agent/, verifier/). There is no GLM 5.2 / GLM 5.3 model attempt of any kind, so no difficulty evidence exists to evaluate; the mandatory evidence_pairing_count, provenance_validity and strict_pass_distribution subchecks all fail on missing evidence.",
+          "outcome": "fail"
+        },
+        "layer2_difficulty__evidence_pairing_count": {
+          "explanation": "Missing evidence: evaluations/ holds exactly one trial directory (oracle), whose lock.json records agent.name='oracle'. There are zero claimed model attempts and therefore zero trajectory/result pairs to count; no orphaned or duplicate artefacts either — simply nothing to pair.",
+          "outcome": "fail"
+        },
+        "layer2_difficulty__provenance_validity": {
+          "explanation": "Missing evidence: no recorded model identity anywhere in evaluations/. result.json's agent_info is {name: oracle, version: 1.0.0, model_info: null} and config.agent.model_name is null, so no independent attempts of a consistent GLM 5.2 or GLM 5.3 model are established. (consistency/readers.json mentions glm-5.2 reader/renderer calls, but those are prompt-comprehension probes in task source, not difficulty rollouts, and their raw logs are not in this tree.)",
+          "outcome": "fail"
+        },
+        "layer2_difficulty__strict_pass_distribution": {
+          "explanation": "Missing evidence: with no GLM trials recorded in evaluations/, the strict-pass distribution cannot be computed. The only recorded reward is the oracle's 1.0, which by rule establishes solvability and never counts as a difficulty trial.",
+          "outcome": "fail"
+        },
+        "layer2_difficulty__failure_cause_validity": {
+          "explanation": "No model failures are recorded in evaluations/, so there is no apparent failure whose cause could be attributed to ambiguity, hidden requirements, verifier/judge defects, connector failure or infrastructure.",
+          "outcome": "not_applicable"
+        },
+        "layer2_solvability": {
+          "explanation": "evaluations/oracle is a complete, internally consistent recorded Oracle execution earning exactly 1.0: lock.json and result.json both name agent 'oracle' and the same task path/digest, verifier.disable=false is explicit in both lock.json and result.json's resolved config, environment_setup / agent_setup / agent_execution / verifier phases all have start and finish timestamps, exception_info is null, verifier_result.rewards = {reward: 1.0}, and agent/oracle.txt is a non-empty log of the 21 replayed gym calls plus the two written deliverables. Grading evidence (verifier_summary.json with 13/13 verifiers passed, reward.txt 1.0, snapshots) is saved.",
+          "outcome": "pass"
+        },
+        "layer2_solvability__eligible_strict_pass": {
+          "explanation": "Valid recorded Oracle pass: verifier/reward.txt '1.0', verifier/reward.json {\"reward\": 1.0} and result.json verifier_result.rewards.reward 1.0 all agree; verifier/verifier_summary.json shows total 13, passed 13, failed 0, weighted_pass_rate 1.0, failure_mode 'pass'. The verifier actually executed (350 KB test-stdout.txt with per-leaf assertion results). This is not a loose solution file — the run produced /workspace/metrics.xlsx and /workspace/review_log.md, which the file_check items list as the graded workspace files.",
+          "outcome": "pass"
+        },
+        "layer2_solvability__saved_evidence_completeness": {
+          "explanation": "The execution can be reconstructed end to end: agent/oracle.txt (step-by-step replay log), agent/trajectory.json (22-step ATIF trace), verifier/golden_trajectory.json (each step with resolved_arguments and the verbatim gym response), verifier/verifier_summary.json (every assertion result), verifier/snapshots/{diff,expected,unexpected}.json (empty diff, i.e. no DB mutation), reward.txt/reward.json, trial.log, config.json, lock.json and result.json. The native Oracle log is not byte-empty, so the stricter source-bound proof route is not needed.",
+          "outcome": "pass"
+        },
+        "layer2_solvability__solution_legitimacy": {
+          "explanation": "No fabrication or spoofing. The oracle exercised the public MCP surface (solve.py calls /mcp/<server> via streamable HTTP as the unprivileged user, not the verifier-only raw control route), and the recorded responses are genuine gym payloads: re-deriving the figures from them independently yields 14 / 11 / 5 / 2 / 4 / 4 and the 19 comment lines, exactly what the graded files assert. The three database_state checks read 18/3/19 and the state diff is empty, so no grading state was manipulated. Staging the deliverables from the provided solution is the sanctioned Oracle exception.",
+          "outcome": "pass"
+        },
+        "layer2_solvability__instruction_environment_sufficiency": {
+          "explanation": "Everything the answer needs is reachable from the agent-visible surface: notion-search locates the Articles database, notion-fetch yields the collection:// data source, one SQL read returns url/Title/Doc stage for all 18 rows, and notion-get-comments returns the discussions with their resolved flag. include_all_blocks / include_resolved are ordinary parameters of the served tool schema, i.e. a discovery challenge rather than private knowledge, and the golden path uses no capability withheld from a model (same proxy, same allowlisted tools, same unprivileged user). Metric semantics are carried by the metric names plus the disclosed grain sentence; consistency/readers.json records 4/4 blind readers deriving the same method. No auditor repair or out-of-band interface was involved.",
+          "outcome": "pass"
+        },
+        "layer2_stability": {
+          "explanation": "evaluations/ contains a single verifier execution (one oracle trial). There are no repeats at all, so the requirement of at least three verifier repeats over a proven frozen trajectory/artifact identity with equal reward and consistent per-check outcomes cannot be met.",
+          "outcome": "fail"
+        },
+        "layer2_stability__frozen_identity": {
+          "explanation": "Missing evidence: no hash or equivalent immutable identity ties repeated verifier runs to one frozen submission. lock.json carries a task digest (sha256:6a010703...) and result.json a task_checksum, but these bind the task package for one run only; there is no second run whose trajectory/artifacts are shown to be identical.",
+          "outcome": "fail"
+        },
+        "layer2_stability__repeat_count": {
+          "explanation": "Missing evidence: exactly one complete result exists (evaluations/oracle/result.json). Fewer than three repeats.",
+          "outcome": "fail"
+        },
+        "layer2_stability__verifier_judge_config_identity": {
+          "explanation": "Missing evidence: with only one run recorded there is nothing to compare verifier digest or scoring configuration against. (The single run records allowed_verifier_types ['agentic_llm_as_judge','rubric'] and judge_prompt_version v2.1-likert, but no judge item was scored and no second run exists to establish identity.)",
+          "outcome": "fail"
+        },
+        "layer2_stability__reward_equality": {
+          "explanation": "Missing evidence: only one aggregate reward (1.0) is recorded, so reward equality across repeats on frozen evidence is unestablished.",
+          "outcome": "fail"
+        },
+        "layer2_stability__per_check_stability": {
+          "explanation": "Missing evidence: one verification_results block exists (13/13 passed). Without further repeats, per-check flips or offsetting criterion changes cannot be ruled out.",
+          "outcome": "fail"
+        },
+        "layer5_verifier_fairness_static": {
+          "explanation": "All mandatory subchecks pass. The 13 verifiers are deterministic, field-level and traceable to the instruction; the surface-form matchers were executed against both correct-content variants (which pass) and defective ones (which fail), the aggregation recomputes to the recorded reward, and no single check dominates or duplicates another undisclosed.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__requirement_traceability": {
+          "explanation": "Each verifier carries a requirement_id and an evidence_span quoting the instruction: articles_reviewed / still_open / still_open_new / still_open_draft / still_open_in_review / articles_without_comments -> the metric-name sentence; review_log_row_coverage, review_log_reconciliation, review_log_finding_coverage -> the review-log paragraph; library_unchanged / threads_unchanged / comments_unchanged -> 'Please do not change anything in the library'; read_depth -> 'Go through that database and work out where each article stands'. Conversely no material instruction requirement is untested, and no reward-bearing requirement exists only in the verifier.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__coverage_depth": {
+          "explanation": "Field-level and semantic: six pinned figures each with a paired refusal of the comment-grain value; exactly 19 comment lines split into exactly 15 open and 4 settled; exactly 9/4/6 lines per Doc stage (so every line must carry a real stage); the 11 open articles each on an open line with the 3 settled articles refused there; the 3 settled articles each on a settled line with the 11 open ones refused there; the 4 uncommented articles each on their own line with manufactured comment lines refused; plus three DB-state side-effect assertions. An empty or materially wrong submission cannot clear this — a workspace with no files fails all nine file_checks.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__evidence_routing": {
+          "explanation": "Artifact requirements are read from the artifacts: md.extract_text on review_log.md (raw UTF-8, no lossy conversion) and xlsx.extract_text on metrics.xlsx (openpyxl in non-read-only mode, every sheet, pipe-joined rows including empty cells). Side-effect requirements are read from the gym via SQL over the proxy state route, not from prose. The only trajectory-sourced check is the tool-call floor, whose claim is about tool calls. No check reads the wrong surface.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__semantic_equivalence": {
+          "explanation": "I executed the shipped patterns over plausible correct variants: GFM table with a 'Article | Doc stage | Status' header and alignment row, numbered ('1.') and bulleted ('-','*','+') closing lists, single-cell table rows in the closing list, mid-word and surrounding emphasis, upper/lower casing of statuses and stages, tabs, CRLF, optional outer pipes, workbook with/without header row, any sheet name, any row order, int or float values, label written with spaces or hyphens. All pass. Rejections are limited to forms the instruction explicitly excludes (a fourth field after the finding, a title replaced by a Markdown link, a closing-list entry with extra prose).",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__surface_form_brittleness": {
+          "explanation": "Every regex was inspected and run. The metric patterns anchor on a label lookup with [ _-] separators, (?i), optional emphasis/quote wrappers, arbitrary leading empty columns and a (?!\\d) guard, and correctly refuse a longer label (still_open does not match the still_open_new row, verified). The review-log count patterns are exact-n constructions anchored \\A..\\Z, so 18 or 20 lines fail, and headings/delimiter rows are not counted because they do not end in the finding. All three refusals now require the line to END in open|settled, so a table header spelled 'Article' is not treated as a manufactured comment line, and the closing-list guard still rejects a GFM header standing in for a missing entry. A wrong answer cannot pass by mimicking tokens: the comment-grain workbook (19/15/6/4/5) fails exactly the five moved metric verifiers in my own replay.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__verifier_execution_completeness": {
+          "explanation": "tests/test.sh -> tests/test_gvs.sh -> python /app/tests/test_outputs.py; the engine path dispatches all 13 verifier_configs and the oracle run records 13 executed items with no 'unscored' and no exception. Infrastructure failures are not silently converted to a score: _emit_engine_owned_reward raises when the block reports an error or failure_mode 'verifier_error', leaving reward.json absent so the trial is UNSCORED, and _run_file_check fails loudly when the workspace directory is missing.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__score_bucket_activation": {
+          "explanation": "The only active bucket is the engine ('rubric' axis in the emitted reward), and it carries all 13 verifiers — it received evidence in the oracle run (score 1.0, 13 items). The state and sql buckets are declared enabled=false with weight 0.0, empty sql_verifiers and an empty expected_diff, i.e. openly inactive rather than presented as coverage. rubric.toml contributes no criteria and no rubric_check item is claimed anywhere in the scoring output.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__aggregation_normalization": {
+          "explanation": "With flat_verifier_scoring true, run_benchmark_verifiers pools items by weight: total weight 12 x 1.0 + 0.5 = 12.5. All passing -> 12.5/12.5 = 1.0, which is exactly the recorded oracle reward, and 'pass' is core-based overall_success (every verifier must pass), matching reward.json {reward: 1.0}. Recomputing representative failures: one metric wrong -> 11.5/12.5 = 0.92 with pass=false; no files produced -> (3 + 0.5)/12.5 = 0.28 with pass=false. Declared per-verifier weights therefore equal the effective math; the vestigial state/sql/rubric axis weights are not used on this path.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__scoring_proportionality": {
+          "explanation": "Weighting is proportionate: each of the six figures and each of the three review-log verifiers carries 1.0, the three read-only guards carry 1.0 each (they encode the explicit 'change nothing' instruction), and the process floor carries only 0.5. No cosmetic or formatting-only leaf can dominate — formatting variants are tolerated, and every failure mode documented in consistency/shortcut_audit.md (comment-grain summary, default comment call, hidden resolved threads, SQL-only) loses reward in proportion to how much of the audit it gets wrong. Strict pass requires all 13.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__check_independence": {
+          "explanation": "The six metric verifiers grade six distinct figures in metrics.xlsx; the three review-log verifiers grade distinct properties of review_log.md (row count and uncommented-article membership; the open-article set; the finding/stage split and settled-article membership); the three database_state checks grade three different tables (pages, discussions, comments). The deliberate overlap between still_open (workbook) and the open-article leaves (log) is disclosed in the verifier metadata as the reconciliation between the summary and the per-row deliverable, and they read different artifacts.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__counterfactual_strength": {
+          "explanation": "Positive: the gold artifacts score 22/22 leaves in my replay and 13/13 verifiers in the recorded oracle run. Negative/adversarial: the comment-grain workbook fails exactly the five moved metrics in my replay; consistency/shortcut_audit.md records engine-replayed results for a log with the settled lines dropped and padded, one with invented settled titles, one with junk Doc stage values, a manufactured comment line for an uncommented article, and a closing list missing an entry — all refused. Incomplete: a missing file fails the whole verifier loudly; the three write routes each move a database_state count off its seed value.",
+          "outcome": "pass"
+        },
+        "layer5_verifier_fairness_static__process_grading_justification": {
+          "explanation": "Reward is dominated by the requested outcomes (12 of 12.5 weight on the two deliverables and the no-change constraint). The single process-shaped check names no tool and no ordering; it only requires 18 accepted non-harness gym calls, a count any correct run necessarily exceeds because the resolved flag exists only per page and notion-get-comments has no bulk form. Harness tools (bash/write/read/...) are excluded so scratch work cannot satisfy it.",
+          "outcome": "pass"
+        },
+        "layer5_llm_judge_design": {
+          "explanation": "No LLM judge grades this task. tests/rubric.toml contains only a [system] preamble with no [[criteria]], so _rubric_check_verifiers_from_rubric yields no items, and all 13 manifest verifiers are deterministic (file_check / database_state / tool_execution). The oracle run confirms it: verification_results contains no rubric_check item and no judge call is recorded. (Note for the authors: score_benchmark_verifiers still aborts the whole verification when OPENAI_API_KEY is unset, even though no judge is needed — a failed run is recorded as unscored rather than zero, so it is not a fairness defect, but the coupling is unnecessary.)",
+          "outcome": "not_applicable"
+        },
+        "layer5_llm_judge_design__judge_execution_validity": {
+          "explanation": "No judge call is made: rubric.toml declares no criteria, so no rubric_check or response_check verifier exists for the judge configuration in task.toml [metadata.verifier_judge] to serve.",
+          "outcome": "not_applicable"
+        },
+        "layer5_llm_judge_design__judge_failure_handling": {
+          "explanation": "No judge is invoked, so no endpoint/auth/timeout/parse failure path can affect scoring. (The engine's generic handling does refuse to emit a score on infrastructure failure rather than writing a zero.)",
+          "outcome": "not_applicable"
+        },
+        "layer5_llm_judge_design__judge_context_completeness": {
+          "explanation": "No rubric items exist, so no judge prompt is constructed and no evidence can be missing from one.",
+          "outcome": "not_applicable"
+        },
+        "layer5_llm_judge_design__judge_context_truncation": {
+          "explanation": "No judge context is assembled for this task; the evidence-budget machinery in test_outputs.py is never exercised because no rubric_check item runs.",
+          "outcome": "not_applicable"
+        },
+        "layer5_llm_judge_design__artifact_grounding": {
+          "explanation": "No rubric language exists that could reward generic plausibility; grading is entirely deterministic against the produced files and the gym state.",
+          "outcome": "not_applicable"
+        },
+        "layer5_llm_judge_design__repeat_stability": {
+          "explanation": "No judge, no sampling and no aggregation over judge votes; all 13 checks are deterministic regex/SQL/count assertions.",
+          "outcome": "not_applicable"
+        },
+        "layer5_reward_hacking_static": {
+          "explanation": "All four exploitability subchecks pass: the graded surface pins content that cannot be produced without genuinely reading every article's thread, the sanctioned MCP interface is the only one reachable by the agent, the answer key is unreadable on disk, and the substantive grading state (gym DB and workspace files) cannot be spoofed.",
+          "outcome": "pass"
+        },
+        "layer5_reward_hacking_static__rollout_legitimacy": {
+          "explanation": "A fabricated run cannot pass on the final surface alone: the log must carry exactly 19 lines split 15/4 with exactly 9/4/6 stage values, the correct 11 open and 3 settled article sets, the 4 uncommented titles, and six matching figures — information that exists only behind 18 per-page notion-get-comments calls with include_all_blocks and include_resolved. Destructive or tidy-up actions are caught by the three seed-state counts (18 pages, 3 resolved, 19 comments), and the 18-call floor blocks an answer invented from the SQL table alone.",
+          "outcome": "pass"
+        },
+        "layer5_reward_hacking_static__sanctioned_interface_use": {
+          "explanation": "The agent reaches only the proxy's public MCP routes on TCP 7000. The raw state/step control routes are served on a separate root-created unix socket and additionally require the x-harbor-proxy-verifier-capability file (mode 040 root:harborproxy), and the connector control capability is likewise root-only; entrypoint.sh unsets both from the environment before starting the proxy. Connector databases live under /gyms (710 root:gym) and the agent user is in neither group, so there is no backend or verifier bypass.",
+          "outcome": "pass"
+        },
+        "layer5_reward_hacking_static__golden_or_internal_access": {
+          "explanation": "No answer leakage into the agent's reach. solution/ is not in the image; /app (task.toml, instruction.md, tests/manifest.json with all expected values) is chmod -R go-rwx and the agent runs as rlgymagent; /logs/verifier is 700 root:root; the proxy only receives a narrowed task-input mirror (task.toml + manifest.json at 640 root:harborproxy), never the agent. No seeded fixture in /workspace contains the expected figures.",
+          "outcome": "pass"
+        },
+        "layer5_reward_hacking_static__state_spoofing": {
+          "explanation": "The three database_state checks read the live gym through the verifier-only path and compare against seed values measured before the run, and the snapshot diff (evaluations/oracle/verifier/snapshots/diff.json) is empty for the passing run, so before/after is verified. Deliverables are graded from the files actually on disk in the workspace, with seeded inputs excluded from 'produced'. The one agent-writable grading input is /logs/agent/trajectory.json, which feeds only the 0.5-weight tool-call floor; forging it cannot supply any of the 12 content/state verifiers, so it cannot manufacture a pass.",
+          "outcome": "pass"
+        }
+      },
+      "cost_usd": 5.373509,
+      "task_name": "which-articles-still-have-an-open-review",
+      "error": null
+    }
+  ]
+}

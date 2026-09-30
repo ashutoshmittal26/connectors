@@ -1,0 +1,328 @@
+{
+  "generated_by": "tools/attest.py --emit",
+  "generated_at": "2026-09-27T16:06:50Z",
+  "instruction_sha256": "6d3dc83ce8626cdf69c92cac02a636047cf5c35662be8ebd351a8e3948325623",
+  "gym": "email-calendar-gym",
+  "acting_user": "5182a2ef-dded-5b63-8389-49d8101f5c38",
+  "gold_derivation": [
+    {
+      "figure": "documents_in_the_log",
+      "graded_by": [
+        "documents_sheet_has_one_row_per_document"
+      ],
+      "gold_value": 15,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Counts the distinct document names carried by the request family, taking the name as the text before the first ' from ' in the subject.",
+        "query": "SELECT COUNT(DISTINCT substr(h.value, 1, instr(h.value, ' from ') - 1)) FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %'",
+        "value": 15
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "search_email with the four family phrases at pageSize 50 returns 36 request messages untruncated; their subjects were parsed on the same rule and the distinct names counted.",
+        "query": "",
+        "value": 15,
+        "evidence": "attest/tool-route-95-messages.json",
+        "source": "author-measured, evidence attest/tool-route-95-messages.json"
+      },
+      "independent_because": "The SQL never calls the gym's search index and the tool call never touches SQLite. One parses message_headers rows the agent cannot see, the other parses the subject strings the agent is served; a wrong join in the first cannot reach the second.",
+      "agrees": true
+    },
+    {
+      "figure": "request_messages",
+      "graded_by": [
+        "documents_the_two_near_identical_names",
+        "documents_the_three_names_sharing_a_tail",
+        "documents_the_ones_still_unsigned",
+        "documents_the_ones_signed_with_no_chasing",
+        "documents_the_remaining_rows"
+      ],
+      "gold_value": 36,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Counts the request messages themselves - the per-document breakdown of this total is the requests column of the audit sheet.",
+        "query": "SELECT COUNT(DISTINCT m.id) FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %'",
+        "value": 36
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "The same call's first bucket reports total_matches 36 with count 36 and truncated false, and the returned messages group into the same per-document counts.",
+        "query": "",
+        "value": 36,
+        "evidence": "attest/tool-route-95-messages.json",
+        "source": "author-measured, evidence attest/tool-route-95-messages.json"
+      },
+      "independent_because": "One counts message_headers rows, the other counts what the search index served; the two share no code path.",
+      "agrees": true
+    },
+    {
+      "figure": "reminder_messages",
+      "graded_by": [
+        "documents_the_two_near_identical_names",
+        "documents_the_three_names_sharing_a_tail",
+        "documents_the_ones_still_unsigned",
+        "documents_the_ones_signed_with_no_chasing",
+        "documents_the_remaining_rows"
+      ],
+      "gold_value": 46,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Counts the reminder messages - the per-document breakdown of this total is the reminders column of the audit sheet.",
+        "query": "SELECT COUNT(DISTINCT m.id) FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE 'Reminder:%awaiting your signature'",
+        "value": 46
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "The same call's second bucket reports total_matches 46 with count 46 and truncated false, and the returned subjects group into the same per-document counts.",
+        "query": "",
+        "value": 46,
+        "evidence": "attest/tool-route-95-messages.json",
+        "source": "author-measured, evidence attest/tool-route-95-messages.json"
+      },
+      "independent_because": "As above: header rows against served subjects, no shared path.",
+      "agrees": true
+    },
+    {
+      "figure": "documents_signed",
+      "graded_by": [
+        "documents_the_two_near_identical_names",
+        "documents_the_three_names_sharing_a_tail",
+        "documents_the_ones_still_unsigned",
+        "documents_the_ones_signed_with_no_chasing",
+        "documents_the_remaining_rows",
+        "register_column_reconciles_with_the_summary"
+      ],
+      "gold_value": 11,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Counts the request-family documents that also appear in a completion notice, the everyone-has-signed notice included.",
+        "query": "SELECT COUNT(*) FROM (SELECT DISTINCT substr(h.value, 1, instr(h.value, ' from ') - 1) AS doc FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %') d WHERE d.doc IN (SELECT CASE WHEN h2.value LIKE 'You just signed %' THEN substr(h2.value, 17, instr(h2.value, ' from ') - 17) ELSE substr(h2.value, 21, instr(h2.value, ' from ') - 21) END FROM messages m2 JOIN message_parts p2 ON p2.message_id = m2.id JOIN message_headers h2 ON h2.message_part_id = p2.id WHERE m2.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h2.name = 'Subject' AND (h2.value LIKE 'You just signed %' OR h2.value LIKE 'Everyone has signed %'))",
+        "value": 11
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "The same call's third and fourth buckets return 12 and 1 messages untruncated; parsing their subjects gives 10 plus 1 distinct names, all 11 of which are request-family documents.",
+        "query": "",
+        "value": 11,
+        "evidence": "attest/tool-route-95-messages.json",
+        "source": "author-measured, evidence attest/tool-route-95-messages.json"
+      },
+      "independent_because": "The SQL matches on stored header text; the tool route matches on the subjects the index served, and it is the only one of the two that can see whether a completion has a request.",
+      "agrees": true
+    },
+    {
+      "figure": "documents_tracked",
+      "graded_by": [
+        "summary_documents_tracked",
+        "register_column_reconciles_with_the_summary",
+        "documents_the_two_near_identical_names",
+        "documents_the_three_names_sharing_a_tail",
+        "documents_the_ones_still_unsigned",
+        "documents_the_ones_signed_with_no_chasing",
+        "documents_the_remaining_rows"
+      ],
+      "gold_value": 10,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Counts the distinct request-family document names at least one of whose request messages is joined to the user label named Opened through message_labels.",
+        "query": "SELECT COUNT(*) FROM (SELECT DISTINCT substr(h.value, 1, instr(h.value, ' from ') - 1) AS doc FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %' AND EXISTS (SELECT 1 FROM message_labels ml JOIN labels l ON l.id = ml.label_id WHERE ml.message_id = m.id AND l.user_id = m.user_id AND l.name = 'Opened')) r",
+        "value": 10
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "search_email with the query '\"Signature requested by\" label:Opened' at pageSize 50 returns 18 of the 36 request messages untruncated; their subjects carry ten distinct document names.",
+        "query": "",
+        "value": 10,
+        "evidence": "attest/tool-route-register.json",
+        "source": "author-measured, evidence attest/tool-route-register.json"
+      },
+      "independent_because": "The SQL resolves the label by joining message_labels and labels; the tool route resolves it through the gym's own search operator, which reads its index and not that join. The label appears in no served payload, so the tool route is the only check an agent could ever make.",
+      "agrees": true
+    },
+    {
+      "figure": "tracked_never_signed",
+      "graded_by": [
+        "summary_tracked_never_signed",
+        "draft_names_the_unsigned_register_documents"
+      ],
+      "gold_value": 2,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Counts the register documents with no completion notice of either kind.",
+        "query": "SELECT COUNT(*) FROM (SELECT DISTINCT substr(h.value, 1, instr(h.value, ' from ') - 1) AS doc FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %' AND EXISTS (SELECT 1 FROM message_labels ml JOIN labels l ON l.id = ml.label_id WHERE ml.message_id = m.id AND l.user_id = m.user_id AND l.name = 'Opened')) r WHERE r.doc NOT IN (SELECT CASE WHEN h2.value LIKE 'You just signed %' THEN substr(h2.value, 17, instr(h2.value, ' from ') - 17) ELSE substr(h2.value, 21, instr(h2.value, ' from ') - 21) END FROM messages m2 JOIN message_parts p2 ON p2.message_id = m2.id JOIN message_headers h2 ON h2.message_part_id = p2.id WHERE m2.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h2.name = 'Subject' AND (h2.value LIKE 'You just signed %' OR h2.value LIKE 'Everyone has signed %'))",
+        "value": 2
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "The ten register names from the label call, minus the eleven names the completion buckets carry, leaves two.",
+        "query": "",
+        "value": 2,
+        "evidence": "attest/tool-route-register.json",
+        "source": "author-measured, evidence attest/tool-route-register.json"
+      },
+      "independent_because": "Set difference over served subject strings against a NOT IN over stored header rows: the two disagree the moment either join is wrong.",
+      "agrees": true
+    },
+    {
+      "figure": "tracked_signed_after_a_reminder",
+      "graded_by": [
+        "summary_tracked_signed_after_a_reminder"
+      ],
+      "gold_value": 5,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Counts the register documents that carry a completion notice and at least one reminder.",
+        "query": "SELECT COUNT(*) FROM (SELECT DISTINCT substr(h.value, 1, instr(h.value, ' from ') - 1) AS doc FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %' AND EXISTS (SELECT 1 FROM message_labels ml JOIN labels l ON l.id = ml.label_id WHERE ml.message_id = m.id AND l.user_id = m.user_id AND l.name = 'Opened')) r WHERE r.doc IN (SELECT CASE WHEN h2.value LIKE 'You just signed %' THEN substr(h2.value, 17, instr(h2.value, ' from ') - 17) ELSE substr(h2.value, 21, instr(h2.value, ' from ') - 21) END FROM messages m2 JOIN message_parts p2 ON p2.message_id = m2.id JOIN message_headers h2 ON h2.message_part_id = p2.id WHERE m2.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h2.name = 'Subject' AND (h2.value LIKE 'You just signed %' OR h2.value LIKE 'Everyone has signed %')) AND r.doc IN (SELECT DISTINCT substr(h3.value, 11, instr(h3.value, ' from ') - 11) FROM messages m3 JOIN message_parts p3 ON p3.message_id = m3.id JOIN message_headers h3 ON h3.message_part_id = p3.id WHERE m3.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h3.name = 'Subject' AND h3.value LIKE 'Reminder:%awaiting your signature')",
+        "value": 5
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "The ten register names intersected with the completion names and with the reminder names, all three sets parsed from the served subjects.",
+        "query": "",
+        "value": 5,
+        "evidence": "attest/tool-route-register.json",
+        "source": "author-measured, evidence attest/tool-route-register.json"
+      },
+      "independent_because": "Three set intersections over served strings against three IN clauses over stored rows.",
+      "agrees": true
+    },
+    {
+      "figure": "tracked_signed_with_no_reminder",
+      "graded_by": [
+        "summary_tracked_signed_with_no_reminder"
+      ],
+      "gold_value": 3,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Counts the register documents that carry a completion notice and no reminder at all.",
+        "query": "SELECT COUNT(*) FROM (SELECT DISTINCT substr(h.value, 1, instr(h.value, ' from ') - 1) AS doc FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %' AND EXISTS (SELECT 1 FROM message_labels ml JOIN labels l ON l.id = ml.label_id WHERE ml.message_id = m.id AND l.user_id = m.user_id AND l.name = 'Opened')) r WHERE r.doc IN (SELECT CASE WHEN h2.value LIKE 'You just signed %' THEN substr(h2.value, 17, instr(h2.value, ' from ') - 17) ELSE substr(h2.value, 21, instr(h2.value, ' from ') - 21) END FROM messages m2 JOIN message_parts p2 ON p2.message_id = m2.id JOIN message_headers h2 ON h2.message_part_id = p2.id WHERE m2.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h2.name = 'Subject' AND (h2.value LIKE 'You just signed %' OR h2.value LIKE 'Everyone has signed %')) AND r.doc NOT IN (SELECT DISTINCT substr(h3.value, 11, instr(h3.value, ' from ') - 11) FROM messages m3 JOIN message_parts p3 ON p3.message_id = m3.id JOIN message_headers h3 ON h3.message_part_id = p3.id WHERE m3.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h3.name = 'Subject' AND h3.value LIKE 'Reminder:%awaiting your signature')",
+        "value": 3
+      },
+      "b": {
+        "shape": "proxy-tool-calls",
+        "how": "The ten register names intersected with the completion names and subtracted from the reminder names, all parsed from the served subjects.",
+        "query": "",
+        "value": 3,
+        "evidence": "attest/tool-route-register.json",
+        "source": "author-measured, evidence attest/tool-route-register.json"
+      },
+      "independent_because": "As above, and this is the figure a total_matches shortcut gets wrong, which is exactly what the two derivations are here to catch.",
+      "agrees": true
+    },
+    {
+      "figure": "drafts_in_the_seed",
+      "graded_by": [
+        "draft_is_the_only_one_written"
+      ],
+      "gold_value": 0,
+      "a": {
+        "shape": "sql-state-route",
+        "how": "Counts the drafts the acting user owns in the seeded database, before any run.",
+        "query": "SELECT COUNT(*) FROM drafts d JOIN messages m ON m.id = d.message_id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38'",
+        "value": 0
+      },
+      "b": {
+        "shape": "golden-artifact-recount",
+        "how": "The gym serves no tool that lists drafts, so the tool route cannot see this figure at all; it is recounted instead from the golden trajectory, whose single draft_email call is the only write in the bundle and therefore the only thing that can take this count from 0 to 1.",
+        "query": "",
+        "value": 0,
+        "source": "recounted from solution/"
+      },
+      "independent_because": "One reads the drafts table before the run; the other reads the bundle's own trajectory and counts its writes. Neither can inherit the other's mistake.",
+      "agrees": true
+    }
+  ],
+  "gold_derivation_exempt": [
+    {
+      "verifier": "documents_sheet_header",
+      "reason": "Grades the audit sheet's header row, which is a layout contract the prompt states. It reads no figure derived from the gym."
+    },
+    {
+      "verifier": "summary_sheet_has_one_row_per_metric",
+      "reason": "Grades the summary sheet's row count, which is 4 because the prompt names four metrics. It is a layout contract, not a gym-derived figure."
+    }
+  ],
+  "prompt_claims": [
+    {
+      "claim": "The document service also sends notices keyed to a person rather than to a document.",
+      "quote": "Its other notices are keyed to a person - who a request\nwent out to, who completed one",
+      "kind": "count",
+      "query": "SELECT COUNT(DISTINCT m.id) FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND (h.value LIKE 'Signature request sent to%' OR h.value LIKE 'Signature completed by%')",
+      "stated": 29,
+      "measured": 29,
+      "agrees": true
+    },
+    {
+      "claim": "Two document names in the log differ only by a bracketed suffix.",
+      "quote": "names differing by a\nbracket are different documents",
+      "kind": "count",
+      "query": "SELECT COUNT(DISTINCT substr(h.value, 1, instr(h.value, ' from ') - 1)) FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %' AND h.value LIKE 'Emily (Em) Clark-05-20-25%'",
+      "stated": 2,
+      "measured": 2,
+      "agrees": true
+    },
+    {
+      "claim": "One document's name is not a file name.",
+      "quote": "a name that is not a file name counts too",
+      "kind": "count",
+      "query": "SELECT COUNT(DISTINCT substr(h.value, 1, instr(h.value, ' from ') - 1)) FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %' AND substr(h.value, 1, instr(h.value, ' from ') - 1) NOT LIKE '%.%'",
+      "stated": 1,
+      "measured": 1,
+      "agrees": true
+    },
+    {
+      "claim": "The log holds a notice that everyone has signed a document.",
+      "quote": "a notice that everyone has signed it counts",
+      "kind": "count",
+      "query": "SELECT COUNT(DISTINCT m.id) FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE 'Everyone has signed %'",
+      "stated": 1,
+      "measured": 1,
+      "agrees": true
+    },
+    {
+      "claim": "The acting user's mailbox carries a user label named Opened.",
+      "quote": "filed\nunder my Opened label",
+      "kind": "count",
+      "query": "SELECT COUNT(*) FROM labels l WHERE l.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND l.name = 'Opened' AND l.type = 'user'",
+      "stated": 1,
+      "measured": 1,
+      "agrees": true
+    },
+    {
+      "claim": "The log carries documents that are not in the register.",
+      "quote": "the log also carries\ndocuments that were never entered in the register",
+      "kind": "count",
+      "query": "SELECT COUNT(*) FROM (SELECT DISTINCT substr(h.value, 1, instr(h.value, ' from ') - 1) AS doc FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %') d WHERE d.doc NOT IN (SELECT r.doc FROM (SELECT DISTINCT substr(h.value, 1, instr(h.value, ' from ') - 1) AS doc FROM messages m JOIN message_parts p ON p.message_id = m.id JOIN message_headers h ON h.message_part_id = p.id WHERE m.user_id = '5182a2ef-dded-5b63-8389-49d8101f5c38' AND h.name = 'Subject' AND h.value LIKE '%- Signature requested by %' AND EXISTS (SELECT 1 FROM message_labels ml JOIN labels l ON l.id = ml.label_id WHERE ml.message_id = m.id AND l.user_id = m.user_id AND l.name = 'Opened')) r)",
+      "stated": 5,
+      "measured": 5,
+      "agrees": true
+    }
+  ],
+  "numerals_not_claims": [
+    {
+      "numeral": "one row per document in the log",
+      "where": "the audit sheet's layout",
+      "reason": "A contract about the sheet's shape, not a count read off the gym. The count it implies, 15, is attested as documents_in_the_log."
+    },
+    {
+      "numeral": "one row per metric",
+      "where": "the summary sheet's layout",
+      "reason": "A contract about the sheet's shape. The four metric names are given in the prompt."
+    },
+    {
+      "numeral": "one per line",
+      "where": "the drafted email's body",
+      "reason": "A formatting contract for the write-back, not a figure."
+    },
+    {
+      "numeral": "draft one email",
+      "where": "the write-back",
+      "reason": "A contract that exactly one draft is wanted; the seed's draft count is attested separately as drafts_in_the_seed."
+    },
+    {
+      "numeral": "at least one of the messages requesting that document",
+      "where": "the register's membership test",
+      "reason": "A quantifier in the stated rule, not a measured value. What it selects, 10 of 15 documents, is attested as documents_tracked."
+    }
+  ]
+}

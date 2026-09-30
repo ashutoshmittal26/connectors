@@ -1,0 +1,211 @@
+{
+ "metrics": {
+  "steps": 26,
+  "hops": 25,
+  "chain_depth": 4,
+  "graded_hops": 25,
+  "hop_coverage": 1.0,
+  "note": "hops counts steps whose arguments came from an earlier step's output and whose result is load-bearing for a graded value. g1 is not a hop (its query is the request's fourteen practice names). b01-b23 read the 23 statements whose ids g1 returned (the per-row log, the bill types and the two silent practices need every one; the listing reports the same size for an empty and a full spreadsheet). g2 lists the raw exports by the 13 practice IDs those statements carry as tab names; r1 reads the one live raw export g2 returned. Longest chain g1 -> b02 -> g2 -> r1 = 4. No pagination: g1 returns 24 files and g2 one under pageSize 100. Measured shortest correct path: 25 calls (one listing of every spreadsheet, whose 233 titles include the ID-titled export, then the 24 reads) = 1.00 of hops."
+ },
+ "steps": [
+  {
+   "id": "g1",
+   "depends_on": [],
+   "name": "gws"
+  },
+  {
+   "id": "b01",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b02",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b03",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b04",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b05",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b06",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b07",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b08",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b09",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b10",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b11",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b12",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b13",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b14",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b15",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b16",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b17",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b18",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b19",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b20",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b21",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b22",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "b23",
+   "depends_on": [
+    "g1"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "g2",
+   "depends_on": [
+    "b02",
+    "b03",
+    "b04",
+    "b05",
+    "b06",
+    "b07",
+    "b08",
+    "b09",
+    "b10",
+    "b11",
+    "b12",
+    "b13",
+    "b14",
+    "b15",
+    "b17",
+    "b18",
+    "b19",
+    "b20",
+    "b22",
+    "b23"
+   ],
+   "name": "gws"
+  },
+  {
+   "id": "r1",
+   "depends_on": [
+    "g2"
+   ],
+   "name": "gws"
+  }
+ ]
+}

@@ -1,0 +1,73 @@
+{
+  "renderer_n": 3,
+  "raw_output": "readers-20260927-204907",
+  "instruction_sha256": "6d3dc83ce8626cdf69c92cac02a636047cf5c35662be8ebd351a8e3948325623",
+  "protocol": "Three independent renderers, single turn, no tools, no gym. Each received instruction.md plus the correct values and was asked ONLY to describe the workbook it would deliver and the email it would draft. They are not solving; they show what a correct answer can legitimately look like, so the tolerance policy can be checked against real variation instead of the author's imagination. Run 2026-09-27 by tools/readers.py against instruction.md sha256 6d3dc83ce8..., the bytes that ship. Raw output in _evidence/the-documents-i-never-signed/readers-20260927-204907/.",
+  "what_varied": {
+    "sheet_names": {
+      "1": [
+        "Documents",
+        "Summary"
+      ],
+      "2": [
+        "Documents",
+        "Summary"
+      ],
+      "3": [
+        "Documents",
+        "Summary"
+      ]
+    },
+    "document_rows_rendered": {
+      "1": 15,
+      "2": 15,
+      "3": 15
+    },
+    "header_rows": "present on both sheets in all three, spelled as the prompt spells them",
+    "value_type": {
+      "float_forms_seen": {
+        "1": false,
+        "2": false,
+        "3": false
+      },
+      "note": "all three wrote the counts as bare integers"
+    },
+    "draft_recipient": {
+      "stated_a_recipient": {
+        "1": false,
+        "2": false,
+        "3": false
+      },
+      "note": "the prompt asks for no recipient; a renderer that named one is not wrong, and nothing grades it"
+    },
+    "draft_body": {
+      "both_unsigned_register_names_present": {
+        "1": true,
+        "2": true,
+        "3": true
+      }
+    },
+    "extra_columns": {
+      "any_extra_column_rendered": {
+        "1": false,
+        "2": false,
+        "3": false
+      }
+    }
+  },
+  "tolerance_policy_check": {
+    "sheet_name": "PINNED BY NAME, FREE IN CASE - every assertion reads the block under a case-insensitive [Sheet: <name>] marker, and the prompt names both sheets.",
+    "sheet_order": "FREE - each sheet's row-count assertion anchors on its own marker and ends at the next marker or the end of the workbook, in either order. Verified by replaying the gold workbook with the sheets reversed.",
+    "extra_sheets": "FREE - a third sheet is never read. Verified by the mutation battery's extra-unrelated-sheet cosmetic, which passes.",
+    "row_order": "FREE - every row is found by its own document name or metric label, never by position. Verified by replaying the gold workbook with the rows reversed.",
+    "value_type_int_vs_float": "FREE - every number pattern accepts 2 and 2.0. Verified by the battery's int-as-float cosmetic, which passes.",
+    "label_case_and_separator": "FREE - the metric patterns are case-insensitive and accept a space where the name has an underscore.",
+    "yes_no_wording": "FREE in case, and true / false are accepted for yes / no.",
+    "extra_columns": "FREE - every row pattern ends on either the next cell separator or the end of the line, so a sixth column is ignored. Verified by the battery's extra-unrelated-column cosmetic, which passes.",
+    "extra_rows": "PINNED, and the prompt states it: each sheet carries its header row and its own rows and no other rows. Both row counts are graded, because the row count IS this bundle's exclusivity check.",
+    "draft_recipient": "FREE - the write-back SQL reads the Subject header and the message snippet and nothing else.",
+    "draft_body_order": "FREE - either name may come first.",
+    "draft_body_extras": "PINNED, and the prompt states it: the body is the names and nothing else. Graded as a count of .pdf occurrences plus a length bound, not as a list of forbidden strings."
+  },
+  "verdict": "The three renderers converged: all three wrote both sheets under the names the prompt gives, all 15 document rows, the four metric rows in the stated order, and a draft body carrying exactly the two unsigned register document names and nothing else. None wrote a float, an extra column or a recipient. What varied was only the SHAPE of the rendering itself - one described the sheets as comma-separated lines and two as pipe tables - which is a property of how a renderer talks, not of the workbook it would write, and nothing in the tolerance policy touches it. So the envelope offers no counterexample to any pinned shape: every shape this bundle pins (the sheet names, the header rows, the metric order, no extra rows on either sheet, nothing but the names in the body) is stated in the prompt, and all three renderers produced it unprompted. The mutation battery reports strictness 100% brittleness 0% on the same shapes, and the surface-form variant battery in tools/qc_precheck.py reports 0 BLOCK."
+}

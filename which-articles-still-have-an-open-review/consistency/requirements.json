@@ -1,0 +1,417 @@
+[
+  {
+    "requirement_id": "articles_reviewed",
+    "ask": "how many articles in the library carry at least one reviewer comment",
+    "prompt_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+    "surface": "metrics.xlsx",
+    "expected": 14,
+    "tolerance": {
+      "value": "pinned",
+      "key_name": "label lookup, case and separator free",
+      "order": "n/a - rows may sit in any order",
+      "extra_keys": "ignored"
+    },
+    "graded_by": [
+      "metrics_articles_reviewed"
+    ],
+    "evidence_path": [
+      "notion-query-data-sources {\"data\":{\"data_source_urls\":[\"collection://ds-9caee280db7e4c9385908af1164446fb\"],\"mode\":\"sql\",\"query\":\"SELECT url, Title, Doc stage FROM the collection ORDER BY Title\",\"page_size\":100}} -> 18 rows, has_more false",
+      "notion-get-comments {\"page_id\":\"<one of the 18 urls from the SQL read>\",\"include_all_blocks\":true,\"include_resolved\":true} -> <discussions total-count=\"N\"> with comment-count and resolved on each discussion; run once per article, 18 calls"
+    ],
+    "reachability": "Gold two ways on the pinned image, 2026-09-27. Through the gym: 14 of the 18 pages return at least one <discussion> once include_all_blocks and include_resolved are set. By state SQL: SELECT COUNT(DISTINCT c.page_id) FROM comments c JOIN pages p ON p.id = c.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' -> 14. The two agree.",
+    "discrimination": [
+      {
+        "wrong_method": "count the comments instead of the articles carrying them (the lever's default misreading)",
+        "yields": 19
+      },
+      {
+        "wrong_method": "count every page in the database, reviewed or not",
+        "yields": 18
+      },
+      {
+        "wrong_method": "call notion-get-comments without include_all_blocks",
+        "yields": 0
+      }
+    ]
+  },
+  {
+    "requirement_id": "still_open",
+    "ask": "how many articles still carry a reviewer thread nobody has settled",
+    "prompt_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+    "surface": "metrics.xlsx",
+    "expected": 11,
+    "tolerance": {
+      "value": "pinned",
+      "key_name": "label lookup, case and separator free",
+      "order": "n/a - rows may sit in any order",
+      "extra_keys": "ignored"
+    },
+    "graded_by": [
+      "metrics_still_open"
+    ],
+    "evidence_path": [
+      "notion-query-data-sources {\"data\":{\"data_source_urls\":[\"collection://ds-9caee280db7e4c9385908af1164446fb\"],\"mode\":\"sql\",\"query\":\"SELECT url, Title, Doc stage FROM the collection ORDER BY Title\",\"page_size\":100}} -> 18 rows, has_more false",
+      "notion-get-comments {\"page_id\":\"<one of the 18 urls from the SQL read>\",\"include_all_blocks\":true,\"include_resolved\":true} -> <discussions total-count=\"N\"> with comment-count and resolved on each discussion; run once per article, 18 calls"
+    ],
+    "reachability": "Gold two ways. Through the gym: 11 of the 18 pages return a discussion with resolved=\"false\". By state SQL: SELECT COUNT(DISTINCT d.page_id) FROM discussions d JOIN pages p ON p.id = d.page_id WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND d.resolved = 0 -> 11.",
+    "discrimination": [
+      {
+        "wrong_method": "count the comments on an unsettled thread rather than the articles carrying one (the lever's default misreading)",
+        "yields": 15
+      },
+      {
+        "wrong_method": "count every article with no settled thread, folding in the four with no thread at all",
+        "yields": 15
+      },
+      {
+        "wrong_method": "call notion-get-comments without include_all_blocks",
+        "yields": 0
+      }
+    ]
+  },
+  {
+    "requirement_id": "still_open_new",
+    "ask": "how many of those still-open articles are at Doc stage New",
+    "prompt_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+    "surface": "metrics.xlsx",
+    "expected": 5,
+    "tolerance": {
+      "value": "pinned",
+      "key_name": "label lookup, case and separator free",
+      "order": "n/a - rows may sit in any order",
+      "extra_keys": "ignored"
+    },
+    "graded_by": [
+      "metrics_still_open_new"
+    ],
+    "evidence_path": [
+      "notion-query-data-sources {\"data\":{\"data_source_urls\":[\"collection://ds-9caee280db7e4c9385908af1164446fb\"],\"mode\":\"sql\",\"query\":\"SELECT url, Title, Doc stage FROM the collection ORDER BY Title\",\"page_size\":100}} -> 18 rows, has_more false",
+      "notion-get-comments {\"page_id\":\"<one of the 18 urls from the SQL read>\",\"include_all_blocks\":true,\"include_resolved\":true} -> <discussions total-count=\"N\"> with comment-count and resolved on each discussion; run once per article, 18 calls"
+    ],
+    "reachability": "Gold two ways. Doc stage comes from the SQL read (a rich_text column); the resolved flag comes from the 18 comment calls. Of the 11 open articles, 5 are New: Antenatal Testing, Aspirin in Pregnancy, Fertility after Pregnancy, Group B Streptococcus, Thinking about a massage?. State SQL over property_values joined to rich_text_spans gives the same 5.",
+    "discrimination": [
+      {
+        "wrong_method": "count comments rather than articles (the default misreading)",
+        "yields": 6
+      },
+      {
+        "wrong_method": "count every article whose Doc stage is New, settled or not",
+        "yields": 7
+      }
+    ]
+  },
+  {
+    "requirement_id": "still_open_draft",
+    "ask": "how many of those still-open articles are at Doc stage Draft",
+    "prompt_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+    "surface": "metrics.xlsx",
+    "expected": 2,
+    "tolerance": {
+      "value": "pinned",
+      "key_name": "label lookup, case and separator free",
+      "order": "n/a - rows may sit in any order",
+      "extra_keys": "ignored"
+    },
+    "graded_by": [
+      "metrics_still_open_draft"
+    ],
+    "evidence_path": [
+      "notion-query-data-sources {\"data\":{\"data_source_urls\":[\"collection://ds-9caee280db7e4c9385908af1164446fb\"],\"mode\":\"sql\",\"query\":\"SELECT url, Title, Doc stage FROM the collection ORDER BY Title\",\"page_size\":100}} -> 18 rows, has_more false",
+      "notion-get-comments {\"page_id\":\"<one of the 18 urls from the SQL read>\",\"include_all_blocks\":true,\"include_resolved\":true} -> <discussions total-count=\"N\"> with comment-count and resolved on each discussion; run once per article, 18 calls"
+    ],
+    "reachability": "Gold two ways. Of the 11 open articles, 2 are Draft: Foods to avoid and Ultrasound in Pregnancy. Both carry two comments, which is why this figure separates the two readings most sharply (2 against 4).",
+    "discrimination": [
+      {
+        "wrong_method": "count comments rather than articles (the default misreading)",
+        "yields": 4
+      },
+      {
+        "wrong_method": "call notion-get-comments without include_all_blocks",
+        "yields": 0
+      }
+    ]
+  },
+  {
+    "requirement_id": "still_open_in_review",
+    "ask": "how many of those still-open articles are at Doc stage In Review",
+    "prompt_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+    "surface": "metrics.xlsx",
+    "expected": 4,
+    "tolerance": {
+      "value": "pinned",
+      "key_name": "label lookup, case and separator free",
+      "order": "n/a - rows may sit in any order",
+      "extra_keys": "ignored"
+    },
+    "graded_by": [
+      "metrics_still_open_in_review"
+    ],
+    "evidence_path": [
+      "notion-query-data-sources {\"data\":{\"data_source_urls\":[\"collection://ds-9caee280db7e4c9385908af1164446fb\"],\"mode\":\"sql\",\"query\":\"SELECT url, Title, Doc stage FROM the collection ORDER BY Title\",\"page_size\":100}} -> 18 rows, has_more false",
+      "notion-get-comments {\"page_id\":\"<one of the 18 urls from the SQL read>\",\"include_all_blocks\":true,\"include_resolved\":true} -> <discussions total-count=\"N\"> with comment-count and resolved on each discussion; run once per article, 18 calls"
+    ],
+    "reachability": "Gold two ways. Of the 11 open articles, 4 are In Review: Induction of Labor, Intercourse During Pregnancy, Title example, Vaginitis & BV. Pregnancy Schedules is also In Review but its thread is resolved, which is what makes this figure 4 rather than 5.",
+    "discrimination": [
+      {
+        "wrong_method": "count comments rather than articles (the default misreading)",
+        "yields": 5
+      },
+      {
+        "wrong_method": "count every article whose Doc stage is In Review, settled or not",
+        "yields": 5
+      }
+    ]
+  },
+  {
+    "requirement_id": "articles_without_comments",
+    "ask": "how many articles carry no reviewer comment at all",
+    "prompt_span": "The metric names are articles_reviewed, still_open,\nstill_open_new, still_open_draft, still_open_in_review and articles_without_comments, written\nexactly like that.",
+    "surface": "metrics.xlsx",
+    "expected": 4,
+    "tolerance": {
+      "value": "pinned",
+      "key_name": "label lookup, case and separator free",
+      "order": "n/a - rows may sit in any order",
+      "extra_keys": "ignored"
+    },
+    "graded_by": [
+      "metrics_articles_without_comments"
+    ],
+    "evidence_path": [
+      "notion-query-data-sources {\"data\":{\"data_source_urls\":[\"collection://ds-9caee280db7e4c9385908af1164446fb\"],\"mode\":\"sql\",\"query\":\"SELECT url, Title, Doc stage FROM the collection ORDER BY Title\",\"page_size\":100}} -> 18 rows, has_more false",
+      "notion-get-comments {\"page_id\":\"<one of the 18 urls from the SQL read>\",\"include_all_blocks\":true,\"include_resolved\":true} -> <discussions total-count=\"N\"> with comment-count and resolved on each discussion; run once per article, 18 calls"
+    ],
+    "reachability": "Gold two ways. Through the gym: 4 pages return <discussions total-count=\"0\"> even with both flags set - Article, Exercise with bump, New Brainstorm, New Product Spec (PRD). By state SQL: SELECT COUNT(*) FROM pages p WHERE p.parent_id = '9caee280db7e4c9385908af1164446fb' AND NOT EXISTS (SELECT 1 FROM discussions d WHERE d.page_id = p.id) -> 4. These four are also exactly the four whose Doc stage is null.",
+    "discrimination": [
+      {
+        "wrong_method": "leave include_resolved at its default, so the three settled articles look like articles with no thread",
+        "yields": 7
+      },
+      {
+        "wrong_method": "call notion-get-comments without include_all_blocks",
+        "yields": 18
+      }
+    ]
+  },
+  {
+    "requirement_id": "review_log_row_coverage",
+    "ask": "one line per reviewer comment, and the uncommented articles named, so every article appears",
+    "prompt_span": "One line for every reviewer comment in that database,\nwritten as `article title | Doc stage | open` while the thread that comment belongs to is still\nwaiting on somebody, and `article title | Doc stage | settled` once that thread has been resolved.\nClose the file with a clearly labelled list, one title per line, of the articles carrying no\nreviewer comment at all, so that every article in the database appears somewhere in this file.",
+    "surface": "review_log.md",
+    "expected": "19 status-terminated lines, plus the 4 uncommented articles each on a line of its own",
+    "tolerance": {
+      "value": "count pinned at 19",
+      "key_name": "n/a",
+      "order": "any",
+      "extra_keys": "free text before the last separator; headings, preamble, a GFM table rendering with or without a header row, any ordinary Markdown list marker on the closing list, markdown emphasis, CRLF and casing all tolerated. Widened 2026-09-27 so a correct answer cannot lose reward for its Markdown shape: the paired refusal fires only on a line that ENDS in the finding, and the closing-list leaves take '-', '*', '+', '1.', '1)', a bare title or a single-cell table row."
+    },
+    "graded_by": [
+      "review_log_lists_every_reviewer_comment"
+    ],
+    "evidence_path": [
+      "notion-query-data-sources {\"data\":{\"data_source_urls\":[\"collection://ds-9caee280db7e4c9385908af1164446fb\"],\"mode\":\"sql\",\"query\":\"SELECT url, Title, Doc stage FROM the collection ORDER BY Title\",\"page_size\":100}} -> 18 rows, has_more false",
+      "notion-get-comments {\"page_id\":\"<one of the 18 urls from the SQL read>\",\"include_all_blocks\":true,\"include_resolved\":true} -> <discussions total-count=\"N\"> with comment-count and resolved on each discussion; run once per article, 18 calls"
+    ],
+    "reachability": "Gold two ways: 19 comments in total across 14 discussions (sum of comment-count over the 18 get-comments calls), and SELECT COUNT(*) FROM comments WHERE page_id IN (the 18 pages) -> 19. 4 pages carry no discussion.",
+    "discrimination": [
+      {
+        "wrong_method": "write one line per article instead of one per comment",
+        "yields": "14 lines"
+      },
+      {
+        "wrong_method": "leave include_resolved at its default and log only the open comments",
+        "yields": "15 lines"
+      },
+      {
+        "wrong_method": "log the four uncommented articles as comment lines too",
+        "yields": "23 lines"
+      }
+    ]
+  },
+  {
+    "requirement_id": "review_log_reconciliation",
+    "ask": "the log's own open lines must group, by article, to the same set the summary counts",
+    "prompt_span": "written as `article title | Doc stage | open` while the thread that comment belongs to is still\nwaiting on somebody, and `article title | Doc stage | settled` once that thread has been resolved.",
+    "surface": "review_log.md",
+    "expected": "the 11 open articles appear on an open line; the 3 settled ones never do",
+    "tolerance": {
+      "value": "set pinned",
+      "key_name": "n/a",
+      "order": "any",
+      "extra_keys": "the Doc stage field is not graded here"
+    },
+    "graded_by": [
+      "review_log_reconciles_the_open_articles_by_article"
+    ],
+    "evidence_path": [
+      "notion-query-data-sources {\"data\":{\"data_source_urls\":[\"collection://ds-9caee280db7e4c9385908af1164446fb\"],\"mode\":\"sql\",\"query\":\"SELECT url, Title, Doc stage FROM the collection ORDER BY Title\",\"page_size\":100}} -> 18 rows, has_more false",
+      "notion-get-comments {\"page_id\":\"<one of the 18 urls from the SQL read>\",\"include_all_blocks\":true,\"include_resolved\":true} -> <discussions total-count=\"N\"> with comment-count and resolved on each discussion; run once per article, 18 calls"
+    ],
+    "reachability": "Gold two ways: the 11 unresolved discussions sit on 11 distinct pages and the 3 resolved ones on 3 others; no article carries both, so the grouping is unambiguous. Five of the 11 carry two comments each, which is exactly the gap between the two readings.",
+    "discrimination": [
+      {
+        "wrong_method": "mark the settled articles open (include_resolved left at its default, or the resolved flag read off the comment instead of the thread)",
+        "yields": "14 articles marked open"
+      },
+      {
+        "wrong_method": "report the summary at comment grain while the log stays at comment grain",
+        "yields": "the log still reconciles but still_open reads 15, which the summary checks refuse"
+      }
+    ]
+  },
+  {
+    "requirement_id": "review_log_finding_coverage",
+    "ask": "the log's 19 lines split into the findings and the Doc stages the database actually holds, and the settled articles appear in the file",
+    "prompt_span": "written as `article title | Doc stage | open` while the thread that comment belongs to is still\nwaiting on somebody, and `article title | Doc stage | settled` once that thread has been resolved.",
+    "surface": "review_log.md",
+    "expected": "15 open lines and 4 settled lines; 9 lines at Doc stage New, 4 at Draft and 6 at In Review; the 3 settled articles each on a settled line and none of the 11 open ones",
+    "tolerance": {
+      "value": "counts pinned at 15/4 and 9/4/6; the settled article set pinned",
+      "key_name": "n/a",
+      "order": "any",
+      "extra_keys": "the title field is free text in the three stage counts, and the stage field is free text in the two finding counts; headings, tables, markdown emphasis, CRLF and casing are all tolerated, as in every other review-log leaf"
+    },
+    "graded_by": [
+      "review_log_accounts_for_every_article_and_both_findings"
+    ],
+    "evidence_path": [
+      "notion-query-data-sources {\"data\":{\"data_source_urls\":[\"collection://ds-9caee280db7e4c9385908af1164446fb\"],\"mode\":\"sql\",\"query\":\"SELECT url, Title, Doc stage FROM the collection ORDER BY Title\",\"page_size\":100}} -> 18 rows, has_more false",
+      "notion-get-comments {\"page_id\":\"<one of the 18 urls from the SQL read>\",\"include_all_blocks\":true,\"include_resolved\":true} -> <discussions total-count=\"N\"> with comment-count and resolved on each discussion; run once per article, 18 calls"
+    ],
+    "reachability": "No figure is re-derived here: every count below is read off the gold already derived two ways for this task (2026-09-27), and each is arrived at twice from it. FINDINGS: the comment-grain readings recorded beside the summary figures give 15 comments on an unsettled thread (still_open at comment grain) out of 19 in total, so 4 sit on a resolved one; counting the gold review log directly gives the same 15 and 4. STAGES: the comment-grain readings of the three stage figures are New 6, Draft 4, In Review 5 over the open comments, and the three settled articles are Birthing Options (New, 2 comments), Nausea and Vomiting (New, 1) and Pregnancy Schedules (In Review, 1), giving New 9, Draft 4, In Review 6; counting the gold review log directly gives the same 9, 4 and 6. Both add to the 19 comments review_log_row_coverage counts.",
+    "discrimination": [
+      {
+        "wrong_method": "log only the open comments and never mention a settled thread, padding the row count with duplicate open lines",
+        "yields": "19 open lines, 0 settled, and 3 of the 18 articles missing from the file"
+      },
+      {
+        "wrong_method": "leave include_resolved at its default, so no settled comment is ever seen",
+        "yields": "15 lines, 0 settled"
+      },
+      {
+        "wrong_method": "write the lines without reading each article's Doc stage property",
+        "yields": "a stage column that does not split 9 / 4 / 6"
+      },
+      {
+        "wrong_method": "read the resolved flag off the comment rather than off the discussion, or mark every thread settled",
+        "yields": "settled lines for articles whose thread is still open"
+      }
+    ]
+  },
+  {
+    "requirement_id": "library_unchanged",
+    "ask": "the audit must not add, trash or move a page in the library",
+    "prompt_span": "Please do not change anything in\nthe library itself while you are in there",
+    "surface": "notion-gym state",
+    "expected": 18,
+    "tolerance": {
+      "value": "pinned",
+      "key_name": "n/a",
+      "order": "n/a",
+      "extra_keys": "n/a"
+    },
+    "graded_by": [
+      "the_article_pages_were_not_touched"
+    ],
+    "evidence_path": [
+      "state SQL: SELECT COUNT(*) FROM pages WHERE parent_id = '9caee280db7e4c9385908af1164446fb' AND in_trash = 0 -> 18 on seed state"
+    ],
+    "reachability": "Measured on seed state through the root state route: 18 live pages. notion-create-pages, notion-move-pages and notion-duplicate-page are all served, so the predicate can move.",
+    "discrimination": [
+      {
+        "wrong_method": "file the audit as a new page inside the library",
+        "yields": 19
+      },
+      {
+        "wrong_method": "move or trash an uncommented article",
+        "yields": 17
+      }
+    ]
+  },
+  {
+    "requirement_id": "threads_unchanged",
+    "ask": "the audit must not resolve or re-open a reviewer thread",
+    "prompt_span": "Please do not change anything in\nthe library itself while you are in there",
+    "surface": "notion-gym state",
+    "expected": 3,
+    "tolerance": {
+      "value": "pinned",
+      "key_name": "n/a",
+      "order": "n/a",
+      "extra_keys": "n/a"
+    },
+    "graded_by": [
+      "no_reviewer_thread_was_resolved_or_reopened"
+    ],
+    "evidence_path": [
+      "state SQL: SELECT COUNT(*) FROM discussions WHERE resolved = 1 AND page_id IN (SELECT id FROM pages WHERE parent_id = '9caee280db7e4c9385908af1164446fb') -> 3 on seed state"
+    ],
+    "reachability": "Measured on seed state: 3 resolved, 11 unresolved, over the 14 pages that carry a thread.",
+    "discrimination": [
+      {
+        "wrong_method": "tidy up by resolving the threads just reported",
+        "yields": "up to 14"
+      },
+      {
+        "wrong_method": "re-open a settled thread to make the report come out round",
+        "yields": 2
+      }
+    ]
+  },
+  {
+    "requirement_id": "comments_unchanged",
+    "ask": "the audit must not leave a comment on any article",
+    "prompt_span": "Please do not change anything in\nthe library itself while you are in there",
+    "surface": "notion-gym state",
+    "expected": 19,
+    "tolerance": {
+      "value": "pinned",
+      "key_name": "n/a",
+      "order": "n/a",
+      "extra_keys": "n/a"
+    },
+    "graded_by": [
+      "no_comment_was_added_to_the_library"
+    ],
+    "evidence_path": [
+      "state SQL: SELECT COUNT(*) FROM comments WHERE page_id IN (SELECT id FROM pages WHERE parent_id = '9caee280db7e4c9385908af1164446fb') -> 19 on seed state"
+    ],
+    "reachability": "Measured on seed state: 19 comments across the 18 pages. notion-create-comment is served, and a nudge left on each still-open article would also corrupt the graded figures.",
+    "discrimination": [
+      {
+        "wrong_method": "leave a chase-up comment on each of the 11 open articles",
+        "yields": 30
+      },
+      {
+        "wrong_method": "leave one summary comment anywhere in the library",
+        "yields": 20
+      }
+    ]
+  },
+  {
+    "requirement_id": "read_depth",
+    "ask": "the finding has to be read per article, because nothing serves it in bulk",
+    "prompt_span": "Go through that database and work out where each article stands.",
+    "surface": "tool trajectory",
+    "expected": ">= 18 tool calls",
+    "tolerance": {
+      "value": "floor",
+      "key_name": "n/a",
+      "order": "n/a",
+      "extra_keys": "n/a"
+    },
+    "graded_by": [
+      "read_every_article_thread"
+    ],
+    "evidence_path": [
+      "18 x notion-get-comments {\"page_id\":\"<one of the 18 urls from the SQL read>\",\"include_all_blocks\":true,\"include_resolved\":true} -> <discussions total-count=\"N\"> with comment-count and resolved on each discussion; run once per article, 18 calls"
+    ],
+    "reachability": "Measured on this gym: notion-get-comments takes one page_id, has no array form and no bulk mode, and discussions are not columns of the data source, so no SQL read can substitute. The golden trajectory makes 21 calls; the floor is the 18 comment reads alone.",
+    "discrimination": [
+      {
+        "wrong_method": "answer from one notion-query-data-sources call over the Articles table",
+        "yields": "2 calls, and no figure that depends on a thread"
+      }
+    ]
+  }
+]

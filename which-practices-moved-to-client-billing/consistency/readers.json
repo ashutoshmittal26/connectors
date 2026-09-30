@@ -1,0 +1,64 @@
+{
+ "reader_n": 4,
+ "protocol": "Four independent readers, single turn, no tools, no gym (tools/readers.py, GLM-5.2, temperatures 0.2, 0.6, 1.0, 1.0). Each received instruction.md VERBATIM and nothing else - no gold, no verifiers, no trajectory - and answered two SEPARATE questions: GOAL (what deliverables, what each figure IS) and METHOD (how each would be computed). Run readers-20260928-064744 against instruction.md sha256 417421678936692df188991faf6620ee2733cb43482799853b6c7d31aa92aab2; raw outputs in _evidence/which-practices-moved-to-client-billing/readers-20260928-064744/reader-1..4.md (all four answered on the first attempt at 32000 max_tokens; _status.txt in the raw run folder).",
+ "instruction_sha256": "417421678936692df188991faf6620ee2733cb43482799853b6c7d31aa92aab2",
+ "raw_run": "readers-20260928-064744",
+ "models": [
+  "glm-5.2 t=0.2",
+  "glm-5.2 t=0.6",
+  "glm-5.2 t=1.0",
+  "glm-5.2 t=1.0"
+ ],
+ "goal_agreement": {
+  "deliverable_set": "4 of 4",
+  "detail": "All four named the same single deliverable: /workspace/practice_billing_models.xlsx with a Billing sheet (each billing row on its own row in ascending Drive file id, then position in its statement; A the file id, B the order id, C TRUE for client bill or FALSE for cash pay) and a Summary sheet (billed_practices, cash_pay_practices, client_bill_practices, switched_practices and silent_practices in that order, name in A, whole number in B), both from row 1 with no header row and nothing else on either sheet.",
+  "per_figure_meaning": {
+   "billed_practices": "4 of 4 - the number of listed practices with at least one billing row",
+   "cash_pay_practices": "4 of 4 - the number of practices with at least one billing row whose bill type is cash pay",
+   "client_bill_practices": "4 of 4 - the number of practices with at least one billing row whose bill type is client bill",
+   "switched_practices": "4 of 4 - the number of practices with at least one cash pay row and at least one client bill row",
+   "silent_practices": "4 of 4 - the number of listed practices with no billing row at all (three readers add: 14 minus billed_practices)",
+   "billing_sheet": "4 of 4 - every row under a statement's header row carrying an order id, from the spreadsheets whose titles begin with a listed name (trash excluded) plus the spreadsheets titled with nothing but a practice ID that those statements carry as a tab name; TRUE for client bill, FALSE for cash pay"
+  },
+  "write_back_target": "none - the task asks for no Drive write (gws is read-only for grading); no reader proposed one",
+  "verdict": "PASSES the 3-of-4 bar on the deliverable set and on every figure's meaning."
+ },
+ "lever_reading": "BLIND READER SPLIT: 0 of 4 took the default reading (row grain: billed_practices 37, cash_pay_practices 20, client_bill_practices 17 instead of 12, 7, 7). Every reader's METHOD groups the billing rows by practice before counting (reader-1 step 8, reader-2 step 4, reader-3 step 8 'count practices (not billing rows)', reader-4 steps 5-6). On 23 measured bundles a low split is the normal result on a fair prompt; it is reported as measured and no solve rate is claimed.",
+ "method_divergences_kept": [
+  {
+   "axis": "unit of the Summary counts (LEVER A): practices, or billing rows counted at row grain",
+   "split": "0 of 4 took the default reading (row grain: billed_practices 37, cash_pay_practices 20, client_bill_practices 17 instead of 12, 7, 7) - all four count practices",
+   "gold_reading": "counts of practices, a practice counting under each bill type that one or more of its billing rows carry (the lever sentence, stated once)",
+   "value_under_gold": {
+    "billed_practices": 12,
+    "cash_pay_practices": 7,
+    "client_bill_practices": 7
+   },
+   "value_under_the_other_reading": {
+    "billed_practices": 37,
+    "cash_pay_practices": 20,
+    "client_bill_practices": 17
+   },
+   "graded_figure": [
+    "billed_practices",
+    "cash_pay_practices",
+    "client_bill_practices"
+   ],
+   "action": "KEPT as the declared lever (task.toml === HARDENING ===, COUNTS MOVED). The row-grain values are the DEFAULT MISREADING, replayed as route R1-default-misreading: it fails exactly summary_billed_practices, summary_cash_pay_practices and summary_client_bill_practices and no per-row check. No reader took it."
+  }
+ ],
+ "method_notes_not_divergences": [
+  "All four readers add to the billing-row test that the Bill Type cell reads cash pay or client bill. Every one of the 37 rows under a header with an order id does (measured two ways: the proxy reads and the state route, 0 other values, 0 blank), as the prompt states, so the extra test drops no row and moves no graded value.",
+  "Reader-3 describes the workbook as exactly two worksheets; the prompt only asks for ordinary worksheets with notes kept elsewhere, and no verifier reads any sheet but Billing and Summary, so a two-sheet workbook and one with a notes sheet both score in full (route M1 and the gold workbook carry a Notes sheet).",
+  "All four find the raw export the same way: take the practice IDs the statements carry as tab names, then the spreadsheets titled with nothing but one of them, trash excluded. The Des Moines statements and Elke Barnes' November statement are tabbed by month and no spreadsheet carries those titles, so no reader could pick up another file (measured).",
+  "Three readers (1, 2 and 4) compute silent_practices as 14 minus billed_practices; every listed practice has at least one statement, so this equals the direct count, 2 (measured).",
+  "Every reader keeps each practice's rows from all of its statements in the Billing sheet and collapses to practices only in the Summary, which is the gold reading."
+ ],
+ "earlier_runs": [
+  "readers-20260928-062101 (first prompt, sha256 0cbbfbe2879c): 4 of 4 on the gold reading of every figure and 0 of 4 on the row-grain default; renderers 3 of 3 identical to the gold log. The prompt was edited afterwards only in its opening: 'Tell me how these practices were billed' became 'Write /workspace/practice_billing_models.xlsx showing how these practices were billed' (so no clause reads as an ungraded chat reply) and the later 'Save ...' sentence was folded into it. This run is on the shipping bytes."
+ ],
+ "underspec": [],
+ "overspec": [],
+ "diff_against_requirements": "Every goal item the readers listed maps to a requirement row in consistency/requirements.json with at least one deterministic verifier: billed_practices, cash_pay_practices, client_bill_practices, switched_practices, silent_practices (Summary), per_row_billing_log (the Billing sheet), workbook_layout (both sheets bounded) and spreadsheets_read (the tool floor). Every verifier maps back to a row all four readers listed. under-spec 0, over-spec 0.",
+ "prompt_edits_after_this_stage": "none - instruction.md sha256 417421678936 is the text the four readers received"
+}

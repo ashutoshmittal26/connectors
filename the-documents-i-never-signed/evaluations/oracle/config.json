@@ -1,0 +1,12 @@
+{
+    "task": {
+        "path": "/home/amateen/aster-mining-0927/work/tasks_batch_20260927/email_calendar/the-documents-i-never-signed"
+    },
+    "trial_name": "the-documents-i-never-signed__Wb4aH7g",
+    "trials_dir": "/home/amateen/aster-mining-0927/work/tasks_batch_20260927/_evidence/the-documents-i-never-signed/oracle-local/tdins-oracle-20260927T161131",
+    "environment": {
+        "type": "docker",
+        "override_cpus": 8
+    },
+    "job_id": "f42e8679-3316-48a2-aa28-f8f2a709f13e"
+}

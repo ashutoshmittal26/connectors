@@ -1,0 +1,58 @@
+{
+  "renderer_n": 3,
+  "protocol": "Three independent renderers (glm-5.2, temperatures 0.3, 0.8, 1.0), single turn, no tools, no gym. Each was given instruction.md plus the correct values and asked only to show what a correct answer's two deliverables would look like, line by line and cell by cell. They are not solving; they map the space of answers a correct run can legitimately produce. Raw output: _evidence/which-articles-still-have-an-open-review/readers-20260927-r2/renderer-1.md, renderer-2.md, renderer-3.md - the round run against the final prompt. The earlier round readers-20260927-r1 is kept beside it and is superseded: its renderers saw the pre-correction value 18 for articles_reviewed and a prompt that still carried the reply clause.",
+  "what_varied": {
+    "sheet_name": [
+      "Metrics",
+      "Metrics",
+      "Metrics"
+    ],
+    "header_row": [
+      "absent in all three; the figures start at row 1"
+    ],
+    "row_order": [
+      "the order the prompt lists the names in (all three)"
+    ],
+    "value_type": [
+      "native integer (all three; none wrapped a figure in text)"
+    ],
+    "extra_columns": [
+      "none",
+      "none",
+      "none"
+    ],
+    "worksheet_kind": [
+      "one renderer spelled out 'ordinary worksheet', the other two simply used one"
+    ],
+    "review_log_line_shape": [
+      "title | Doc stage | open|settled, one line per comment, no outer pipes (all three)",
+      "sorted by article title (all three), which the prompt does not ask for"
+    ],
+    "review_log_closing_list": [
+      "a label line 'Articles carrying no reviewer comment at all:' then the four titles, one per line and unbulleted (all three)"
+    ],
+    "review_log_heading": [
+      "none - all three opened straight with the comment lines; the oracle's own artefact opens with a '# Review log' heading and two lines of preamble"
+    ],
+    "across_the_two_rounds": [
+      "readers-20260927-r1 also produced a header row (Metric | Value) and the sheet name Sheet1, so both are inside the measured envelope even though this round did not produce them"
+    ]
+  },
+  "tolerance_policy_check": {
+    "sheet_name": "FREE in every assertion - each workbook regex runs over xlsx.extract_text across all sheets, so Metrics, Sheet1 and the oracle's own Review all read the same",
+    "header_row": "FREE - label lookup; a header row is just another row that does not match a metric label",
+    "row_order": "FREE - no ordered comparison anywhere in the manifest",
+    "value_type_int_vs_float": "FREE - the label regex accepts 14 and 14.0",
+    "label_case_and_separator": "FREE - [ _-] between name parts and (?i) on the whole pattern",
+    "extra_columns_and_leading_empty_columns": "FREE - the pattern takes the label cell and the next populated cell of that row",
+    "review_log_heading_and_preamble": "FREE - the 19-line count matches only lines whose last pipe-separated field is the finding, so headings, preamble and a table rule are not counted; the oracle's own artefact carries a heading and two preamble lines and still scores",
+    "review_log_line_order": "FREE - every review-log leaf is a per-article line match with no ordering between them",
+    "review_log_outer_pipes_and_whitespace": "FREE - each line pattern allows an optional leading and trailing pipe, tabs, runs of spaces and CRLF",
+    "review_log_markdown_emphasis": "FREE - each title and status word tolerates emphasis around it and the mid-word **Ant**enatal form, and the battery ran that exact mutation (brittleness 0%)",
+    "review_log_bullets": "FREE - the closing list accepts a bare title, any ordinary Markdown list marker ('-', '*', '+', '1.' or '1)'), and a single-cell table row '| title |'. Widened 2026-09-27: it used to accept only '-' and '*', so a numbered list lost reward for an otherwise correct answer. A GFM header row - the row the delimiter line follows - is not a list entry and still does not satisfy the leaf, which is measured, not asserted (case U_one_column_table_header_only_article).",
+    "what_is_PINNED": "the six figures at their labels; exactly 19 comment lines; the eleven open articles each on an open line; the three settled articles never on an open line; the four uncommented articles each on a line of their own and never on a comment line (a line whose last pipe-separated field is the finding); the 19 comment lines split 15 open and 4 settled; the lines carrying each Doc stage split 9 New, 4 Draft and 6 In Review; the three settled articles each on a settled line and none of the eleven open ones",
+    "verdict": "Everything the three renderers varied is free in the tolerance policy, and nothing an assertion pins was varied by any of them. The three renderer review logs were then run against the real leaf patterns: all 16 positive leaves matched and both refusals held on all three, with no edit - and the same was true of the three superseded r1 renderers, which additionally carried a header row and a different sheet name. The prompt states each of these tolerances (rows in any order, header optional, sheet named anything, ordinary worksheet) and states the one thing it does pin, the review-log line shape. Re-measured on 2026-09-27 after review_log_accounts_for_every_article_and_both_findings was added: all three r2 renderer logs still score every file_check verifier, 9 of 9, through the bundle's own engine - each of them writes the three-field line the prompt asks for, the four settled lines and the stage values the database holds, so nothing the renderers varied is pinned by the new leaves either. SHAPE TOLERANCE WIDENED 2026-09-27, after the client QC run check-20260927-152723 failed layer1_clarity_scope__representation_contract, layer5_verifier_fairness_static__semantic_equivalence and __surface_form_brittleness: the reviewer executed the shipped regexes against correct-content variants and two of them were refused for their Markdown shape alone - the 19 log lines rendered as a GFM table whose title column is headed 'Article', and the closing list written as a numbered list. Neither shape is excluded by the instruction, which asks only for the line template 'article title | Doc stage | open' and 'a clearly labelled list, one title per line'. Five leaves were widened, no figure, prompt, gold or lever was touched, and nothing was removed: the four review_log_names_*_as_uncommented leaves now take any ordinary list marker or a single-cell table row, and review_log_refuses_a_comment_line_for_an_uncommented_article became the exact mirror of the two other paired refusals by requiring the line to end in the finding. Replayed both directions through the bundle's own engine over 30 cases (_evidence/which-articles-still-have-an-open-review/shape_tolerance_repair/): nine correct-content renderings, seven of which the old matchers refused, all score 9 of 9 now, and every wrong-content artefact still fails - the three logs the coverage repair was built against, the truncated and padded log, the junk-Doc-stage log, a manufactured comment line for an uncommented article in both plain and table shape, a closing list missing an entry, and a one-column closing table whose header stands in for the missing entry. No leaf-level failure of any pre-existing case changed.",
+    "review_log_doc_stage_field": "PINNED BY COUNT, not per line - 9 comment lines at New, 4 at Draft and 6 at In Review. The value is matched case-insensitively with emphasis tolerated around it and inside it, the title field beside it stays free text, and which line carries which stage is free. All three renderers wrote exactly New / Draft / In Review, the values the Doc stage property holds.",
+    "review_log_table_rendering": "FREE - the 19 comment lines may be written as plain pipe lines or as a GFM table, with or without a header row, with or without outer pipes, with column padding and with alignment colons in the delimiter. No count leaf counts a header or a delimiter row (neither ends in the finding), and no refusal fires on one: all three paired refusals now require the line to END in open or settled, so a header whose title column is spelled 'Article' is a column name, not a manufactured comment line. Widened 2026-09-27: review_log_refuses_a_comment_line_for_an_uncommented_article used to match 'title | any cell |' and so fired on that header, failing the whole review_log_lists_every_reviewer_comment verifier for a correct answer."
+  }
+}

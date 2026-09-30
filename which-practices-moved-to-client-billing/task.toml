@@ -1,0 +1,89 @@
+schema_version = "1.1"
+
+[task]
+name = "harbor/which-practices-moved-to-client-billing"
+description = "which practices moved to client billing"
+keywords = [ "connector", "gws", "google-sheets", "lab-billing", "billing-model", "raw-exports", "xlsx",]
+[[task.authors]]
+name = "OBI RL Gym"
+email = "obi-rl-gym@turing.com"
+
+[metadata]
+scenario_name = "which practices moved to client billing"
+scenario_description = "=== INTENT ===\nBilling-model review on the gws Drive. For fourteen customer practices the user wants to know, from their monthly lab\nstatements, which were billed as cash pay, which as client bill, which were billed both ways (switched) and which have\nno billing row at all (silent); every billing row is listed and the summary counts practices. One practice's only\nbilling row sits in a raw export titled with nothing but its practice ID, which its (empty) statements carry only as\ntheir tab name, so the statements have to be read before that export can be found. Mined from seed\n1cc97dc4-c4d7-5a6a-8a9d-8a8a7d47d1ff (gws_cli, drive-file-search-retrieval): a grant administrator asked the assistant to\nopen a grantee's narrative and financial reports in Google Drive, pick out the key points, adaptations and budget\nchanges, and help answer the grantee. Kept: reviewing a set of financial documents found in Drive and reporting which\naccounts changed their arrangement. Dropped: the narrative review, the reply and the grantee's content (nothing like\nthem on the gym), and a Drive write (not gradable on this image, so the workbook goes to /workspace).\n\n=== CONNECTOR ===\ngws-gym, container port 8021, served as a CLI bridge (binary = \"gws\"; MCP tools gws and gws_discovery) behind the\nproxy at http://localhost:7000/mcp/gws-gym. The run acts as the Drive's own user (users.is_me = 1, owner of all 3,059\nfiles and all 250 spreadsheets; none of the other 20 users owns a file), authenticated by header x-gws-auth-token =\nthat user's users.auth_token (metadata.mcp_servers_extended.access_token, never printed); the proxy picks the per-run\ndatabase through header x-database-id and seeds it with /reset. On this image gws cannot be graded from state (its\n/state route returns `rows` where the engine reads `result`), so no database_state or gym_state_check verifier is\ndeclared: the workbook is graded cell by cell and one tool_execution floor counts the gws calls. Commands the golden\npath uses: drive files list and sheets spreadsheets values batchGet.\n\n=== HOPS ===\nhops=25 chain_depth=4 over 26 steps.\n  drive files list            1   (g1, not a hop: its query is the fourteen practice names in the request)\n  values batchGet            23   (b01-b23: every statement g1 returned whose title begins with a listed name; 20 of\n                                   them name their tab with the practice ID, 8 are empty)\n  drive files list            1   (g2: spreadsheets titled with one of the 13 practice IDs read in b01-b23)\n  values batchGet             1   (r1: the one live raw export g2 returned)\n  Longest chain g1 -> b02 -> g2 -> r1. Cells are served one spreadsheet per call (values batchGet, spreadsheets get,\n  sheets +read and files export each take a single id) and the Drive listing carries no cell content - it even\n  reports the same size for an empty statement and a full one - so the 24 reads cannot be folded. Measured shortest\n  correct path 25 calls against 25 hops, ratio 1.00: a single listing of every spreadsheet (233 live titles, one\n  page) already shows the ID-titled export, which saves g2 once the statements have shown which ID belongs to whom.\n\n=== HIDDEN RULES ===\n(each is stated once in the prompt - the scope, the raw-export rule, the trash, the billing-row rule, the bill types,\nthe silent and switched definitions and the lever; these are the places they bite)\n  - RAW EXPORT: j8lghvv51re0e787xpdvnpaj (d234bfc9) carries Empowered Goddess's one billing row (client bill). The four\n    Empowered Goddess statements are empty, so the ID shows only as their tab name. Missing the export answers\n    billed_practices 11, client_bill_practices 6, silent_practices 3 and a 36-row Billing sheet.\n  - TRASH: Johnson & Associates' raw export k0e6bqe181u8qqx1fo08y8yb (a1310565) is in the trash. Including it adds one\n    client-bill row (38 Billing rows) and moves no summary figure; the default Drive listing leaves it out.\n  - EMPTY STATEMENTS: 8 of the 24 spreadsheets hold no cells (Des Moines 2, Elke Barnes 2, Empowered Goddess 4). Des\n    Moines and Elke Barnes have no billing row anywhere - the two silent practices. Counting empty statements instead\n    of practices answers 8.\n  - TITLE FORMS: Johnson & Associates Midwifery May 2025 has no \"Group\"; Elke Barnes, LM, CPM November 2025 and Empowered\n    Goddess Birth, PLLC differ from their siblings. The practice is the listed name a title begins with; taking the\n    full wording of each title as the practice answers 13 / 7 / 8 / 2 / 4. The patient list 'clients -Canyon Midwifery - Connie Garcia'\n    contains a listed name without beginning with it and has no order id column.\n  - TABS NAMED BY MONTH: both Des Moines statements and Elke Barnes' November statement name their tab October 2025 or\n    November 2025; no spreadsheet carries those titles, so they lead to no raw export.\n  - SPELLINGS: bill type values Cash Pay, cash-pay and client_bill (Johnson writes cash-pay in February and Cash Pay in\n    April); Bill Type headers BillType, Bill type, bill_type and Bill Type; order_id everywhere. No other bill type occurs.\n  - FOOTERS: 11 rows under the headers are Total lines with no order id (48 non-empty rows, 37 billing rows).\n  - SWITCHED: Johnson & Associates (cash pay in February and April, client bill in May and August) and Over The Moon\n    (cash pay in April, client bill in May); both moved from cash pay to client bill, so a time-ordered reading of\n    switched gives the same 2.\n  - NOT GRADED: practiceName (Kellie Botts' statement says Divinely Designed Midwifery, Kindred Space's says Kindred Space\n    AV), fees, dates, lab names and patient names.\n\n=== GOLD ===\n(grader metadata, NOT shown to the agent. Derived 2026-09-28 three ways, all identical: (a) the gws tool path through the\nproxy as the acting user - the two listings and values batchGet of all 24 spreadsheets, each header row parsed in Python;\n(b) the state route's files/sheets/cells tables for the same 24 spreadsheets through the same parser; (c) one SQL\nstatement per figure over those tables, finding the raw export and the columns in SQL.)\n\n{\n  'billed_practices': 12,\n  'cash_pay_practices': 7,\n  'client_bill_practices': 7,\n  'switched_practices': 2,\n  'silent_practices': 2\n}\n\nPopulation: 24 spreadsheets (23 titled statements, 1 raw export), one tab each, ascending spreadsheet id:\n  038823dc Des Moines Midwife Collective LLC October 2025      0 rows  cash  0 / client  0\n  09e0ce50 Birthing Hues Midwifery July 2025                   2 rows  cash  0 / client  2\n  26963313 Empowered Goddess Birth August 2025                 0 rows  cash  0 / client  0\n  35e9909c Johnson & Associates Midwifery Group FEB 2025       3 rows  cash  3 / client  0\n  411c864f BirthStone July 2025                                2 rows  cash  0 / client  2\n  42b49b62 Johnson & Associates Midwifery Group Apr 2025       1 rows  cash  1 / client  0\n  4800df2d Over The Moon Midwifery Apr 2025                    1 rows  cash  1 / client  0\n  4d96160c Kindred Space LA Mar 2025                           1 rows  cash  1 / client  0\n  4f6b8e6b Canyon Midwifery LLC - December 2024                8 rows  cash  8 / client  0\n  5216c634 Elke Barnes Mar 2025                                0 rows  cash  0 / client  0\n  62303707 Empowered Goddess Birth Apr 2025                    0 rows  cash  0 / client  0\n  6790ba2a Jamii Birth and Wellness Services, LLC              1 rows  cash  0 / client  1\n  72c00a3c Johnson & Associates Midwifery May 2025             8 rows  cash  0 / client  8\n  755cd097 Empowered Goddess Birth May 2025                    0 rows  cash  0 / client  0\n  7cc4eda6 Authentic Birth Center Apr 2025                     1 rows  cash  1 / client  0\n  859e4924 Elke Barnes, LM, CPM November 2025                  0 rows  cash  0 / client  0\n  86e450e8 Kellie Botts Mar 2025                               4 rows  cash  4 / client  0\n  911c198e Empowered Goddess Birth, PLLC                       0 rows  cash  0 / client  0\n  afa6e749 Profound Birth July 2025                            1 rows  cash  0 / client  1\n  cbf44e1a Over The Moon Midwifery May 2025                    1 rows  cash  0 / client  1\n  cd8b69b4 Des Moines Midwife Collective LLC November 2025     0 rows  cash  0 / client  0\n  d234bfc9 j8lghvv51re0e787xpdvnpaj                            1 rows  cash  0 / client  1\n  eb8441fd Joyful Heart Midwifery & Women s Healthcare Apr...  1 rows  cash  1 / client  0\n  f07876c0 Johnson & Associates Midwifery Group August 2025    1 rows  cash  0 / client  1\nBilling sheet: 37 rows in ascending spreadsheet id, then position in the statement; column C TRUE (client bill) on 17\nrows, FALSE (cash pay) on 20. By practice: cash pay only - Canyon Midwifery 8, Kellie Botts 4, Authentic Birth 1, Joyful\nHeart 1, Kindred Space 1; client bill only - BirthStone 2, Birthing Hues 2, Jamii 1, Profound Birth 1, Empowered Goddess\n1 (raw export); both - Johnson & Associates 4 + 9, Over The Moon 1 + 1; no billing row - Des Moines, Elke Barnes.\n\nDeliverable: /workspace/practice_billing_models.xlsx only (sheets Billing and Summary are graded; any other sheet is free).\n\n=== DECOYS ===\n(one block per graded figure: the wrong value a plausible method yields; the same list as each verifier's\nmetadata.why_justification, every value computed from the served gym.)\n  billed_practices = 12\n      row grain: count billing rows instead of practices (the lever dropped)          -> 37\n      miss the raw export titled with Empowered Goddess's ID                          -> 11\n      take each title's full wording as the practice                                  -> 13\n  cash_pay_practices = 7\n      row grain: billing rows reading cash pay                                        -> 20\n      only the practices billed nothing but cash pay                                  -> 5\n  client_bill_practices = 7\n      row grain: billing rows reading client bill                                     -> 17\n      only the practices billed nothing but client bill                               -> 5\n      miss the raw export                                                             -> 6\n      take each title's full wording as the practice                                  -> 8\n  switched_practices = 2\n      row grain: count the billing rows of both-way practices                          -> 15\n      practices with only one bill type                                               -> 10\n  silent_practices = 2\n      count empty statements instead of practices                                     -> 8\n      miss the raw export (Empowered Goddess looks silent)                            -> 3\n      take each title's full wording as the practice                                  -> 4\n      leave the practices with no billing row out altogether                          -> 0\n  Billing sheet (37 rows)\n      miss the raw export                                                             -> 36 rows\n      include the trashed Johnson raw export                                          -> 38 rows\n      search the full title Johnson & Associates Midwifery Group (misses May 2025)    -> 29 rows\n      keep the Total lines under the headers                                          -> 48 rows\n\n=== SEED ===\n1cc97dc4-c4d7-5a6a-8a9d-8a8a7d47d1ff (gws_cli; drive-file-search-retrieval), client_query_trajectory_2.jsonl:574. A\ngrant administrator asked the assistant to review a grantee's narrative and financial reports in a shared Google Drive\nfolder, pull out the key points, adaptations and budget changes, and help draft the reply; the session stopped at a\nDrive re-authorisation. Kept: a review of financial documents found in Drive that reports which accounts changed their\narrangement. Dropped: the narrative content, the reply and the Drive re-authorisation.\n\n=== HARDENING ===\nLEVER: A (unit of audit)\nENTITY: practice (listed name)\nSENTENCE: 'The unit of audit is the practice: one practice (`listed name`) may carry several billing rows. Bill types are assessed billing row by billing row; the summary counts of billed practices and of each bill type are counts of practices, by the bill type reported for each billing row in the Billing sheet, a practice counting under each bill type that one or more of its billing rows carry.'\nLIVES IN: instruction.md (the rule is stated once in the prompt; no Drive object states it)\nCOUNTS MOVED: billed_practices 12 (37), cash_pay_practices 7 (20), client_bill_practices 7 (17) - practices under the rule, billing rows at row grain in brackets; Canyon Midwifery's 8 cash-pay rows, Kellie Botts' 4, Johnson & Associates' 13 over four statements and the two-row BirthStone and Birthing Hues statements carry the gap. The switched and silent counts are practice counts under either reading and do not move\nDEFAULT MISREADING: row grain, counting billing rows instead of practices: billed_practices 37, cash_pay_practices 20, client_bill_practices 17; fails exactly summary_billed_practices, summary_cash_pay_practices and summary_client_bill_practices, and no per-row check (billing_sheet_reconciles_with_the_summary, billing_and_summary_hold_nothing_else and all_24_spreadsheets_were_read still pass)\nPER-ROW COVERAGE: the Billing sheet still lists all 37 billing rows of the 24 spreadsheets (23 titled statements and 1 raw export), each with its spreadsheet id, order id and bill type; only the Summary counts are taken over practices\nBLIND READER SPLIT: 0 of 4 took the default reading (row grain: billed_practices 37, cash_pay_practices 20, client_bill_practices 17 instead of 12, 7, 7) in readers-20260928-064744; all four group the billing rows by practice before counting. Measured, reported as weak evidence of bite; no solve rate is claimed"
+
+source_task_id = "1cc97dc4-c4d7-5a6a-8a9d-8a8a7d47d1ff"
+domain = "Finance"
+subdomain = "Customer billing: cash pay and client bill by practice across lab statements and an ID-titled raw export"
+occupation = "Operations Analyst"
+sector = "Technology"
+task_type = "Connector read-only billing review into a spreadsheet"
+category = "financial_analysis"
+tags = [ "billing", "connector", "gws", "lab-billing", "online", "practices", "read-only", "xlsx",]
+expert_time_estimate_hours = 2.1
+state_snapshot_enabled = false
+# metadata.agent left unset: setting it to "oracle" lets test_outputs.py score
+# a crashed agent against golden_trajectory.json.
+
+[[metadata.mcp_servers_extended]]
+name = "gws-gym"
+image = "kuzphi/connectors-harness-aster@sha256:9ee229262fbfc9c57b6f5f54e589296c980f68e7d4655cecba12cfe2b393adf3"
+host_port = 8021
+container_port = 8021
+remote_url_env = "GWS_GYM_MCP_REMOTE_URL"
+auth_header_name = "x-gws-auth-token"
+access_token = "tokHealthpiiUserSeedV5Auth"
+db_id_header_name = "x-database-id"
+reset_on_run = true
+binary = "gws"
+
+[verifier]
+timeout_sec = 1500.0
+
+[agent]
+timeout_sec = 4800.0
+# Non-root agent user; /app is root-only so the agent can't read
+# task.toml/solution/tests off disk.
+user = "rlgymagent"
+
+[environment]
+build_timeout_sec = 1200.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 65536
+gpus = 0
+allow_internet = true
+
+[[environment.mcp_servers]]
+name = "gws-gym"
+transport = "streamable-http"
+url = "http://localhost:7000/mcp/gws-gym"
+args = []
+
+[metadata.verifier_judge]
+# JUDGE_MODEL can override the default without editing the generated package.
+# Do not hardcode a model id here: different deployments resolve different ids.
+model = "${JUDGE_MODEL:-openai/zai-org/GLM-5.2}"
+api_key_env = "OPENAI_API_KEY"
+temperature = 0.0
+max_tokens = 65536
+
+[verifier.env]
+OPENAI_API_KEY = "${OPENAI_API_KEY:-}"
+OPENAI_BASE_URL = "${OPENAI_BASE_URL:-}"
+JUDGE_MODEL = "${JUDGE_MODEL:-openai/zai-org/GLM-5.2}"
+
+[environment.healthcheck]
+command = "curl -fsS http://localhost:7000/health"
+interval_sec = 15.0
+timeout_sec = 5.0
+retries = 40
+start_period_sec = 30.0
+start_interval_sec = 15.0
+
+[environment.env]
+HARBOR_MCP_MODE = "${HARBOR_MCP_MODE:-docker}"
+OPENAI_API_KEY = "${OPENAI_API_KEY:-}"
+GEMINI_API_KEY = "${GEMINI_API_KEY:-}"
+GWS_GYM_MCP_REMOTE_URL = "${GWS_GYM_MCP_REMOTE_URL:-}"
+GWS_GYM_MCP_REMOTE_URL_TOKEN = "${GWS_GYM_MCP_REMOTE_URL_TOKEN:-}"

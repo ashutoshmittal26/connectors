@@ -1,0 +1,245 @@
+{
+  "task": "the-documents-i-never-signed",
+  "note": "One row per requirement_id in tests/manifest.json. `statement` is what the bundle grades; `prompt_evidence` is the span of instruction.md it comes from; `tolerance` says what a correct answer may vary without failing. Nothing listed FREE here is pinned by any assertion - checked by replaying the gold workbook through every assertion under each variation, and again by the mutation battery.",
+  "requirements": [
+    {
+      "requirement_id": "documents_row_per_document",
+      "statement": "The Documents sheet carries exactly one row per document in the log, 15 of them, under a header row: 16 non-empty rows in all.",
+      "prompt_evidence": "one row per document in the log",
+      "graded_by": [
+        "documents_sheet_has_one_row_per_document",
+        "the_log_was_actually_read"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours.",
+        "extra_rows": "FORBIDDEN on the Documents sheet - the row count IS the exclusivity check, so a sixteenth row of any kind fails it."
+      }
+    },
+    {
+      "requirement_id": "summary_shape",
+      "statement": "The Summary sheet carries exactly one row per named metric, 4 of them, under a header row: 5 non-empty rows in all.",
+      "prompt_evidence": "one row per metric",
+      "graded_by": [
+        "summary_sheet_has_one_row_per_metric"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours.",
+        "extra_rows": "FORBIDDEN on the Summary sheet - reporting the whole-log counterparts beside the four asked for is the failure this row exists to catch."
+      }
+    },
+    {
+      "requirement_id": "documents_header",
+      "statement": "The Documents sheet's header row reads document, requests, reminders, signed, tracked, in that order.",
+      "prompt_evidence": "header row document, requests, reminders, signed, tracked",
+      "graded_by": [
+        "documents_sheet_header"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours.",
+        "header": "PINNED in ORDER, FREE in case and spacing. The column order is what every row assertion depends on."
+      }
+    },
+    {
+      "requirement_id": "documents_near_duplicate_names",
+      "statement": "Emily (Em) Clark-05-20-25.pdf and Emily (Em) Clark-05-20-25 (2).pdf are two different documents with different counts and opposite signed flags, and Jasmine Underwood (Em) Justin Glass-05-20-25 (2).pdf is a third.",
+      "prompt_evidence": "names differing by a bracket are different documents",
+      "graded_by": [
+        "documents_the_two_near_identical_names"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours."
+      }
+    },
+    {
+      "requirement_id": "documents_shared_tail_names",
+      "statement": "results (4).pdf, Carmen Squires - results (4).pdf and Joshua Graham - results (4).pdf are three different documents, each with its own counts.",
+      "prompt_evidence": "named exactly as its subject line writes it",
+      "graded_by": [
+        "documents_the_three_names_sharing_a_tail"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours."
+      }
+    },
+    {
+      "requirement_id": "documents_never_signed_rows",
+      "statement": "2 documents, Dr. Joel Rivera-05-20-25.pdf and Michele Nizza-05-20-25.pdf are not signed, and 2 documents is a row although its name is not a file name.",
+      "prompt_evidence": "A document is signed when the log says so",
+      "graded_by": [
+        "documents_the_ones_still_unsigned"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours."
+      }
+    },
+    {
+      "requirement_id": "documents_signed_without_chasing_rows",
+      "statement": "Chuntelle (Chan) Williams-Jones - Urban Lotus Informed Consent.pdf, D7VISA_PASSIVE_INCOME_PENSIONISTS_DIGITAL_NOMADS_GUIDE.pdf and prenatalDebbie.pdf each carry a reminder count of 0 and are signed.",
+      "prompt_evidence": "how many chased me",
+      "graded_by": [
+        "documents_the_ones_signed_with_no_chasing"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours."
+      }
+    },
+    {
+      "requirement_id": "documents_remaining_rows",
+      "statement": "hi.jpeg and labels (1).pdf are documents, and Multiple Services Superbill - 06-27-2025.pdf is signed on the strength of a notice that everyone has signed it.",
+      "prompt_evidence": "a notice that everyone has signed it counts",
+      "graded_by": [
+        "documents_the_remaining_rows"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours."
+      }
+    },
+    {
+      "requirement_id": "documents_tracked",
+      "statement": "documents_tracked is 10: the documents at least one of whose request messages is filed under the Opened label.",
+      "prompt_evidence": "documents_tracked, the register's size",
+      "graded_by": [
+        "summary_documents_tracked"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours.",
+        "label_lookup": "FREE in case and in underscore-versus-space; the metric rows may sit in any order."
+      }
+    },
+    {
+      "requirement_id": "tracked_never_signed",
+      "statement": "tracked_never_signed is 2.",
+      "prompt_evidence": "tracked_never_signed, those of it not signed",
+      "graded_by": [
+        "summary_tracked_never_signed"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours."
+      }
+    },
+    {
+      "requirement_id": "tracked_signed_after_a_reminder",
+      "statement": "tracked_signed_after_a_reminder is 5.",
+      "prompt_evidence": "tracked_signed_after_a_reminder, those signed and chased at least once",
+      "graded_by": [
+        "summary_tracked_signed_after_a_reminder"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours."
+      }
+    },
+    {
+      "requirement_id": "tracked_signed_with_no_reminder",
+      "statement": "tracked_signed_with_no_reminder is 3.",
+      "prompt_evidence": "tracked_signed_with_no_reminder, those signed and never chased",
+      "graded_by": [
+        "summary_tracked_signed_with_no_reminder"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours."
+      }
+    },
+    {
+      "requirement_id": "register_reconciliation",
+      "statement": "The Documents sheet's own tracked column holds 10 yes and 5 no, and its signed column agrees with the Summary sheet's partition of the register into 2, 5 and 3.",
+      "prompt_evidence": "assessed and reported in the audit sheet",
+      "graded_by": [
+        "register_column_reconciles_with_the_summary"
+      ],
+      "tolerance": {
+        "row_order": "FREE on BOTH sheets in grading - every row is found by its own document name or metric label, never by position, and no assertion reads a cell by address. The task does state the metric order, so a run that follows it is not penalised and a run that does not is not penalised either; the order is a formatting hint, not a graded shape. Verified by replaying the gold workbook with both sheets' rows reversed: every assertion still passes.",
+        "sheet_name": "PINNED BY NAME, FREE IN CASE - the prompt names the sheets Documents and Summary, and the row-count assertions read the block under each sheet marker. Extra sheets beyond those two are FREE: nothing reads them.",
+        "int_or_float": "FREE - every number is matched as 2 or 2.0.",
+        "extra_trailing_cells": "FREE - every row pattern ends on either the next cell separator or the end of the line, so columns past the fifth are ignored.",
+        "case": "FREE - every pattern is case-insensitive; yes/no also accept true/false.",
+        "styles": "FREE - nothing reads number formats, fonts, widths or colours.",
+        "counts": "FREE in this row only - the request and reminder cells are not read here, so this check and the per-row count checks can disagree."
+      }
+    },
+    {
+      "requirement_id": "draft_unsigned_register_documents",
+      "statement": "One drafted email with the subject Documents still awaiting my signature, whose body names Emily (Em) Clark-05-20-25.pdf and Michele Nizza-05-20-25.pdf and nothing else.",
+      "prompt_evidence": "body each unsigned register document's name",
+      "graded_by": [
+        "draft_names_the_unsigned_register_documents"
+      ],
+      "tolerance": {
+        "subject": "PINNED, but FREE in case and in leading or trailing whitespace.",
+        "recipient": "FREE - the task asks for no recipient and none is graded.",
+        "body_order": "FREE - the two names may appear in either order.",
+        "body_extras": "FORBIDDEN - the body must hold exactly two occurrences of .pdf and stay within 64 characters, which is the exclusivity count for this deliverable."
+      }
+    },
+    {
+      "requirement_id": "draft_exclusivity",
+      "statement": "Exactly one draft exists in the acting user's mailbox after the run.",
+      "prompt_evidence": "draft one email",
+      "graded_by": [
+        "draft_is_the_only_one_written"
+      ],
+      "tolerance": {
+        "other_drafts": "FORBIDDEN - the seed leaves this mailbox with 0 drafts, so 1 is the whole of what the run may add."
+      }
+    }
+  ]
+}

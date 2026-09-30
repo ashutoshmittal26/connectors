@@ -1,0 +1,747 @@
+[
+  {
+    "id": "g1",
+    "depends_on": [],
+    "purpose": "List the candidate statements: spreadsheets in My Drive (the listing leaves the trash out by default) whose titles contain one of the fourteen practice names. Returns 24 spreadsheets: the 23 whose titles BEGIN with a listed name are statements; 'clients -Canyon Midwifery - Connie Garcia' only contains a name and is a patient list, not a statement. The listing carries no cell content, and every spreadsheet reports the same size, so it cannot show which statements are empty.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws drive files list --params \"{\\\"q\\\": \\\"(name contains 'Johnson & Associates' or name contains 'Over The Moon' or name contains 'Canyon Midwifery' or name contains 'Kellie Botts' or name contains 'Authentic Birth' or name contains 'BirthStone' or name contains 'Birthing Hues' or name contains 'Jamii' or name contains 'Joyful Heart' or name contains 'Kindred Space' or name contains 'Profound Birth' or name contains 'Empowered Goddess' or name contains 'Des Moines' or name contains 'Elke Barnes') and mimeType = 'application/vnd.google-apps.spreadsheet'\\\", \\\"fields\\\": \\\"files(id,name)\\\", \\\"pageSize\\\": 100}\""
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws drive files list --params \"{\\\"q\\\": \\\"(name contains 'Johnson & Associates' or name contains 'Over The Moon' or name contains 'Canyon Midwifery' or name contains 'Kellie Botts' or name contains 'Authentic Birth' or name contains 'BirthStone' or name contains 'Birthing Hues' or name contains 'Jamii' or name contains 'Joyful Heart' or name contains 'Kindred Space' or name contains 'Profound Birth' or name contains 'Empowered Goddess' or name contains 'Des Moines' or name contains 'Elke Barnes') and mimeType = 'application/vnd.google-apps.spreadsheet'\\\", \\\"fields\\\": \\\"files(id,name)\\\", \\\"pageSize\\\": 100}\""
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"files\": [\n    {\n      \"id\": \"10423344-6ee6-566c-ae5e-3b4d4b9c216e\",\n      \"name\": \"clients -Canyon Midwifery - Connie Garcia\"\n    },\n    {\n      \"id\": \"afa6e749-656e-57ad-9cdb-cddf85847f60\",\n      \"name\": \"Profound Birth July 2025\"\n    },\n    {\n      \"id\": \"cbf44e1a-de57-54e3-84a3-06881db9c777\",\n      \"name\": \"Over The Moon Midwifery May 2025\"\n    },\n    {\n      \"id\": \"4800df2d-42fd-59da-bcf8-b88d33eece34\",\n      \"name\": \"Over The Moon Midwifery Apr 2025\"\n    },\n    {\n      \"id\": \"86e450e8-f6cb-59bf-b028-647409f4f579\",\n      \"name\": \"Kellie Botts Mar 2025\"\n    },\n    {\n      \"id\": \"4d96160c-7968-5427-92ce-2812f8c43d37\",\n      \"name\": \"Kindred Space LA Mar 2025\"\n    },\n    {\n      \"id\": \"72c00a3c-7b5a-54de-a6e6-c3a9764cda95\",\n      \"name\": \"Johnson & Associates Midwifery May 2025\"\n    },\n    {\n      \"id\": \"eb8441fd-2f70-5bb8-b00e-b8acb74c5efa\",\n      \"name\": \"Joyful Heart Midwifery & Women s Healthcare Apr 2025\"\n    },\n    {\n      \"id\": \"35e9909c-903e-516e-8145-e456fbf26cd3\",\n      \"name\": \"Johnson & Associates Midwifery Group FEB 2025\"\n    },\n    {\n      \"id\": \"42b49b62-2aec-52ff-a7e6-c494b60ddc82\",\n      \"name\": \"Johnson & Associates Midwifery Group Apr 2025\"\n    },\n    {\n      \"id\": \"f07876c0-3141-51c7-91b4-7ff3632fe69a\",\n      \"name\": \"Johnson & Associates Midwifery Group August 2025\"\n    },\n    {\n      \"id\": \"6790ba2a-ef27-533c-bd08-c9a9adba4be1\",\n      \"name\": \"Jamii Birth and Wellness Services, LLC\"\n    },\n    {\n      \"id\": \"911c198e-8ddf-53da-b172-292b5781ec24\",\n      \"name\": \"Empowered Goddess Birth, PLLC\"\n    },\n    {\n      \"id\": \"755cd097-c733-59c8-9226-3d3d4ff83ad2\",\n      \"name\": \"Empowered Goddess Birth May 2025\"\n    },\n    {\n      \"id\": \"62303707-5e62-5b13-9b4d-6eeef0fdd1ff\",\n      \"name\": \"Empowered Goddess Birth Apr 2025\"\n    },\n    {\n      \"id\": \"26963313-4361-5426-a15f-8348f963720e\",\n      \"name\": \"Empowered Goddess Birth August 2025\"\n    },\n    {\n      \"id\": \"5216c634-322d-503f-9795-66025dacbf4b\",\n      \"name\": \"Elke Barnes Mar 2025\"\n    },\n    {\n      \"id\": \"859e4924-215f-5239-a5bc-ada40a2ae2f8\",\n      \"name\": \"Elke Barnes, LM, CPM November 2025\"\n    },\n    {\n      \"id\": \"038823dc-f147-5bd9-91b3-9e854a223333\",\n      \"name\": \"Des Moines Midwife Collective LLC October 2025\"\n    },\n    {\n      \"id\": \"cd8b69b4-b24b-5d49-ad13-797f8ac218bf\",\n      \"name\": \"Des Moines Midwife Collective LLC November 2025\"\n    },\n    {\n      \"id\": \"4f6b8e6b-d724-5d24-bc24-3884476e1ffb\",\n      \"name\": \"Canyon Midwifery LLC - December 2024\"\n    },\n    {\n      \"id\": \"09e0ce50-ee86-5ef7-8ca6-4c222c6f6ec8\",\n      \"name\": \"Birthing Hues Midwifery July 2025\"\n    },\n    {\n      \"id\": \"411c864f-2dc0-5f5b-9d1e-d08d9972cdd2\",\n      \"name\": \"BirthStone July 2025\"\n    },\n    {\n      \"id\": \"7cc4eda6-dcb7-5aa6-a97f-3af21d67dfde\",\n      \"name\": \"Authentic Birth Center Apr 2025\"\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:04.420301+00:00"
+    }
+  },
+  {
+    "id": "b01",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Des Moines Midwife Collective LLC October 2025 (Des Moines; id from g1, one tab): no cells at all (an empty statement); its tab is named 'October 2025' (no ID).",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"038823dc-f147-5bd9-91b3-9e854a223333\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"038823dc-f147-5bd9-91b3-9e854a223333\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"038823dc-f147-5bd9-91b3-9e854a223333\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"'October 2025'!A1:AZ500\"\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:04.488570+00:00"
+    }
+  },
+  {
+    "id": "b02",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Birthing Hues Midwifery July 2025 (Birthing Hues; id from g1, one tab): 2 billing row(s), bill type client_bill; its tab is named with the practice ID poalceilxnlwdarj1b33qhew.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"09e0ce50-ee86-5ef7-8ca6-4c222c6f6ec8\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"09e0ce50-ee86-5ef7-8ca6-4c222c6f6ec8\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"09e0ce50-ee86-5ef7-8ca6-4c222c6f6ec8\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"poalceilxnlwdarj1b33qhew!A1:AZ500\",\n      \"values\": [\n        [\n          \"eventType\",\n          \"eventTimestamp\",\n          \"order_id\",\n          \"Method\",\n          \"LabName\",\n          \"LabTestID\",\n          \"BillType\",\n          \"CreatedAt\",\n          \"TotalFee\",\n          \"RequisitionFee\",\n          \"CriticalCareFee\",\n          \"CriticalCareFollowup\",\n          \"MobilePhlebFee\",\n          \"DrawFee\",\n          \"LabFee\",\n          \"KitCompletedFee\",\n          \"KitDeliveredFee\",\n          \"LabEvent\",\n          \"Tier\",\n          \"TotalUserCount\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"lab test\",\n          \"2025-07-13T16:28:57.027Z\",\n          \"2230e96d-6814-4766-9ce7-eb1dbd104edd\",\n          \"walk_in\",\n          \"Quest\",\n          \"a4f95aa4-00ff-406d-8bea-683645270f02\",\n          \"client_bill\",\n          \"2025-07-13T16:28:57.027Z\",\n          1,\n          1,\n          0,\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          0,\n          \"ordered\",\n          \"tier_1\",\n          \"\",\n          \"poalceilxnlwdarj1b33qhew\",\n          \"Birthing Hues Midwifery\",\n          \"yscott@example.net\",\n          \"Laura Reid\"\n        ],\n        [\n          \"lab test\",\n          \"2025-07-22T19:20:16.838Z\",\n          \"2230e96d-6814-4766-9ce7-eb1dbd104edd\",\n          \"walk_in\",\n          \"Quest\",\n          \"a4f95aa4-00ff-406d-8bea-683645270f02\",\n          \"client_bill\",\n          \"2025-07-13T16:28:57.027Z\",\n          83.24,\n          0,\n          0,\n          \"\",\n          0,\n          0,\n          83.24,\n          0,\n          0,\n          \"completed\",\n          \"tier_1\",\n          \"\",\n          \"poalceilxnlwdarj1b33qhew\",\n          \"Birthing Hues Midwifery\",\n          \"yscott@example.net\",\n          \"Laura Reid\"\n        ],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:04.553435+00:00"
+    }
+  },
+  {
+    "id": "b03",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Empowered Goddess Birth August 2025 (Empowered Goddess; id from g1, one tab): no cells at all (an empty statement); its tab is named with the practice ID j8lghvv51re0e787xpdvnpaj.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"26963313-4361-5426-a15f-8348f963720e\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"26963313-4361-5426-a15f-8348f963720e\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"26963313-4361-5426-a15f-8348f963720e\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"j8lghvv51re0e787xpdvnpaj!A1:AZ500\"\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:04.615326+00:00"
+    }
+  },
+  {
+    "id": "b04",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Johnson & Associates Midwifery Group FEB 2025 (Johnson & Associates; id from g1, one tab): 3 billing row(s), bill type cash-pay; its tab is named with the practice ID k0e6bqe181u8qqx1fo08y8yb.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"35e9909c-903e-516e-8145-e456fbf26cd3\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"35e9909c-903e-516e-8145-e456fbf26cd3\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"35e9909c-903e-516e-8145-e456fbf26cd3\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"k0e6bqe181u8qqx1fo08y8yb!A1:AZ500\",\n      \"values\": [\n        [\n          \"bill_type\",\n          \"client_user_id\",\n          \"completed_on\",\n          \"created_at\",\n          \"critical_care_fee\",\n          \"critical_care_followup\",\n          \"delivered_on\",\n          \"draw_fee\",\n          \"kit_completed_fee\",\n          \"kit_delivered_fee\",\n          \"lab_fee\",\n          \"lab_id\",\n          \"lab_name\",\n          \"lab_test_id\",\n          \"method\",\n          \"mobile_phleb_fee\",\n          \"order_id\",\n          \"requisition_fee\",\n          \"state\",\n          \"status\",\n          \"test_name\",\n          \"tier\",\n          \"total_fee\",\n          \"user_id\",\n          \"event_type\",\n          \"lab_event\",\n          \"event_timestamp\",\n          \"total_event_fee\",\n          \"team_id\",\n          \"uuid\",\n          \"team_name\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"cash-pay\",\n          \"d6q45w1rkm35umnu1dbd7lel\",\n          \"2025-02-27T18:38:13.862Z\",\n          \"2025-02-24T16:54:25.628Z\",\n          0,\n          \"\",\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          5,\n          \"LabCorp\",\n          \"24ae975d-6f5e-432a-996f-b877b68bdc99\",\n          \"walk_in\",\n          0,\n          \"24448c5e-1c8e-42c2-a559-f7aa68ae9826\",\n          1,\n          \"MD\",\n          \"received.walk_in_test.requisition_created,completed.walk_in_test.completed\",\n          \"Hemoglobin (Hb)\",\n          \"tier_1\",\n          1,\n          \"242fbcc6-f6d7-4dab-be56-42611dbc9a7e\",\n          \"lab test\",\n          \"ordered\",\n          \"2025-02-24T16:54:25.628Z\",\n          1,\n          \"99c7bb34-ae30-41e0-8421-b0dc4fdf1179\",\n          \"13f7dd39-4b63-46f3-95a8-ecfa9038ec93\",\n          \"Healthpii Care\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Nia-Laura Reid\"\n        ],\n        [\n          \"cash-pay\",\n          \"d6q45w1rkm35umnu1dbd7lel\",\n          \"2025-02-27T18:38:13.862Z\",\n          \"2025-02-24T16:54:25.628Z\",\n          0,\n          \"\",\n          \"\",\n          5,\n          0,\n          0,\n          2,\n          5,\n          \"LabCorp\",\n          \"24ae975d-6f5e-432a-996f-b877b68bdc99\",\n          \"walk_in\",\n          0,\n          \"24448c5e-1c8e-42c2-a559-f7aa68ae9826\",\n          0,\n          \"MD\",\n          \"received.walk_in_test.requisition_created,completed.walk_in_test.completed\",\n          \"Hemoglobin (Hb)\",\n          \"tier_1\",\n          7,\n          \"242fbcc6-f6d7-4dab-be56-42611dbc9a7e\",\n          \"lab test\",\n          \"completed\",\n          \"2025-02-27T18:38:13.862Z\",\n          7,\n          \"99c7bb34-ae30-41e0-8421-b0dc4fdf1179\",\n          \"a31acef8-27c5-43ba-b447-12cb1d4e8526\",\n          \"Healthpii Care\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Nia-Laura Reid\"\n        ],\n        [\n          \"cash-pay\",\n          \"d6q45w1rkm35umnu1dbd7lel\",\n          0,\n          \"2025-02-24T16:53:50.634Z\",\n          0,\n          \"\",\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          5,\n          \"LabCorp\",\n          \"25468313-5661-472c-8049-31a9ae495c3d\",\n          \"walk_in\",\n          0,\n          \"39d06fed-e61c-49f1-9135-54fde1fa3540\",\n          1,\n          \"MD\",\n          \"received.walk_in_test.requisition_created\",\n          \"Ferritin\",\n          \"tier_1\",\n          1,\n          \"242fbcc6-f6d7-4dab-be56-42611dbc9a7e\",\n          \"lab test\",\n          \"ordered\",\n          \"2025-02-24T16:53:50.634Z\",\n          1,\n          \"99c7bb34-ae30-41e0-8421-b0dc4fdf1179\",\n          \"8060a135-d4e2-4184-b6b6-e2da0f426673\",\n          \"Healthpii Care\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Nia-Laura Reid\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:04.685847+00:00"
+    }
+  },
+  {
+    "id": "b05",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read BirthStone July 2025 (BirthStone; id from g1, one tab): 2 billing row(s), bill type client_bill; its tab is named with the practice ID j0l5iy2gqvmwf1udlu0bg5l5.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"411c864f-2dc0-5f5b-9d1e-d08d9972cdd2\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"411c864f-2dc0-5f5b-9d1e-d08d9972cdd2\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"411c864f-2dc0-5f5b-9d1e-d08d9972cdd2\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"j0l5iy2gqvmwf1udlu0bg5l5!A1:AZ500\",\n      \"values\": [\n        [\n          \"eventType\",\n          \"eventTimestamp\",\n          \"order_id\",\n          \"Method\",\n          \"LabName\",\n          \"LabTestID\",\n          \"BillType\",\n          \"CreatedAt\",\n          \"TotalFee\",\n          \"RequisitionFee\",\n          \"CriticalCareFee\",\n          \"CriticalCareFollowup\",\n          \"MobilePhlebFee\",\n          \"DrawFee\",\n          \"LabFee\",\n          \"KitCompletedFee\",\n          \"KitDeliveredFee\",\n          \"LabEvent\",\n          \"Tier\",\n          \"TotalUserCount\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"lab test\",\n          \"2025-07-24T21:40:29.401Z\",\n          \"650ae279-e128-4d0f-a21e-7b48c630c162\",\n          \"walk_in\",\n          \"Quest\",\n          \"1aa25122-e312-4413-b263-c7eb39fe9b8b\",\n          \"client_bill\",\n          \"2025-07-24T21:40:29.401Z\",\n          1,\n          1,\n          0,\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          0,\n          \"ordered\",\n          \"tier_1\",\n          \"\",\n          \"j0l5iy2gqvmwf1udlu0bg5l5\",\n          \"Birthstone, LLP\",\n          \"thompsonpaula@example.org\",\n          \"Laura Reid\"\n        ],\n        [\n          \"lab test\",\n          \"2025-07-24T21:33:22.080Z\",\n          \"a2230db7-61f7-433c-ac54-e1328053b747\",\n          \"walk_in\",\n          \"Quest\",\n          \"57e7596c-0f45-44b7-88fb-220b6a21ac45\",\n          \"client_bill\",\n          \"2025-07-24T21:33:22.080Z\",\n          1,\n          1,\n          0,\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          0,\n          \"ordered\",\n          \"tier_1\",\n          \"\",\n          \"j0l5iy2gqvmwf1udlu0bg5l5\",\n          \"Birthstone, LLP\",\n          \"thompsonpaula@example.org\",\n          \"Laura Reid\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:04.753462+00:00"
+    }
+  },
+  {
+    "id": "b06",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Johnson & Associates Midwifery Group Apr 2025 (Johnson & Associates; id from g1, one tab): 1 billing row(s), bill type Cash Pay; its tab is named with the practice ID k0e6bqe181u8qqx1fo08y8yb.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"42b49b62-2aec-52ff-a7e6-c494b60ddc82\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"42b49b62-2aec-52ff-a7e6-c494b60ddc82\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"42b49b62-2aec-52ff-a7e6-c494b60ddc82\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"k0e6bqe181u8qqx1fo08y8yb!A1:AZ500\",\n      \"values\": [\n        [\n          \"order_id\",\n          \"Method\",\n          \"Status\",\n          \"Lab ID\",\n          \"Lab name\",\n          \"Team name\",\n          \"Lab test ID\",\n          \"Test name\",\n          \"Bill type\",\n          \"Created at\",\n          \"Delivered on\",\n          \"Completed on\",\n          \"Critical care followup\",\n          \"Requisition fee\",\n          \"Lab fee\",\n          \"Mobile phleb fee\",\n          \"Kit delivered fee\",\n          \"Kit completed fee\",\n          \"Critical care fee\",\n          \"Draw fee\",\n          \"Total fee\",\n          \"Event timestamp\",\n          \"Total Fee (no mobile)\",\n          \"Lab Event Type\",\n          \"Client user ID\",\n          \"User ID\",\n          \"State\",\n          \"Tier\",\n          \"First name\",\n          \"Last name\",\n          \"Dob\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"306fad6a-629b-43e1-b761-650d67ad2f15\",\n          \"Walk In\",\n          \"received.walk_in_test.requisition_created\",\n          5,\n          \"Lab Corp\",\n          \"Healthpii Care\",\n          \"c75d1066-e546-43ff-85db-49d09240e1c4\",\n          \"23a3742794fc46d9\",\n          \"Cash Pay\",\n          \"2025-04-25T00:29:42.303Z\",\n          \"\",\n          0,\n          \"\",\n          1,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          1,\n          \"2025-04-25T00:29:42.303Z\",\n          1,\n          \"lab test\",\n          \"x2dp47zsycb1vg2cj1jm2w2a\",\n          \"a05919b9-2644-4f4e-9b79-6e193b661924\",\n          \"MD\",\n          \"tier_1\",\n          \"Briana\",\n          \"Wilkins\",\n          \"1993-04-28 00:00:00\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Laura Reid\"\n        ],\n        [],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:04.819689+00:00"
+    }
+  },
+  {
+    "id": "b07",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Over The Moon Midwifery Apr 2025 (Over The Moon; id from g1, one tab): 1 billing row(s), bill type Cash Pay; its tab is named with the practice ID zlmy5xmx9xiwv3m53b9bqlsn.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"4800df2d-42fd-59da-bcf8-b88d33eece34\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"4800df2d-42fd-59da-bcf8-b88d33eece34\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"4800df2d-42fd-59da-bcf8-b88d33eece34\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"zlmy5xmx9xiwv3m53b9bqlsn!A1:AZ500\",\n      \"values\": [\n        [\n          \"order_id\",\n          \"Method\",\n          \"Status\",\n          \"Lab ID\",\n          \"Lab name\",\n          \"Team name\",\n          \"Lab test ID\",\n          \"Test name\",\n          \"Bill type\",\n          \"Created at\",\n          \"Delivered on\",\n          \"Completed on\",\n          \"Critical care followup\",\n          \"Requisition fee\",\n          \"Lab fee\",\n          \"Mobile phleb fee\",\n          \"Kit delivered fee\",\n          \"Kit completed fee\",\n          \"Critical care fee\",\n          \"Draw fee\",\n          \"Total fee\",\n          \"Event timestamp\",\n          \"Total Fee (no mobile)\",\n          \"Lab Event Type\",\n          \"Client user ID\",\n          \"User ID\",\n          \"State\",\n          \"Tier\",\n          \"First name\",\n          \"Last name\",\n          \"Dob\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"ac0d8918-92f1-4143-87b8-393df736b46f\",\n          \"Walk In\",\n          \"received.walk_in_test.requisition_created\",\n          7,\n          \"Quest\",\n          \"Healthpii Care\",\n          \"3abde6fe-b0c3-4505-b3a6-5c027cd128e6\",\n          \"dbc5e2e52aed43e7\",\n          \"Cash Pay\",\n          \"2025-04-22T00:11:38.226Z\",\n          \"\",\n          0,\n          \"\",\n          1,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          1,\n          \"2025-04-22T00:11:38.226Z\",\n          1,\n          \"lab test\",\n          \"sr875dhtmkagnez45wo30flj\",\n          \"3da83116-22ba-4227-af65-22b66e056624\",\n          \"AZ\",\n          \"tier_1\",\n          \"Monique\",\n          \"Bailey\",\n          \"1995-06-21 00:00:00\",\n          \"zlmy5xmx9xiwv3m53b9bqlsn\",\n          \"Over The Moon Midwifery\",\n          \"fdiaz@example.net\",\n          \"Laura Reid\"\n        ],\n        [],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:04.891345+00:00"
+    }
+  },
+  {
+    "id": "b08",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Kindred Space LA Mar 2025 (Kindred Space; id from g1, one tab): 1 billing row(s), bill type Cash Pay; its tab is named with the practice ID hv7hbdtobx44s5st8xugtxez.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"4d96160c-7968-5427-92ce-2812f8c43d37\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"4d96160c-7968-5427-92ce-2812f8c43d37\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"4d96160c-7968-5427-92ce-2812f8c43d37\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"hv7hbdtobx44s5st8xugtxez!A1:AZ500\",\n      \"values\": [\n        [\n          \"order_id\",\n          \"Method\",\n          \"Status\",\n          \"Lab ID\",\n          \"Lab name\",\n          \"Team name\",\n          \"Lab test ID\",\n          \"Test name\",\n          \"Bill type\",\n          \"Created at\",\n          \"Delivered on\",\n          \"Completed on\",\n          \"Critical care followup\",\n          \"Requisition fee\",\n          \"Lab fee\",\n          \"Mobile phleb fee\",\n          \"Kit delivered fee\",\n          \"Kit completed fee\",\n          \"Critical care fee\",\n          \"Draw fee\",\n          \"Total fee\",\n          \"Event timestamp\",\n          \"Total Fee (no mobile)\",\n          \"Lab Event Type\",\n          \"Client user ID\",\n          \"User ID\",\n          \"State\",\n          \"Tier\",\n          \"First name\",\n          \"Last name\",\n          \"Dob\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"b203ce64-4025-4841-aa1f-27acf65a25ca\",\n          \"Walk In\",\n          \"received.walk_in_test.requisition_created\",\n          7,\n          \"Quest\",\n          \"Healthpii Care\",\n          \"a81a33c1-5422-48a6-b36d-48d8711fe97c\",\n          \"2df28614eda44cfd\",\n          \"Cash Pay\",\n          \"2025-03-18T22:12:10.622Z\",\n          \"\",\n          0,\n          \"\",\n          1,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          1,\n          \"2025-03-18T22:12:10.622Z\",\n          1,\n          \"lab test\",\n          \"b3x3cypbb969r1kbnolnmphh\",\n          \"58473a73-f3be-4f33-839a-eb19ca8ef3ef\",\n          \"CA\",\n          \"tier_1\",\n          \"X\",\n          \"Durdin\",\n          \"2000-10-10T00:00:00+00:00\",\n          \"Kindred Space AV\",\n          \"herringshelley@example.org\",\n          \"X Durdin\"\n        ],\n        [],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:04.957466+00:00"
+    }
+  },
+  {
+    "id": "b09",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Canyon Midwifery LLC - December 2024 (Canyon Midwifery; id from g1, one tab): 8 billing row(s), bill type cash-pay; its tab is named with the practice ID tlvzfosnyqem60kcvci6zw2v.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"4f6b8e6b-d724-5d24-bc24-3884476e1ffb\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"4f6b8e6b-d724-5d24-bc24-3884476e1ffb\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"4f6b8e6b-d724-5d24-bc24-3884476e1ffb\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"tlvzfosnyqem60kcvci6zw2v!A1:AZ500\",\n      \"values\": [\n        [\n          \"bill_type\",\n          \"completed_on\",\n          \"created_at\",\n          \"critical_care_fee\",\n          \"critical_care_followup\",\n          \"delivered_on\",\n          \"draw_fee\",\n          \"kit_completed_fee\",\n          \"kit_delivered_fee\",\n          \"lab_fee\",\n          \"lab_id\",\n          \"lab_name\",\n          \"lab_test_id\",\n          \"method\",\n          \"mobile_phleb_fee\",\n          \"order_id\",\n          \"requisition_fee\",\n          \"status\",\n          \"test_name\",\n          \"total_fee\",\n          \"team_name\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"cash-pay\",\n          \"2024-12-16T20:59:16.476Z\",\n          \"2024-12-14T16:21:49.517Z\",\n          0,\n          \"\",\n          \"\",\n          5,\n          0,\n          0,\n          8,\n          5,\n          \"LabCorp\",\n          \"6a48f911-e61c-4c3f-aef4-ccb63f8ec17f\",\n          \"walk_in\",\n          0,\n          \"333a9bd6-473d-4ba3-aa0d-b95dd82153ea\",\n          1,\n          \"received.walk_in_test.requisition_created,completed.walk_in_test.completed\",\n          \"Urine Culture\",\n          14,\n          \"Healthpii Care\",\n          \"tlvzfosnyqem60kcvci6zw2v\",\n          \"Canyon Midwifery LLC\",\n          \"amysantos@example.com\",\n          \"Laura Reid\"\n        ],\n        [\n          \"cash-pay\",\n          \"2024-12-15T19:42:36.091Z\",\n          \"2024-12-14T16:21:23.474Z\",\n          0,\n          \"\",\n          \"\",\n          5,\n          0,\n          0,\n          1.45,\n          5,\n          \"LabCorp\",\n          \"3650c882-d7a9-4732-9f3f-941e2da71531\",\n          \"walk_in\",\n          0,\n          \"52355a70-5fae-48e5-899a-80ba955f321e\",\n          1,\n          \"received.walk_in_test.requisition_created,completed.walk_in_test.completed\",\n          \"CBC without differential Labcorp\",\n          7.45,\n          \"Healthpii Care\",\n          \"tlvzfosnyqem60kcvci6zw2v\",\n          \"Canyon Midwifery LLC\",\n          \"amysantos@example.com\",\n          \"Laura Reid\"\n        ],\n        [\n          \"cash-pay\",\n          0,\n          \"2024-12-13T19:39:41.254Z\",\n          0,\n          \"\",\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          5,\n          \"LabCorp\",\n          \"80d96f72-eb13-4672-adc9-53627cc9a594\",\n          \"walk_in\",\n          0,\n          \"78e5dcb3-8ff5-4777-b377-4f453a34e2e7\",\n          1,\n          \"received.walk_in_test.requisition_created\",\n          \"Bilirubin\",\n          1,\n          \"Healthpii Care\",\n          \"tlvzfosnyqem60kcvci6zw2v\",\n          \"Canyon Midwifery LLC\",\n          \"amysantos@example.com\",\n          \"Ryan Giles\"\n        ],\n        [\n          \"cash-pay\",\n          0,\n          \"2024-12-19T23:07:15.746Z\",\n          0,\n          \"\",\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          5,\n          \"LabCorp\",\n          \"3650c882-d7a9-4732-9f3f-941e2da71531\",\n          \"walk_in\",\n          0,\n          \"94d31055-6200-4075-a399-76dd89a13e41\",\n          1,\n          \"received.walk_in_test.requisition_created\",\n          \"CBC without differential Labcorp\",\n          1,\n          \"Healthpii Care\",\n          \"tlvzfosnyqem60kcvci6zw2v\",\n          \"Canyon Midwifery LLC\",\n          \"amysantos@example.com\",\n          \"Shaina Francis\"\n        ],\n        [\n          \"cash-pay\",\n          0,\n          \"2024-12-12T18:52:09.393Z\",\n          0,\n          \"\",\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          5,\n          \"LabCorp\",\n          \"3bf328ef-f7d5-4906-8415-ea0f3bd8040c\",\n          \"walk_in\",\n          0,\n          \"d77f2e74-74ce-4e79-9ae7-adf4a8aeabff\",\n          1,\n          \"received.walk_in_test.requisition_created\",\n          \"TSH and Free T4\",\n          1,\n          \"Healthpii Care\",\n          \"tlvzfosnyqem60kcvci6zw2v\",\n          \"Canyon Midwifery LLC\",\n          \"amysantos@example.com\",\n          \"Joanna Hernandez\"\n        ],\n        [\n          \"cash-pay\",\n          \"2024-12-25T17:19:42.044Z\",\n          \"2024-12-19T23:06:51.860Z\",\n          0,\n          \"\",\n          \"\",\n          5,\n          0,\n          0,\n          8,\n          5,\n          \"LabCorp\",\n          \"6a48f911-e61c-4c3f-aef4-ccb63f8ec17f\",\n          \"walk_in\",\n          0,\n          \"e4b9d383-7f62-41df-aff9-f031e1b1f89a\",\n          1,\n          \"received.walk_in_test.requisition_created,completed.walk_in_test.completed\",\n          \"Urine Culture\",\n          14,\n          \"Healthpii Care\",\n          \"tlvzfosnyqem60kcvci6zw2v\",\n          \"Canyon Midwifery LLC\",\n          \"amysantos@example.com\",\n          \"Shaina Francis\"\n        ],\n        [\n          \"cash-pay\",\n          0,\n          \"2024-12-12T18:52:31.012Z\",\n          0,\n          \"\",\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          5,\n          \"LabCorp\",\n          \"3bf328ef-f7d5-4906-8415-ea0f3bd8040c\",\n          \"walk_in\",\n          0,\n          \"fba7df5a-b7ac-469c-b02d-e510fd1d3aac\",\n          1,\n          \"received.walk_in_test.requisition_created\",\n          \"TSH and Free T4\",\n          1,\n          \"Healthpii Care\",\n          \"tlvzfosnyqem60kcvci6zw2v\",\n          \"Canyon Midwifery LLC\",\n          \"amysantos@example.com\",\n          \"Joanna Hernandez\"\n        ],\n        [\n          \"cash-pay\",\n          \"2024-12-20T16:44:35.576Z\",\n          \"2024-12-19T16:52:04.541Z\",\n          0,\n          \"\",\n          \"\",\n          5,\n          0,\n          0,\n          1.45,\n          5,\n          \"LabCorp\",\n          \"3650c882-d7a9-4732-9f3f-941e2da71531\",\n          \"walk_in\",\n          0,\n          \"fdb9e9b2-8d2d-4289-b1de-5ca911849037\",\n          1,\n          \"received.walk_in_test.requisition_created,completed.walk_in_test.completed\",\n          \"CBC without differential Labcorp\",\n          7.45,\n          \"Healthpii Care\",\n          \"tlvzfosnyqem60kcvci6zw2v\",\n          \"Canyon Midwifery LLC\",\n          \"amysantos@example.com\",\n          \"Ryan Giles\"\n        ],\n        [],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total Fee - Draw Fee\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.023821+00:00"
+    }
+  },
+  {
+    "id": "b10",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Elke Barnes Mar 2025 (Elke Barnes; id from g1, one tab): no cells at all (an empty statement); its tab is named with the practice ID ywzgn0edl2barx0n24tzx1j9.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"5216c634-322d-503f-9795-66025dacbf4b\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"5216c634-322d-503f-9795-66025dacbf4b\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"5216c634-322d-503f-9795-66025dacbf4b\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"ywzgn0edl2barx0n24tzx1j9!A1:AZ500\"\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.091688+00:00"
+    }
+  },
+  {
+    "id": "b11",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Empowered Goddess Birth Apr 2025 (Empowered Goddess; id from g1, one tab): no cells at all (an empty statement); its tab is named with the practice ID j8lghvv51re0e787xpdvnpaj.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"62303707-5e62-5b13-9b4d-6eeef0fdd1ff\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"62303707-5e62-5b13-9b4d-6eeef0fdd1ff\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"62303707-5e62-5b13-9b4d-6eeef0fdd1ff\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"j8lghvv51re0e787xpdvnpaj!A1:AZ500\"\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.156087+00:00"
+    }
+  },
+  {
+    "id": "b12",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Jamii Birth and Wellness Services, LLC (Jamii; id from g1, one tab): 1 billing row(s), bill type client_bill; its tab is named with the practice ID zrbt0rcya9e9tiggepiaska1.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"6790ba2a-ef27-533c-bd08-c9a9adba4be1\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"6790ba2a-ef27-533c-bd08-c9a9adba4be1\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"6790ba2a-ef27-533c-bd08-c9a9adba4be1\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"zrbt0rcya9e9tiggepiaska1!A1:AZ500\",\n      \"values\": [\n        [\n          \"customerEventId\",\n          \"customerAlias\",\n          \"eventType\",\n          \"eventTimestamp\",\n          \"order_id\",\n          \"Method\",\n          \"Lab Name\",\n          \"LabTestID\",\n          \"BillType\",\n          \"CreatedAt\",\n          \"TotalFee\",\n          \"RequisitionFee\",\n          \"CriticalCareFee\",\n          \"CriticalCareFollowup\",\n          \"MobilePhlebFee\",\n          \"DrawFee\",\n          \"LabFee\",\n          \"KitCompletedFee\",\n          \"KitDeliveredFee\",\n          \"LabEvent\",\n          \"Tier\",\n          \"TotalUserCount\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"\",\n          \"99c7bb34-ae30-41e0-8421-b0dc4fdf1179\",\n          \"lab test\",\n          \"2025-09-08T02:36:52.367106+0000\",\n          \"dd29e310-9c5d-4167-90f1-c04b2d9882a2\",\n          \"on_site_collection\",\n          \"labcorp\",\n          \"87492336-5db4-4f72-ba4e-af75e13d5565\",\n          \"client_bill\",\n          \"2025-09-02T20:49:46.179161+0000\",\n          195.63,\n          1,\n          \"\",\n          \"\",\n          \"\",\n          0,\n          194.63,\n          \"\",\n          \"\",\n          \"completed\",\n          1,\n          \"\",\n          \"zrbt0rcya9e9tiggepiaska1\",\n          \"Jamii Birth and Wellness Services, LLC\",\n          \"\",\n          \"Kelly Mills\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.220200+00:00"
+    }
+  },
+  {
+    "id": "b13",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Johnson & Associates Midwifery May 2025 (Johnson & Associates; id from g1, one tab): 8 billing row(s), bill type client_bill; its tab is named with the practice ID k0e6bqe181u8qqx1fo08y8yb.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"72c00a3c-7b5a-54de-a6e6-c3a9764cda95\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"72c00a3c-7b5a-54de-a6e6-c3a9764cda95\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"72c00a3c-7b5a-54de-a6e6-c3a9764cda95\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"k0e6bqe181u8qqx1fo08y8yb!A1:AZ500\",\n      \"values\": [\n        [\n          \"order_id\",\n          \"Method\",\n          \"LabName\",\n          \"LabTestID\",\n          \"BillType\",\n          \"CreatedAt\",\n          \"TotalFee\",\n          \"TotalEventFee\",\n          \"RequisitionFee\",\n          \"CriticalCareFee\",\n          \"CriticalCareFollowup\",\n          \"MobilePhlebFee\",\n          \"DrawFee\",\n          \"LabFee\",\n          \"KitCompletedFee\",\n          \"KitDeliveredFee\",\n          \"LabEvent\",\n          \"Tier\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"306fad6a-629b-43e1-b761-650d67ad2f15\",\n          \"walk_in\",\n          \"Russellside, OR\",\n          \"c75d1066-e546-43ff-85db-49d09240e1c4\",\n          \"client_bill\",\n          \"2025-04-25T00:29:42.303Z\",\n          11.75,\n          11.75,\n          0,\n          0,\n          \"\",\n          0,\n          0,\n          11.75,\n          0,\n          0,\n          \"completed\",\n          \"tier_1\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Laura Reid\"\n        ],\n        [\n          \"57946193-663d-40c6-9feb-8e6751406152\",\n          \"walk_in\",\n          \"Russellside, OR\",\n          \"c75d1066-e546-43ff-85db-49d09240e1c4\",\n          \"client_bill\",\n          \"2025-05-19T19:20:14.942Z\",\n          1,\n          1,\n          1,\n          0,\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          0,\n          \"ordered\",\n          \"tier_1\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Anthony Brown\"\n        ],\n        [\n          \"73c2d111-01bc-43eb-bf9f-2578f6324337\",\n          \"walk_in\",\n          \"Russellside, OR\",\n          \"46bff8ba-09ec-4f81-a928-3283fa40510b\",\n          \"client_bill\",\n          \"2025-05-05T13:55:50.196Z\",\n          1,\n          1,\n          1,\n          0,\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          0,\n          \"ordered\",\n          \"tier_1\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Laura Reid\"\n        ],\n        [\n          \"73c2d111-01bc-43eb-bf9f-2578f6324337\",\n          \"walk_in\",\n          \"Russellside, OR\",\n          \"46bff8ba-09ec-4f81-a928-3283fa40510b\",\n          \"client_bill\",\n          \"2025-05-05T13:55:50.196Z\",\n          9.75,\n          9.75,\n          0,\n          0,\n          \"\",\n          0,\n          0,\n          9.75,\n          0,\n          0,\n          \"completed\",\n          \"tier_1\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Laura Reid\"\n        ],\n        [\n          \"74ea22fa-10a5-4379-829c-8de3b92459a7\",\n          \"walk_in\",\n          \"Quest\",\n          \"b93ab6fd-ef3f-45d5-899e-94dec0aa33c4\",\n          \"client_bill\",\n          \"2025-05-19T19:49:57.756Z\",\n          1,\n          1,\n          1,\n          0,\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          0,\n          \"ordered\",\n          \"tier_1\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Anthony Brown\"\n        ],\n        [\n          \"74ea22fa-10a5-4379-829c-8de3b92459a7\",\n          \"walk_in\",\n          \"Quest\",\n          \"b93ab6fd-ef3f-45d5-899e-94dec0aa33c4\",\n          \"client_bill\",\n          \"2025-05-19T19:49:57.756Z\",\n          25.22,\n          25.22,\n          0,\n          0,\n          \"\",\n          0,\n          0,\n          25.22,\n          0,\n          0,\n          \"completed\",\n          \"tier_1\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Anthony Brown\"\n        ],\n        [\n          \"c81f069a-be6a-49c7-8fb8-9fce214c9f2b\",\n          \"walk_in\",\n          \"Russellside, OR\",\n          \"a6dfcb1d-d47c-41bd-a517-41c556f8852a\",\n          \"client_bill\",\n          \"2025-05-22T12:38:58.841Z\",\n          1,\n          1,\n          1,\n          0,\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          0,\n          \"ordered\",\n          \"tier_1\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Laura Reid\"\n        ],\n        [\n          \"c81f069a-be6a-49c7-8fb8-9fce214c9f2b\",\n          \"walk_in\",\n          \"Russellside, OR\",\n          \"a6dfcb1d-d47c-41bd-a517-41c556f8852a\",\n          \"client_bill\",\n          \"2025-05-22T12:38:58.841Z\",\n          9.75,\n          9.75,\n          0,\n          0,\n          \"\",\n          0,\n          0,\n          9.75,\n          0,\n          0,\n          \"completed\",\n          \"tier_1\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Laura Reid\"\n        ],\n        [],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.354246+00:00"
+    }
+  },
+  {
+    "id": "b14",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Empowered Goddess Birth May 2025 (Empowered Goddess; id from g1, one tab): no cells at all (an empty statement); its tab is named with the practice ID j8lghvv51re0e787xpdvnpaj.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"755cd097-c733-59c8-9226-3d3d4ff83ad2\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"755cd097-c733-59c8-9226-3d3d4ff83ad2\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"755cd097-c733-59c8-9226-3d3d4ff83ad2\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"j8lghvv51re0e787xpdvnpaj!A1:AZ500\"\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.432583+00:00"
+    }
+  },
+  {
+    "id": "b15",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Authentic Birth Center Apr 2025 (Authentic Birth; id from g1, one tab): 1 billing row(s), bill type Cash Pay; its tab is named with the practice ID v2yj26da2p4547mr69vc9ikn.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"7cc4eda6-dcb7-5aa6-a97f-3af21d67dfde\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"7cc4eda6-dcb7-5aa6-a97f-3af21d67dfde\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"7cc4eda6-dcb7-5aa6-a97f-3af21d67dfde\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"v2yj26da2p4547mr69vc9ikn!A1:AZ500\",\n      \"values\": [\n        [\n          \"order_id\",\n          \"Method\",\n          \"Status\",\n          \"Lab ID\",\n          \"Lab name\",\n          \"Team name\",\n          \"Lab test ID\",\n          \"Test name\",\n          \"Bill type\",\n          \"Created at\",\n          \"Delivered on\",\n          \"Completed on\",\n          \"Critical care followup\",\n          \"Requisition fee\",\n          \"Lab fee\",\n          \"Mobile phleb fee\",\n          \"Kit delivered fee\",\n          \"Kit completed fee\",\n          \"Critical care fee\",\n          \"Draw fee\",\n          \"Total fee\",\n          \"Event timestamp\",\n          \"Total Fee (no mobile)\",\n          \"Lab Event Type\",\n          \"Client user ID\",\n          \"User ID\",\n          \"State\",\n          \"Tier\",\n          \"First name\",\n          \"Last name\",\n          \"Dob\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"2f5e3169-5121-4e3d-9dff-b66dd5fb95e6\",\n          \"Walk In\",\n          \"received.walk_in_test.requisition_created\",\n          5,\n          \"Lab Corp\",\n          \"Healthpii Care\",\n          \"81a8e314-9e75-4f78-bd55-8484e2102e02\",\n          \"CBC with Differential Labcorp\",\n          \"Cash Pay\",\n          \"2025-04-07T19:01:07.760Z\",\n          \"\",\n          0,\n          \"\",\n          1,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          1,\n          \"2025-04-07T19:01:07.760Z\",\n          1,\n          \"lab test\",\n          \"qw0unmdt7r1k067c7ev2017j\",\n          \"31dd2838-30f9-4adf-b1a2-bfefae4b0889\",\n          \"WI\",\n          \"tier_1\",\n          \"Katy\",\n          \"Skarlatos\",\n          \"1980-11-11 00:00:00\",\n          \"v2yj26da2p4547mr69vc9ikn\",\n          \"Authentic Birth Center\",\n          \"scott82@example.net\",\n          \"Kevin Rivera\"\n        ],\n        [],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.502968+00:00"
+    }
+  },
+  {
+    "id": "b16",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Elke Barnes, LM, CPM November 2025 (Elke Barnes; id from g1, one tab): no cells at all (an empty statement); its tab is named 'November 2025' (no ID).",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"859e4924-215f-5239-a5bc-ada40a2ae2f8\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"859e4924-215f-5239-a5bc-ada40a2ae2f8\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"859e4924-215f-5239-a5bc-ada40a2ae2f8\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"'November 2025'!A1:AZ500\"\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.567392+00:00"
+    }
+  },
+  {
+    "id": "b17",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Kellie Botts Mar 2025 (Kellie Botts; id from g1, one tab): 4 billing row(s), bill type Cash Pay; its tab is named with the practice ID tqihar106rjeihemw4eg6629.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"86e450e8-f6cb-59bf-b028-647409f4f579\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"86e450e8-f6cb-59bf-b028-647409f4f579\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"86e450e8-f6cb-59bf-b028-647409f4f579\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"tqihar106rjeihemw4eg6629!A1:AZ500\",\n      \"values\": [\n        [\n          \"order_id\",\n          \"Method\",\n          \"Status\",\n          \"Lab ID\",\n          \"Lab name\",\n          \"Team name\",\n          \"Lab test ID\",\n          \"Test name\",\n          \"Bill type\",\n          \"Created at\",\n          \"Delivered on\",\n          \"Completed on\",\n          \"Critical care followup\",\n          \"Requisition fee\",\n          \"Lab fee\",\n          \"Mobile phleb fee\",\n          \"Kit delivered fee\",\n          \"Kit completed fee\",\n          \"Critical care fee\",\n          \"Draw fee\",\n          \"Total fee\",\n          \"Event timestamp\",\n          \"Total Fee (no mobile)\",\n          \"Lab Event Type\",\n          \"Client user ID\",\n          \"User ID\",\n          \"State\",\n          \"Tier\",\n          \"First name\",\n          \"Last name\",\n          \"Dob\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"2c85e428-84a0-4eb9-8610-098af61f5cd2\",\n          \"Walk In\",\n          \"received.walk_in_test.requisition_created,completed.walk_in_test.completed\",\n          5,\n          \"Lab Corp\",\n          \"Healthpii Care\",\n          \"2ce23d61-a99f-43bf-b1fa-ad6e8f39aa81\",\n          \"a62d3bb1f75d483d\",\n          \"Cash Pay\",\n          \"2025-03-18T15:20:58.520Z\",\n          \"\",\n          \"2025-03-24T15:35:09.090Z\",\n          \"\",\n          1,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          1,\n          \"2025-03-18T15:20:58.520Z\",\n          1,\n          \"lab test\",\n          \"iv5j1p8kn7dl3ht7r6etapli\",\n          \"5ce4be88-c2f2-4b44-8216-0ac35a46ee07\",\n          \"TN\",\n          \"tier_1\",\n          \"Madison\",\n          \"Rodriguez\",\n          \"1998-07-27T00:00:00+00:00\",\n          \"Divinely Designed Midwifery\",\n          \"stevendelgado@example.org\",\n          \"Denise Morgan\"\n        ],\n        [\n          \"2c85e428-84a0-4eb9-8610-098af61f5cd2\",\n          \"Walk In\",\n          \"received.walk_in_test.requisition_created,completed.walk_in_test.completed\",\n          5,\n          \"Lab Corp\",\n          \"Healthpii Care\",\n          \"2ce23d61-a99f-43bf-b1fa-ad6e8f39aa81\",\n          \"a62d3bb1f75d483d\",\n          \"Cash Pay\",\n          \"2025-03-18T15:20:58.520Z\",\n          \"\",\n          \"2025-03-24T15:35:09.090Z\",\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          \"2025-03-24T15:35:09.090Z\",\n          5,\n          \"lab test\",\n          \"iv5j1p8kn7dl3ht7r6etapli\",\n          \"5ce4be88-c2f2-4b44-8216-0ac35a46ee07\",\n          \"TN\",\n          \"tier_1\",\n          \"Madison\",\n          \"Rodriguez\",\n          \"1998-07-27T00:00:00+00:00\",\n          \"Divinely Designed Midwifery\",\n          \"stevendelgado@example.org\",\n          \"Denise Morgan\"\n        ],\n        [\n          \"f36c5194-22b0-416c-937f-cd38674a426e\",\n          \"Walk In\",\n          \"received.walk_in_test.requisition_created,completed.walk_in_test.completed\",\n          5,\n          \"Lab Corp\",\n          \"Healthpii Care\",\n          \"5f5b9c44-bc95-4dfb-9042-b1c5908e1eed\",\n          \"e11cbe1efd7f42a5\",\n          \"Cash Pay\",\n          \"2025-03-17T18:32:25.274Z\",\n          \"\",\n          \"2025-03-25T15:02:54.660Z\",\n          \"\",\n          1,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          1,\n          \"2025-03-17T18:32:25.274Z\",\n          1,\n          \"lab test\",\n          \"xryzvqqvvaifjku1fr5s1urc\",\n          \"56d604a7-fb67-45f7-a3d3-dc52c7c4bf4f\",\n          \"TN\",\n          \"tier_1\",\n          \"Laura\",\n          \"Leach\",\n          \"1982-09-26T00:00:00+00:00\",\n          \"Divinely Designed Midwifery\",\n          \"stevendelgado@example.org\",\n          \"Ariel Rios\"\n        ],\n        [\n          \"f36c5194-22b0-416c-937f-cd38674a426e\",\n          \"Walk In\",\n          \"received.walk_in_test.requisition_created,completed.walk_in_test.completed\",\n          5,\n          \"Lab Corp\",\n          \"Healthpii Care\",\n          \"5f5b9c44-bc95-4dfb-9042-b1c5908e1eed\",\n          \"e11cbe1efd7f42a5\",\n          \"Cash Pay\",\n          \"2025-03-17T18:32:25.274Z\",\n          \"\",\n          \"2025-03-25T15:02:54.660Z\",\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          \"2025-03-25T15:02:54.660Z\",\n          5,\n          \"lab test\",\n          \"xryzvqqvvaifjku1fr5s1urc\",\n          \"56d604a7-fb67-45f7-a3d3-dc52c7c4bf4f\",\n          \"TN\",\n          \"tier_1\",\n          \"Laura\",\n          \"Leach\",\n          \"1982-09-26T00:00:00+00:00\",\n          \"Divinely Designed Midwifery\",\n          \"stevendelgado@example.org\",\n          \"Ariel Rios\"\n        ],\n        [],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.631776+00:00"
+    }
+  },
+  {
+    "id": "b18",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Empowered Goddess Birth, PLLC (Empowered Goddess; id from g1, one tab): no cells at all (an empty statement); its tab is named with the practice ID j8lghvv51re0e787xpdvnpaj.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"911c198e-8ddf-53da-b172-292b5781ec24\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"911c198e-8ddf-53da-b172-292b5781ec24\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"911c198e-8ddf-53da-b172-292b5781ec24\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"j8lghvv51re0e787xpdvnpaj!A1:AZ500\"\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.690945+00:00"
+    }
+  },
+  {
+    "id": "b19",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Profound Birth July 2025 (Profound Birth; id from g1, one tab): 1 billing row(s), bill type client_bill; its tab is named with the practice ID tdpsm1aj4zu9fue69q5dszae.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"afa6e749-656e-57ad-9cdb-cddf85847f60\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"afa6e749-656e-57ad-9cdb-cddf85847f60\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"afa6e749-656e-57ad-9cdb-cddf85847f60\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"tdpsm1aj4zu9fue69q5dszae!A1:AZ500\",\n      \"values\": [\n        [\n          \"eventType\",\n          \"eventTimestamp\",\n          \"order_id\",\n          \"Method\",\n          \"LabName\",\n          \"LabTestID\",\n          \"BillType\",\n          \"CreatedAt\",\n          \"TotalFee\",\n          \"RequisitionFee\",\n          \"CriticalCareFee\",\n          \"CriticalCareFollowup\",\n          \"MobilePhlebFee\",\n          \"DrawFee\",\n          \"LabFee\",\n          \"KitCompletedFee\",\n          \"KitDeliveredFee\",\n          \"LabEvent\",\n          \"Tier\",\n          \"TotalUserCount\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"lab test\",\n          \"2025-07-25T19:58:49.789Z\",\n          \"22014354-4ab9-4e6d-9640-68b87b845490\",\n          \"walk_in\",\n          \"LabCorp\",\n          \"48ef7ef1-c180-4959-8dba-79c677df704f\",\n          \"client_bill\",\n          \"2025-07-25T19:58:49.789Z\",\n          1,\n          1,\n          0,\n          \"\",\n          0,\n          0,\n          0,\n          0,\n          0,\n          \"ordered\",\n          \"tier_1\",\n          \"\",\n          \"tdpsm1aj4zu9fue69q5dszae\",\n          \"Profound Birth PLLC\",\n          \"kingjohn@example.com\",\n          \"Laura Reid\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.753218+00:00"
+    }
+  },
+  {
+    "id": "b20",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Over The Moon Midwifery May 2025 (Over The Moon; id from g1, one tab): 1 billing row(s), bill type client_bill; its tab is named with the practice ID zlmy5xmx9xiwv3m53b9bqlsn.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"cbf44e1a-de57-54e3-84a3-06881db9c777\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"cbf44e1a-de57-54e3-84a3-06881db9c777\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"cbf44e1a-de57-54e3-84a3-06881db9c777\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"zlmy5xmx9xiwv3m53b9bqlsn!A1:AZ500\",\n      \"values\": [\n        [\n          \"order_id\",\n          \"Method\",\n          \"LabName\",\n          \"LabTestID\",\n          \"BillType\",\n          \"CreatedAt\",\n          \"TotalFee\",\n          \"TotalEventFee\",\n          \"RequisitionFee\",\n          \"CriticalCareFee\",\n          \"CriticalCareFollowup\",\n          \"MobilePhlebFee\",\n          \"DrawFee\",\n          \"LabFee\",\n          \"KitCompletedFee\",\n          \"KitDeliveredFee\",\n          \"LabEvent\",\n          \"Tier\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"ac0d8918-92f1-4143-87b8-393df736b46f\",\n          \"walk_in\",\n          \"Quest\",\n          \"3abde6fe-b0c3-4505-b3a6-5c027cd128e6\",\n          \"client_bill\",\n          \"2025-04-22T00:11:38.226Z\",\n          138.62,\n          138.62,\n          0,\n          0,\n          \"\",\n          0,\n          0,\n          138.62,\n          0,\n          0,\n          \"completed\",\n          \"tier_1\",\n          \"zlmy5xmx9xiwv3m53b9bqlsn\",\n          \"Over The Moon Midwifery\",\n          \"fdiaz@example.net\",\n          \"Laura Reid\"\n        ],\n        [],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.822872+00:00"
+    }
+  },
+  {
+    "id": "b21",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Des Moines Midwife Collective LLC November 2025 (Des Moines; id from g1, one tab): no cells at all (an empty statement); its tab is named 'November 2025' (no ID).",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"cd8b69b4-b24b-5d49-ad13-797f8ac218bf\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"cd8b69b4-b24b-5d49-ad13-797f8ac218bf\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"cd8b69b4-b24b-5d49-ad13-797f8ac218bf\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"'November 2025'!A1:AZ500\"\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.887526+00:00"
+    }
+  },
+  {
+    "id": "b22",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Joyful Heart Midwifery & Women s Healthcare Apr 2025 (Joyful Heart; id from g1, one tab): 1 billing row(s), bill type Cash Pay; its tab is named with the practice ID kog0w1w541spd8zgz875krps.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"eb8441fd-2f70-5bb8-b00e-b8acb74c5efa\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"eb8441fd-2f70-5bb8-b00e-b8acb74c5efa\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"eb8441fd-2f70-5bb8-b00e-b8acb74c5efa\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"kog0w1w541spd8zgz875krps!A1:AZ500\",\n      \"values\": [\n        [\n          \"order_id\",\n          \"Method\",\n          \"Status\",\n          \"Lab ID\",\n          \"Lab name\",\n          \"Team name\",\n          \"Lab test ID\",\n          \"Test name\",\n          \"Bill type\",\n          \"Created at\",\n          \"Delivered on\",\n          \"Completed on\",\n          \"Critical care followup\",\n          \"Requisition fee\",\n          \"Lab fee\",\n          \"Mobile phleb fee\",\n          \"Kit delivered fee\",\n          \"Kit completed fee\",\n          \"Critical care fee\",\n          \"Draw fee\",\n          \"Total fee\",\n          \"Event timestamp\",\n          \"Total Fee (no mobile)\",\n          \"Lab Event Type\",\n          \"Client user ID\",\n          \"User ID\",\n          \"State\",\n          \"Tier\",\n          \"First name\",\n          \"Last name\",\n          \"Dob\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"40d03c01-5876-4f49-8db6-6a53739cf462\",\n          \"Walk In\",\n          \"received.walk_in_test.requisition_created\",\n          5,\n          \"Lab Corp\",\n          \"Healthpii Care\",\n          \"b4e529f3-df24-4987-a72b-82cca0947e7d\",\n          \"ABO Grouping and Rh (D) Typing\",\n          \"Cash Pay\",\n          \"2025-04-30T18:11:20.890Z\",\n          \"\",\n          0,\n          \"\",\n          1,\n          0,\n          0,\n          0,\n          0,\n          0,\n          0,\n          1,\n          \"2025-04-30T18:11:20.890Z\",\n          1,\n          \"lab test\",\n          \"j14t2lotc8lsus4g9shbagoi\",\n          \"0652f8a5-dbda-4c95-9905-fc51f823a8fa\",\n          \"IN\",\n          \"tier_1\",\n          \"April\",\n          \"Verta\",\n          \"1968-09-25 00:00:00\",\n          \"kog0w1w541spd8zgz875krps\",\n          \"Joyful Heart Midwifery and Women's Healthcare\",\n          \"wmacias@example.com\",\n          \"April Verta\"\n        ],\n        [],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:05.946350+00:00"
+    }
+  },
+  {
+    "id": "b23",
+    "depends_on": [
+      "g1"
+    ],
+    "purpose": "Read Johnson & Associates Midwifery Group August 2025 (Johnson & Associates; id from g1, one tab): 1 billing row(s), bill type client_bill; its tab is named with the practice ID k0e6bqe181u8qqx1fo08y8yb.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"f07876c0-3141-51c7-91b4-7ff3632fe69a\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"f07876c0-3141-51c7-91b4-7ff3632fe69a\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"f07876c0-3141-51c7-91b4-7ff3632fe69a\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"k0e6bqe181u8qqx1fo08y8yb!A1:AZ500\",\n      \"values\": [\n        [\n          \"eventTimestamp\",\n          \"order_id\",\n          \"Lab Name\",\n          \"Bill Type\",\n          \"Create At\",\n          \"Total Fee\",\n          \"Requisition Fee\",\n          \"Draw Fee\",\n          \"Lab Fee\",\n          \"Lab Event\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"2025-08-08T08:47:05.521058+0000\",\n          \"8934e787-8dad-4a40-846a-3aec993c42b5\",\n          \"quest\",\n          \"client_bill\",\n          \"2025-08-07T01:05:45.611564+0000\",\n          66.45,\n          1,\n          8.5,\n          56.95,\n          \"completed\",\n          \"k0e6bqe181u8qqx1fo08y8yb\",\n          \"Johnson & Associates Midwifery Group\",\n          \"bellmary@example.org\",\n          \"Laura Reid\"\n        ],\n        [],\n        [\n          \"\",\n          \"\",\n          \"\",\n          \"\",\n          \"Total\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:06.005472+00:00"
+    }
+  },
+  {
+    "id": "g2",
+    "depends_on": [
+      "b02",
+      "b03",
+      "b04",
+      "b05",
+      "b06",
+      "b07",
+      "b08",
+      "b09",
+      "b10",
+      "b11",
+      "b12",
+      "b13",
+      "b14",
+      "b15",
+      "b17",
+      "b18",
+      "b19",
+      "b20",
+      "b22",
+      "b23"
+    ],
+    "purpose": "List the raw exports: spreadsheets titled with nothing but one of the 13 practice IDs the statements carry as their tab names (read in b02, b03, b04, b05, b06, b07, b08, b09, b10, b11, b12, b13, b14, b15, b17, b18, b19, b20, b22, b23; the Des Moines statements and Elke Barnes' November statement are named by month). Returns one live spreadsheet, j8lghvv51re0e787xpdvnpaj, the ID on the tabs of the four empty Empowered Goddess statements. Johnson & Associates' raw export k0e6bqe181u8qqx1fo08y8yb is in the trash, which the listing leaves out.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws drive files list --params \"{\\\"q\\\": \\\"(name = 'hv7hbdtobx44s5st8xugtxez' or name = 'j0l5iy2gqvmwf1udlu0bg5l5' or name = 'j8lghvv51re0e787xpdvnpaj' or name = 'k0e6bqe181u8qqx1fo08y8yb' or name = 'kog0w1w541spd8zgz875krps' or name = 'poalceilxnlwdarj1b33qhew' or name = 'tdpsm1aj4zu9fue69q5dszae' or name = 'tlvzfosnyqem60kcvci6zw2v' or name = 'tqihar106rjeihemw4eg6629' or name = 'v2yj26da2p4547mr69vc9ikn' or name = 'ywzgn0edl2barx0n24tzx1j9' or name = 'zlmy5xmx9xiwv3m53b9bqlsn' or name = 'zrbt0rcya9e9tiggepiaska1') and mimeType = 'application/vnd.google-apps.spreadsheet'\\\", \\\"fields\\\": \\\"files(id,name)\\\", \\\"pageSize\\\": 100}\""
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws drive files list --params \"{\\\"q\\\": \\\"(name = 'hv7hbdtobx44s5st8xugtxez' or name = 'j0l5iy2gqvmwf1udlu0bg5l5' or name = 'j8lghvv51re0e787xpdvnpaj' or name = 'k0e6bqe181u8qqx1fo08y8yb' or name = 'kog0w1w541spd8zgz875krps' or name = 'poalceilxnlwdarj1b33qhew' or name = 'tdpsm1aj4zu9fue69q5dszae' or name = 'tlvzfosnyqem60kcvci6zw2v' or name = 'tqihar106rjeihemw4eg6629' or name = 'v2yj26da2p4547mr69vc9ikn' or name = 'ywzgn0edl2barx0n24tzx1j9' or name = 'zlmy5xmx9xiwv3m53b9bqlsn' or name = 'zrbt0rcya9e9tiggepiaska1') and mimeType = 'application/vnd.google-apps.spreadsheet'\\\", \\\"fields\\\": \\\"files(id,name)\\\", \\\"pageSize\\\": 100}\""
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"files\": [\n    {\n      \"id\": \"d234bfc9-7243-536c-96c2-e32c33c0eda3\",\n      \"name\": \"j8lghvv51re0e787xpdvnpaj\"\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:07.183096+00:00"
+    }
+  },
+  {
+    "id": "r1",
+    "depends_on": [
+      "g2"
+    ],
+    "purpose": "Read the raw export j8lghvv51re0e787xpdvnpaj (Empowered Goddess; id from g2, one tab): 1 billing row, bill type client_bill - the only billing row Empowered Goddess has.",
+    "name": "gws",
+    "server": "gws-gym",
+    "arguments": {
+      "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"d234bfc9-7243-536c-96c2-e32c33c0eda3\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+    },
+    "tool_execution_results": {
+      "success": true,
+      "resolved_arguments": {
+        "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"d234bfc9-7243-536c-96c2-e32c33c0eda3\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"spreadsheetId\": \"d234bfc9-7243-536c-96c2-e32c33c0eda3\",\n  \"valueRanges\": [\n    {\n      \"majorDimension\": \"ROWS\",\n      \"range\": \"j8lghvv51re0e787xpdvnpaj!A1:AZ500\",\n      \"values\": [\n        [\n          \"eventTimestamp\",\n          \"order_id\",\n          \"Lab Name\",\n          \"Bill Type\",\n          \"Create At\",\n          \"Total Fee\",\n          \"Requisition Fee\",\n          \"Draw Fee\",\n          \"Lab Fee\",\n          \"Lab Event\",\n          \"practiceID\",\n          \"practiceName\",\n          \"founderStaffEmail\",\n          \"patientName\"\n        ],\n        [\n          \"2025-08-09T09:00:38.827033+0000\",\n          \"39afb806-bdbc-447c-b98d-8a528fe67812\",\n          \"labcorp\",\n          \"client_bill\",\n          \"2025-08-08T00:25:37.344716+0000\",\n          8,\n          1,\n          5,\n          2,\n          \"completed\",\n          \"j8lghvv51re0e787xpdvnpaj\",\n          \"Empowered Goddess Birth, PLLC\",\n          \"gabrielmeyer@example.net\",\n          \"Laura Reid\"\n        ]\n      ]\n    }\n  ]\n}"
+          }
+        ]
+      },
+      "error": null,
+      "executed_at": "2026-09-28T10:10:07.241558+00:00"
+    }
+  }
+]

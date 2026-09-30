@@ -1,0 +1,238 @@
+{
+  "layer1_package_consistency": {
+    "outcome": "pass",
+    "explanation": "task.toml, instruction.md, tests/manifest.json (8 verifier_configs), tests/test_outputs.py + verifier_engine.py + rl_world_verifiers, solution/ and environment/ describe one executable, gradable task: write /workspace/practice_billing_models.xlsx with sheets Billing (37 rows x A/B/C) and Summary (5 named figures). manifest.instruction_sha256 matches sha256(instruction.md) exactly (417421...aab2), environment/_app is byte-identical to task.toml/instruction.md/tests (verified with diff -rq), and I reproduced the graded gold (37 billing rows, 12/7/7/2/2) independently from the recorded gym responses in evaluations/oracle/verifier/golden_trajectory.json."
+  },
+  "layer1_package_consistency__cross_artifact_consistency": {
+    "outcome": "pass",
+    "explanation": "All required sources are present and mutually consistent: instruction.md deliverable == manifest file_check paths (practice_billing_models.xlsx under the workspace) == solution/artifact_plan.json xlsx_path == Dockerfile WORKDIR /workspace (agent-owned). expected_diff.json is {} and scoring.allowed_verifier_types excludes state/sql, consistent with task.toml's note that this gws image cannot be state-graded. Only cosmetic drift: some manifest metadata prose names a check 'summary_summary_sheet_holds_only_the_figures' while the actual config is 'billing_and_summary_hold_nothing_else' — descriptive text only, not reward-bearing."
+  },
+  "layer1_package_consistency__instruction_verifier_consistency": {
+    "outcome": "pass",
+    "explanation": "Every reward-bearing check traces to an instruction clause: Summary values/labels/order -> 'each figure on its own row in this order ... name in column A, whole number in column B'; not_a_formula leaves -> 'typed as a number, not as text or a formula'; 111 Billing leaves -> 'give each billing row its own row, sorted by its spreadsheet's Drive file id, ascending, then position in its statement: column A ... B ... C TRUE/FALSE'; the four bound leaves -> 'Leave every other cell of Billing and Summary unformatted and blank'. Conversely every material instruction requirement (scope, raw export, trash exclusion, billing-row definition, silent/switched, practice-grain summary, layout) is graded. The one non-instruction check, all_24_spreadsheets_were_read (>=24 gym calls, weight 0.5), is an anti-fabrication floor below the measured 25-call shortest correct path, so it cannot reject genuinely correct work."
+  },
+  "layer1_package_consistency__solution_instruction_consistency": {
+    "outcome": "pass",
+    "explanation": "solution/golden_trajectory.json performs the disclosed workflow (1 Drive listing by the fourteen names, 23 values batchGet of the titled statements, a second listing by the practice IDs read from the tabs, 1 batchGet of the ID-titled raw export). solution/write_artifacts.py materialises exactly the requested deliverable (Billing, Summary, plus a free Notes sheet the instruction permits: 'keep notes elsewhere'). final_answer.md restates the same contract. No undisclosed knowledge: I recomputed the Billing rows and all five figures from the recorded tool results and they equal artifact_plan.json byte-for-byte."
+  },
+  "layer1_package_consistency__solution_verifier_consistency": {
+    "outcome": "pass",
+    "explanation": "The oracle run in evaluations/oracle scored all 8 verifier_configs passed (verifier_summary.json: total 8, passed 8, weighted_pass_rate 1.0), with the workbook materialised in /workspace (workspace_files: ['practice_billing_models.xlsx']) and per-leaf actuals recorded (B1=12, Billing!A1..C37 as expected, max_row 37 / max_column 3, Summary 5x2). No unrelated shortcut: every leaf read the produced file, and the tool floor counted 27 real gym calls."
+  },
+  "layer1_package_consistency__manifest_environment_consistency": {
+    "outcome": "pass",
+    "explanation": "task.toml declares gws-gym at container port 8021 with image digest sha256:9ee2292..., matching environment/Dockerfile's FROM; the MCP server URL http://localhost:7000/mcp/gws-gym matches the proxy (PROXY_PORT=7000) and the healthcheck. TASK_DIR=/app matches test_outputs.py's default and test_gvs.sh's `python /app/tests/test_outputs.py`. environment/_app mirror is in sync with the task root (diff -rq clean), as sync_app_mirror.sh requires. verifier.env/JUDGE_MODEL env refs resolve through resolve_env_ref."
+  },
+  "layer1_package_consistency__declared_executed_verifier_consistency": {
+    "outcome": "pass",
+    "explanation": "tests/test.sh -> tests/test_gvs.sh -> tests/test_outputs.py; allowed_verifier_types contains agentic_llm_as_judge, so score_benchmark_verifiers owns the score and runs rubric-derived checks (rubric.toml has no items, so none) plus all 8 manifest.verifier_configs. The oracle run proves all 8 executed and were scored. The declared-but-inactive buckets (state weight 0 with an empty expected_diff.json, sql_verifiers [], trajectory weight 0) are excluded from allowed_verifier_types, so nothing is declared active yet unreachable."
+  },
+  "layer1_package_consistency__artifact_contract_consistency": {
+    "outcome": "pass",
+    "explanation": "One deliverable surface: the instruction names /workspace/practice_billing_models.xlsx; _run_file_check resolves TH_WORKSPACE_DIR or /workspace and the spec paths are workspace-relative 'practice_billing_models.xlsx'; the Dockerfile sets WORKDIR /workspace owned by rlgymagent. The oracle's solve.sh stages into ${TH_WORKSPACE_DIR:-/workspace}. No connector-side state is graded, so produced and graded submission cannot diverge."
+  },
+  "layer1_clarity_scope": {
+    "outcome": "pass",
+    "explanation": "All four mandatory subchecks pass: the graded surface is the single requested workbook, every representation choice the grader enforces is stated in the prompt, the only process-shaped check is a work floor implied by the data and by the system prompt's instruction to use the gym tools, and the instruction contains no redactions or broken references. The four blind readers recorded in consistency/readers.json agreed 4/4 on the deliverable and on every figure's meaning, with empty underspec/overspec lists."
+  },
+  "layer1_clarity_scope__output_surface_contract": {
+    "outcome": "pass",
+    "explanation": "Grading reads only workspace file cells (7 file_check configs on practice_billing_models.xlsx) plus the tool-call count. No chat-response content, no Drive/connector write and no other file is graded; the instruction asks for nothing else (task.toml explicitly drops the Drive write because it is not gradable on this image)."
+  },
+  "layer1_clarity_scope__representation_contract": {
+    "outcome": "pass",
+    "explanation": "Sheet names, row order (ascending Drive file id then position in statement), start at row 1 with no header, names in A and whole numbers in B typed as numbers not text or formulas, TRUE/FALSE encoding of the bill types, and 'every other cell blank and unformatted' are all stated in the instruction and are exactly what the assertions enforce. The matchers are additionally forgiving where the instruction is silent: file ids and order ids accept any case and dashless form, labels accept space/underscore/hyphen and surrounding emphasis, booleans accept the Excel boolean or the word in any case, and integers may be stored as floats (mutations.json case 'every integer written as a float' passes)."
+  },
+  "layer1_clarity_scope__process_requirement_disclosure": {
+    "outcome": "pass",
+    "explanation": "No narration, tool-name or workflow shape is graded: expected_tools is empty and the only process-shaped check is minimum_tool_calls=24, which is the arithmetic floor of the task itself (24 spreadsheets, and per consistency/shortcut_audit.md every gws read command takes a single spreadsheet id, so the shortest correct path is 25 calls). The system prompt in instruction.md explicitly directs the agent to use the configured gym's tools, so the floor cannot penalise a solution that follows the stated instructions. Residual note: harness tools (bash etc.) are excluded from the count, so an agent doing all reads through a bash-driven CLI rather than the MCP tool would not accrue counted calls."
+  },
+  "layer1_clarity_scope__redaction_readability": {
+    "outcome": "pass",
+    "explanation": "instruction.md is clean prose with no placeholders, elisions or broken grammar; the fourteen practice names, the raw-export rule, the trash exclusion, the billing-row definition, the silent/switched definitions and the practice-grain lever sentence are all readable and self-contained. The gym data carries no redaction artefacts (headers and bill-type spellings vary naturally)."
+  },
+  "layer1_realism_leakage": {
+    "outcome": "pass",
+    "explanation": "All four subchecks pass: the billing domain logic checks out against the served data, there are no external authorities to be stale, the workflow is a plausible operations-analyst review, and the golden/grading material is unreadable by the agent user."
+  },
+  "layer1_realism_leakage__domain_correctness": {
+    "outcome": "pass",
+    "explanation": "I re-derived the answer key from the recorded gym responses: 37 billing rows (rows under each header row carrying an order id), bill-type cells taking only cash pay/cash-pay/Cash Pay and client_bill/client bill under headers BillType/Bill type/bill_type/Bill Type, giving 20 cash-pay and 17 client-bill rows and, grouped by listed-name practice, billed 12, cash_pay 7, client_bill 7, switched 2 (Johnson & Associates, Over The Moon), silent 2 (Des Moines, Elke Barnes) — exactly the manifest expectations and solution/artifact_plan.json."
+  },
+  "layer1_realism_leakage__authoritative_reference_validity": {
+    "outcome": "pass",
+    "explanation": "The task cites no external law, standard or document; the only authority is the Drive corpus served by the gws-gym image, which is pinned by digest in both task.toml and environment/Dockerfile and whose contents I verified against the expectations via the recorded oracle responses."
+  },
+  "layer1_realism_leakage__workflow_realism": {
+    "outcome": "pass",
+    "explanation": "Reviewing monthly lab statements across fourteen practices and reporting which were cash pay, client bill, both or silent into a workbook is an ordinary billing-ops deliverable. The traps (an ID-titled raw export, a trashed export, empty statements, inconsistent header spellings) are all naturally occurring corpus features rather than contrived puzzles, and every access assumption (the run acts as the Drive's own user) is satisfied by the environment."
+  },
+  "layer1_realism_leakage__golden_isolation": {
+    "outcome": "pass",
+    "explanation": "The image copies only task.toml, instruction.md and tests/ into /app and then runs `chmod -R go-rwx /app`; the agent runs as rlgymagent (task.toml [agent] user), so manifest.json/rubric.toml are unreadable off disk, and solution/ is never in the image (it is docker-cp'd only for the oracle). entrypoint.sh gives /logs/verifier to root 700 and the proxy's /raw/<gym>/state moved to a root-only unix socket gated by a 040 capability file, so the agent cannot read gym state or grading state."
+  },
+  "layer2_difficulty": {
+    "outcome": "fail",
+    "explanation": "evaluations/ contains only evaluations/oracle — a single oracle trial. There are no GLM 5.2/5.3 model trial/result pairs at all, so the difficulty evidence required by the mandatory subchecks is absent (evidence_pairing_count and provenance_validity fail). This is missing evidence, not evidence of an easy or broken task."
+  },
+  "layer2_difficulty__evidence_pairing_count": {
+    "outcome": "fail",
+    "explanation": "The only trial directory is evaluations/oracle (config.json/lock.json agent.name = 'oracle'). No model attempt directories, trajectories or result.json files for GLM trials exist, so zero of the claimed independent attempts can be paired or counted."
+  },
+  "layer2_difficulty__provenance_validity": {
+    "outcome": "fail",
+    "explanation": "No recorded GLM model provenance exists in evaluations/: result.json records agent_info {name: 'oracle', model_info: null} and agent_result token/cost fields are null. The only GLM references in the package are consistency/readers.json (a blind-reader prompt study in task source, not a trial) and the default judge model string in task.toml — neither establishes independent model attempts."
+  },
+  "layer2_difficulty__strict_pass_distribution": {
+    "outcome": "pass",
+    "explanation": "No GLM trial recorded a strict pass (there are no GLM trials), which is the allowed zero-of-four outcome given the valid recorded Oracle pass at reward 1.0. The absence of attempts is reported under evidence_pairing_count and provenance_validity rather than double-counted here."
+  },
+  "layer2_difficulty__failure_cause_validity": {
+    "outcome": "not_applicable",
+    "explanation": "No model failures are recorded in evaluations/, so there is no apparent failure whose cause could be attributed to ambiguity, hidden requirements, verifier/judge defects, connector failure or infrastructure."
+  },
+  "layer2_solvability": {
+    "outcome": "pass",
+    "explanation": "evaluations/oracle is a complete, internally consistent recorded Oracle execution: config.json and result.json agree on the task path and trial name, lock.json task digest sha256:ca469984..., agent 'oracle', verifier.disable=false recorded explicitly in both result.config.verifier and lock.verifier, environment_setup/agent_setup/agent_execution/verifier phases all have start and finish timestamps, exception_info is null, verifier_result.rewards = {'reward': 1.0}, and verifier/reward.txt = 1.0. agent/oracle.txt is non-empty (26 gws calls plus the artifact write), so the byte-empty-log special case does not apply."
+  },
+  "layer2_solvability__eligible_strict_pass": {
+    "outcome": "pass",
+    "explanation": "A valid recorded Oracle pass: reward 1.0 with an executed verifier (verifier/verifier_summary.json shows all 8 verifier_configs run and passed, weighted_pass_rate 1.0, failure_mode 'pass') and materialised artifacts (workspace_files ['practice_billing_models.xlsx']). This is Oracle solvability evidence and is not counted as a GLM difficulty trial."
+  },
+  "layer2_solvability__saved_evidence_completeness": {
+    "outcome": "pass",
+    "explanation": "The execution can be reconstructed end to end: agent/oracle.txt (26 replayed gws calls + workbook write), agent/trajectory.json (82 KB), verifier/golden_trajectory.json with full tool_execution_results for every step, verifier/verifier_summary.json (1 MB) carrying every leaf's expected and actual value read back out of the produced workbook, verifier/test-stdout.txt, reward.json/reward.txt and the state snapshots (empty diff, as expected for a read-only task)."
+  },
+  "layer2_solvability__solution_legitimacy": {
+    "outcome": "pass",
+    "explanation": "No fabrication or reward hacking. I independently recomputed the deliverable from the responses recorded in verifier/golden_trajectory.json — 37 billing rows in ascending file id, 17 TRUE / 20 FALSE, and 12/7/7/2/2 — and it matches solution/artifact_plan.json and the graded actuals exactly. The oracle replays the real gym calls and then materialises the workbook via write_artifacts.py, which is the sanctioned 'a recorded Oracle may execute the provided solution' exception; the tool floor counted 27 genuine gym calls, and no grading-internal path was used."
+  },
+  "layer2_solvability__instruction_environment_sufficiency": {
+    "outcome": "pass",
+    "explanation": "Everything needed is agent-visible: the fourteen names come from the prompt, the statements from `drive files list`, the cells from `sheets spreadsheets values batchGet`, and the raw export from a second listing keyed on the practice ID the empty Empowered Goddess statements carry as their tab name — all through the sanctioned MCP surface as the Drive's own user. No hidden requirement, private knowledge or auditor repair was involved; consistency/readers.json records four blind readers agreeing on the deliverable and every figure with empty underspec/overspec lists."
+  },
+  "layer2_stability": {
+    "outcome": "fail",
+    "explanation": "evaluations/ holds exactly one verifier execution. There are no repeat runs, no hash-based frozen identity across repeats, and therefore no evidence of reward or per-check stability; the three-repeat bar is not met."
+  },
+  "layer2_stability__frozen_identity": {
+    "outcome": "fail",
+    "explanation": "Only lock.json's single task digest (sha256:ca469984...) and result.json's task_checksum exist for one run; no per-repeat trajectory/artifact hashes are recorded, so identity across repeats is neither asserted nor evidenced."
+  },
+  "layer2_stability__repeat_count": {
+    "outcome": "fail",
+    "explanation": "One complete result (evaluations/oracle/result.json) versus the required minimum of three repeats."
+  },
+  "layer2_stability__verifier_judge_config_identity": {
+    "outcome": "fail",
+    "explanation": "With a single run there is nothing to compare; no verifier digest, judge model/endpoint or prompt-version record is repeated across executions (reward.json is reduced to {'reward': 1.0} and only verifier_summary.json for that one run carries the configuration)."
+  },
+  "layer2_stability__reward_equality": {
+    "outcome": "fail",
+    "explanation": "Only one reward value exists (1.0) on one execution, so equality of aggregate reward across repeats on frozen evidence cannot be established."
+  },
+  "layer2_stability__per_check_stability": {
+    "outcome": "fail",
+    "explanation": "The single run records 8/8 verifiers passed, but with no second or third execution no per-check flip, deterministic-check drift or offsetting-change analysis is possible."
+  },
+  "layer5_verifier_fairness_static": {
+    "outcome": "pass",
+    "explanation": "All mandatory subchecks pass: 8 declared configs (127 leaf assertions) cover every material requirement at field level, read the correct evidence surface, are tolerant of incidental representation while exact where the instruction is explicit, execute in the declared entrypoint (proven by the oracle run), aggregate exactly as declared under flat_verifier_scoring, and are backed by an 11-route counterfactual battery whose rewards I recomputed and confirmed."
+  },
+  "layer5_verifier_fairness_static__requirement_traceability": {
+    "outcome": "pass",
+    "explanation": "Each config carries a requirement_id and evidence_span pointing at the instruction clause it grades (billed_practices, cash_pay_practices, client_bill_practices, switched_practices, silent_practices, per_row_billing_log, workbook_layout, spreadsheets_read). No material instruction requirement is ungraded, and the only verifier-side addition (the >=24 gym-call floor) is an anti-fabrication threshold strictly below the measured minimum work any correct solution must perform."
+  },
+  "layer5_verifier_fairness_static__coverage_depth": {
+    "outcome": "pass",
+    "explanation": "Grading is field-level, not shallow: all 111 Billing cells (file id, order id, bill type for all 37 rows) plus 15 Summary leaves (value, no-formula, label for each of 5 figures) plus 4 extent bounds. An empty or near-empty workbook scores 0 on every config; consistency/mutations.json shows dropping one Billing or Summary row, or shifting rows with a header, is caught."
+  },
+  "layer5_verifier_fairness_static__evidence_routing": {
+    "outcome": "pass",
+    "explanation": "The artifact requirements are graded from the artifact (xlsx.read_cell / xlsx.inspect_structure against the workspace workbook, via _run_file_check resolving TH_WORKSPACE_DIR or /workspace), and the work-floor requirement is graded from the trajectory. verifier_engine._spec_paths_under_input additionally refuses specs pointing at seeded inputs. No check reads a lossy conversion or the wrong surface."
+  },
+  "layer5_verifier_fairness_static__semantic_equivalence": {
+    "outcome": "pass",
+    "explanation": "Materially equivalent correct submissions survive: labels match case-insensitively with space/underscore/hyphen separators and optional emphasis, quotes, trailing colon or period; ids match with or without dashes in any case; bill types accept the Excel boolean or TRUE/True/true (FALSE/False/false); integers may be stored as floats (approx_equals on numbers, and values_equal is bool-aware so 1 cannot pass for TRUE). The strict aspects — a number rather than text, no formula, exact row/column placement — are stated verbatim in the instruction. Route M1 in consistency/shortcut_audit.md scores 1.0 while varying title case, float formatting, upper-case ids, dashless order ids, mixed-case boolean text, column widths and frozen panes."
+  },
+  "layer5_verifier_fairness_static__surface_form_brittleness": {
+    "outcome": "pass",
+    "explanation": "Every matcher is a full-cell anchored regex (\\A...\\Z with re.search), an exact numeric approx_equals with zero tolerance, an in_array of boolean/word forms, or an integer extent equality — none is a substring or token-whitelist that a wrong answer could satisfy by mimicry: 'billed_practices | 12' or '12 or 13' fail, and a wrong number cannot pass by including the right token. Conversely no semantically correct formatting variant I tested (case, dashes, quotes/emphasis, float storage, boolean-vs-text) is rejected. The matchers check exactly what their descriptions claim."
+  },
+  "layer5_verifier_fairness_static__verifier_execution_completeness": {
+    "outcome": "pass",
+    "explanation": "tests/test.sh runs tests/test_gvs.sh, which execs /app/tests/test_outputs.py; with agentic_llm_as_judge allowed, _emit_engine_owned_reward runs every manifest verifier_config through VerifierEngine. The oracle run confirms all 8 executed with 0 unscored. Failures inside rl_world_verifiers are classified (TypeError/FileNotFoundError etc. become per-leaf failures via is_agent_output_failure; infrastructure errors raise and refuse to emit a score rather than silently zeroing)."
+  },
+  "layer5_verifier_fairness_static__score_bucket_activation": {
+    "outcome": "pass",
+    "explanation": "The active bucket is the engine's verifier_configs list, and all 8 items carry non-zero weight and did receive evidence in the oracle run. The inert template buckets are honestly inert: state weight 0 with an empty expected_diff.json, sql_verifiers [], trajectory weight 0, and none of them is in allowed_verifier_types. rubric.toml has no scored items, but no requirement is claimed to be covered by it."
+  },
+  "layer5_verifier_fairness_static__aggregation_normalization": {
+    "outcome": "pass",
+    "explanation": "flat_verifier_scoring=true pools every item by weight: total weight 7*1.0 + 0.5 = 7.5. I recomputed the documented route rewards and they match exactly — 3 summary configs failing gives 4.5/7.5 = 0.6 (R1), 5 failing gives 2.5/7.5 = 0.3333 (R2), 2 failing gives 5.5/7.5 = 0.7333 (R3/R6/R7/R9), 1 failing gives 6.5/7.5 = 0.8667 (R4), all failing gives 0.0 (R5). The axis weights block in manifest.scoring is vestigial in this path but is echoed only into diagnostics, not into the emitted reward."
+  },
+  "layer5_verifier_fairness_static__scoring_proportionality": {
+    "outcome": "pass",
+    "explanation": "The five substantive figures, the 37-row reconciliation log and the layout bound each carry 1.0, and the process floor carries only 0.5 — the smallest weight goes to the least substantive check. A fatal omission is not masked: missing the raw export fails 5 of 8 configs (0.3333), while the cosmetic-but-disclosed layout requirement alone caps a run at 0.7333 rather than dominating. No cosmetic issue can dominate reward and no fatal error is hidden by partial credit."
+  },
+  "layer5_verifier_fairness_static__check_independence": {
+    "outcome": "pass",
+    "explanation": "Each config grades a distinct deliverable fact: five separate Summary figures, the per-row Billing log, the extent bounds, and the work floor. Overlap is limited and disclosed in the why_justifications (e.g. missing the raw export moves both the Summary counts and the row log) and reflects genuinely separate requirements — the instruction asks for both the log and the counts, so a defect affecting both is a defect in both deliverables."
+  },
+  "layer5_verifier_fairness_static__counterfactual_strength": {
+    "outcome": "pass",
+    "explanation": "consistency/shortcut_audit.md and mutations.json record positive (gold, and a cosmetically different shortest path, both 1.0), negative (row-grain misreading 0.6, exclusive-bill-type reading 0.7333, title-wording entity 0.6, empty-statements-as-silent 0.8667), incomplete (raw export skipped 0.3333, listing-only 0.0, Johnson May missed 0.7333) and adversarial (trashed export included 0.7333, header row 0.7333, extra rows on Billing/Summary caught by the bound, every figure off by one caught) cases. I verified the arithmetic of each and the mechanism of the key ones against the assertions, so the verifier demonstrably separates a genuine solution from plausible defective ones."
+  },
+  "layer5_verifier_fairness_static__process_grading_justification": {
+    "outcome": "pass",
+    "explanation": "Reward is overwhelmingly the requested outcome (7.0 of 7.5 weight on the workbook's contents). The single process element, minimum_tool_calls=24 with expected_tools empty, prescribes no particular tool, ordering or narration and sits below the measured 25-call minimum path, so it functions as a fabrication floor (it is what fails the listing-only route) rather than as a workflow mandate. Harness tools are excluded from the count, which is the only way a correct-but-CLI-driven run could be penalised; this is a narrow residual risk given the system prompt directs the agent to the gym's tools."
+  },
+  "layer5_llm_judge_design": {
+    "outcome": "not_applicable",
+    "explanation": "No LLM judge participates in grading: rubric.toml contains only a [system] preamble with zero rubric items, so _rubric_check_verifiers_from_rubric yields no verifiers, and all 8 verifier_configs are deterministic (file_check with deterministic assertions, and one tool_execution). The oracle run confirms only file_check and tool_execution type_scores. task.toml still carries a metadata.verifier_judge block (default openai/zai-org/GLM-5.2) whose API key must merely be present for score_benchmark_verifiers to proceed; no judge call is ever made."
+  },
+  "layer5_llm_judge_design__judge_execution_validity": {
+    "outcome": "not_applicable",
+    "explanation": "No judge request is issued — there are no rubric items and no llm-graded assertions in any verifier_spec — so there is no model/endpoint/request/parse path exercised by this task's grading."
+  },
+  "layer5_llm_judge_design__judge_failure_handling": {
+    "outcome": "not_applicable",
+    "explanation": "No judge runs. (For completeness, the surrounding code fails loudly rather than converting infrastructure problems into zeros: _emit_engine_owned_reward raises on failure_mode 'verifier_error' or a configuration error, leaving the trial unscored instead of writing a 0.)"
+  },
+  "layer5_llm_judge_design__judge_context_completeness": {
+    "outcome": "not_applicable",
+    "explanation": "There is no judge prompt or rubric item, so no evidence can be missing from one."
+  },
+  "layer5_llm_judge_design__judge_context_truncation": {
+    "outcome": "not_applicable",
+    "explanation": "No judge context is assembled for grading; the evidence-truncation machinery in test_outputs.py is never reached because no rubric_check or response_check verifier is authored."
+  },
+  "layer5_llm_judge_design__artifact_grounding": {
+    "outcome": "not_applicable",
+    "explanation": "No rubric language exists that could reward generic plausibility; all grading is deterministic cell-level assertion against the submitted workbook."
+  },
+  "layer5_llm_judge_design__repeat_stability": {
+    "outcome": "not_applicable",
+    "explanation": "No judge sampling occurs, so temperature, vote count and aggregation are irrelevant to this task's reward."
+  },
+  "layer5_reward_hacking_static": {
+    "outcome": "pass",
+    "explanation": "All four subchecks pass: the graded facts (37 order ids with their file ids and bill types, and five practice-grain counts) cannot be produced without genuinely reading the 24 spreadsheets; the verifier-only state route is unreachable from the agent account; the answer key is absent from the image and unreadable; and no writable grading state can manufacture a pass."
+  },
+  "layer5_reward_hacking_static__rollout_legitimacy": {
+    "outcome": "pass",
+    "explanation": "A fabricated or looping rollout cannot pass: the Billing sheet requires 37 exact order-id/file-id/bill-type triples that exist only in the spreadsheets' cells, and the >=24 counted gym-call floor additionally fails a no-work rollout (route R5, 1 call, reward 0.0). There is no final-surface-only shortcut — even the Summary figures are cross-bound to the per-row log and the extent bounds."
+  },
+  "layer5_reward_hacking_static__sanctioned_interface_use": {
+    "outcome": "pass",
+    "explanation": "The agent's surface is the proxy's public /health, /cli/* and /mcp/* routes; /raw/<gym>/state moved to a root-only unix socket guarded by a 040 root:harborproxy capability file, and the verifier reaches it only because it runs as root (documented and implemented in test_outputs.query_state and environment/entrypoint.sh). Gym state directories are chmod go-rwx under the gym user, so no backend/database bypass is available."
+  },
+  "layer5_reward_hacking_static__golden_or_internal_access": {
+    "outcome": "pass",
+    "explanation": "solution/ is never copied into the image (Dockerfile copies only _app/task.toml, _app/instruction.md and _app/tests/), and /app is chmod -R go-rwx while the agent runs as rlgymagent, so manifest.json (which contains the expected values) and rubric.toml are unreadable off disk; test_gvs.sh also supports a dispatch-time encrypted answer key. No answer-bearing fixture is seeded into /workspace."
+  },
+  "layer5_reward_hacking_static__state_spoofing": {
+    "outcome": "pass",
+    "explanation": "The only graded state is the workbook the agent is asked to write, whose contents are unguessable without the data, plus a call-count floor. /logs/verifier is root-owned 700 so the agent cannot touch reward files or snapshots. /logs/agent is agent-owned, so the trajectory feeding the 0.5-weight floor is in principle paddable — but padding it cannot produce any of the 126 substantive assertions, so it creates no passing path; identifiers (file ids, order ids) are all checked against the real corpus values."
+  }
+}

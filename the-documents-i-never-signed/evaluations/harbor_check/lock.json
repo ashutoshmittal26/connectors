@@ -1,0 +1,42 @@
+{
+    "schema_version": 2,
+    "task": {
+        "name": "check-the-documents-i-never-signed",
+        "type": "local",
+        "digest": "sha256:ad2bbbc47c50e5d76f1cceb0189d97456b1a9345b444686a68faee3c27167165",
+        "path": "/tmp/harbor-check-i3_arck8/check-the-documents-i-never-signed"
+    },
+    "install_only": false,
+    "timeout_multiplier": 1.0,
+    "verifier_timeout_multiplier": 5.0,
+    "agent_setup_timeout_multiplier": 6.0,
+    "agent": {
+        "name": "claude-code",
+        "model_name": "anthropic/claude-opus-5",
+        "skills": [],
+        "resume_trajectory": false,
+        "extra_allowed_hosts": [],
+        "kwargs": {
+            "reasoning_effort": "medium"
+        },
+        "mcp_servers": []
+    },
+    "bridge_inputs": {},
+    "skills": [],
+    "environment": {
+        "type": "docker",
+        "force_build": false,
+        "delete": true,
+        "cpu_enforcement_policy": "auto",
+        "memory_enforcement_policy": "auto",
+        "extra_docker_compose": [],
+        "kwargs": {
+            "keepalive": null
+        },
+        "extra_allowed_hosts": []
+    },
+    "verifier": {
+        "disable": false,
+        "environment_mode": "shared"
+    }
+}

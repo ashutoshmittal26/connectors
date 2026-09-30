@@ -1,0 +1,62 @@
+[
+  {
+    "id": "s1",
+    "depends_on": [],
+    "purpose": "The opening sweep. 111 messages carry that word in a subject line, the page caps at 50, so this comes back truncated - and what it does return is the shape of the stream: the request subjects, the reminder subjects, and the person-keyed notices that are out of scope. This gym serves no per-item read, so these subject lines are the only place the next call's queries can come from.",
+    "name": "search_email",
+    "server": "email-calendar-gym",
+    "arguments": {
+      "queries": [
+        "signature"
+      ],
+      "pageSize": 50
+    }
+  },
+  {
+    "id": "s2",
+    "depends_on": [
+      "s1"
+    ],
+    "purpose": "The four document families in full, each bucket under the 50 cap so none truncates: 36 requests, 46 reminders, 12 completions and 1 everyone-has-signed. All four phrases are lifted verbatim out of the subject lines s1 returned, and the completion phrasing is invisible to s1's own query. These 95 messages are the log; their subjects give the 15 document names with their request and reminder counts.",
+    "name": "search_email",
+    "server": "email-calendar-gym",
+    "arguments": {
+      "queries": [
+        "\"Signature requested by\"",
+        "\"is awaiting your signature\"",
+        "\"You just signed\"",
+        "\"Everyone has signed\""
+      ],
+      "pageSize": 50
+    }
+  },
+  {
+    "id": "s3",
+    "depends_on": [
+      "s1"
+    ],
+    "purpose": "Register membership. No search result carries the labels a message is filed under, so the only way to resolve the register is to re-ask for the request family with the label operator: 18 of the 36 request messages come back, across ten distinct document names.",
+    "name": "search_email",
+    "server": "email-calendar-gym",
+    "arguments": {
+      "queries": [
+        "\"Signature requested by\" label:Opened"
+      ],
+      "pageSize": 50
+    }
+  },
+  {
+    "id": "s4",
+    "depends_on": [
+      "s2",
+      "s3"
+    ],
+    "purpose": "The write-back: the two register documents the log never confirms a signature for, one name per line and nothing else.",
+    "name": "draft_email",
+    "server": "email-calendar-gym",
+    "arguments": {
+      "subject": "Documents still awaiting my signature",
+      "body": "Emily (Em) Clark-05-20-25.pdf\nMichele Nizza-05-20-25.pdf"
+    }
+  }
+]

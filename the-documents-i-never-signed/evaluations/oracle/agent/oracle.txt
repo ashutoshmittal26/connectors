@@ -1,0 +1,7 @@
+[1/4] email-calendar-gym.search_email
+[2/4] email-calendar-gym.search_email
+[3/4] email-calendar-gym.search_email
+[4/4] email-calendar-gym.draft_email
+wrote captured responses to /tmp/tmp.Tk43b4zzHv/solution/golden_trajectory.json
+mirrored to /logs/verifier/golden_trajectory.json (for daytona artifact pull)
+wrote audit.xlsx sheets ['Documents', 'Summary']

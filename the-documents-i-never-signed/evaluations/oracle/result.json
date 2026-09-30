@@ -1,0 +1,114 @@
+{
+    "id": "eba734e0-03d4-43df-8739-879158da4085",
+    "task_name": "harbor/the-documents-i-never-signed",
+    "trial_name": "the-documents-i-never-signed__Wb4aH7g",
+    "trial_uri": "file:///home/amateen/aster-mining-0927/work/tasks_batch_20260927/_evidence/the-documents-i-never-signed/oracle-local/tdins-oracle-20260927T161131/the-documents-i-never-signed__Wb4aH7g",
+    "task_id": {
+        "path": "/home/amateen/aster-mining-0927/work/tasks_batch_20260927/email_calendar/the-documents-i-never-signed"
+    },
+    "source": null,
+    "task_checksum": "fd57c2dd354a4365608d04c2357c6463593818ac3091427bd2ef88ddb0761d0f",
+    "config": {
+        "task": {
+            "path": "/home/amateen/aster-mining-0927/work/tasks_batch_20260927/email_calendar/the-documents-i-never-signed",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "the-documents-i-never-signed__Wb4aH7g",
+        "trials_dir": "/home/amateen/aster-mining-0927/work/tasks_batch_20260927/_evidence/the-documents-i-never-signed/oracle-local/tdins-oracle-20260927T161131",
+        "install_only": false,
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "oracle",
+            "import_path": null,
+            "model_name": null,
+            "n_concurrent": null,
+            "concurrency_group": null,
+            "skills": [],
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "resume_trajectory": false,
+            "load_trajectory": null,
+            "extra_allowed_hosts": [],
+            "kwargs": {},
+            "mcp_servers": []
+        },
+        "user_agent": null,
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "cpu_enforcement_policy": "auto",
+            "memory_enforcement_policy": "auto",
+            "override_cpus": 8,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "override_tpu": null,
+            "mounts": null,
+            "extra_docker_compose": [],
+            "kwargs": {},
+            "extra_allowed_hosts": []
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "artifacts": [],
+        "extra_instruction_paths": [],
+        "extra_instructions": [],
+        "job_id": "f42e8679-3316-48a2-aa28-f8f2a709f13e",
+        "source_trial": null
+    },
+    "agent_info": {
+        "name": "oracle",
+        "version": "1.0.0",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 1.0
+        }
+    },
+    "verifier_environment_mode": "shared",
+    "exception_info": null,
+    "started_at": "2026-09-27T16:16:59.685260Z",
+    "finished_at": "2026-09-27T16:17:32.403199Z",
+    "environment_setup": {
+        "started_at": "2026-09-27T16:16:59.729690Z",
+        "finished_at": "2026-09-27T16:17:08.698963Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-09-27T16:17:22.850925Z",
+        "finished_at": "2026-09-27T16:17:22.850993Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-09-27T16:17:22.851078Z",
+        "finished_at": "2026-09-27T16:17:26.230850Z"
+    },
+    "verifier": {
+        "started_at": "2026-09-27T16:17:27.282859Z",
+        "finished_at": "2026-09-27T16:17:29.835171Z"
+    },
+    "step_results": null
+}

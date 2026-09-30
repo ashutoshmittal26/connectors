@@ -1,0 +1,331 @@
+[
+ {
+  "id": "g1",
+  "depends_on": [],
+  "purpose": "List the candidate statements: spreadsheets in My Drive (the listing leaves the trash out by default) whose titles contain one of the fourteen practice names. Returns 24 spreadsheets: the 23 whose titles BEGIN with a listed name are statements; 'clients -Canyon Midwifery - Connie Garcia' only contains a name and is a patient list, not a statement. The listing carries no cell content, and every spreadsheet reports the same size, so it cannot show which statements are empty.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws drive files list --params \"{\\\"q\\\": \\\"(name contains 'Johnson & Associates' or name contains 'Over The Moon' or name contains 'Canyon Midwifery' or name contains 'Kellie Botts' or name contains 'Authentic Birth' or name contains 'BirthStone' or name contains 'Birthing Hues' or name contains 'Jamii' or name contains 'Joyful Heart' or name contains 'Kindred Space' or name contains 'Profound Birth' or name contains 'Empowered Goddess' or name contains 'Des Moines' or name contains 'Elke Barnes') and mimeType = 'application/vnd.google-apps.spreadsheet'\\\", \\\"fields\\\": \\\"files(id,name)\\\", \\\"pageSize\\\": 100}\""
+  }
+ },
+ {
+  "id": "b01",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Des Moines Midwife Collective LLC October 2025 (Des Moines; id from g1, one tab): no cells at all (an empty statement); its tab is named 'October 2025' (no ID).",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"038823dc-f147-5bd9-91b3-9e854a223333\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b02",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Birthing Hues Midwifery July 2025 (Birthing Hues; id from g1, one tab): 2 billing row(s), bill type client_bill; its tab is named with the practice ID poalceilxnlwdarj1b33qhew.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"09e0ce50-ee86-5ef7-8ca6-4c222c6f6ec8\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b03",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Empowered Goddess Birth August 2025 (Empowered Goddess; id from g1, one tab): no cells at all (an empty statement); its tab is named with the practice ID j8lghvv51re0e787xpdvnpaj.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"26963313-4361-5426-a15f-8348f963720e\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b04",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Johnson & Associates Midwifery Group FEB 2025 (Johnson & Associates; id from g1, one tab): 3 billing row(s), bill type cash-pay; its tab is named with the practice ID k0e6bqe181u8qqx1fo08y8yb.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"35e9909c-903e-516e-8145-e456fbf26cd3\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b05",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read BirthStone July 2025 (BirthStone; id from g1, one tab): 2 billing row(s), bill type client_bill; its tab is named with the practice ID j0l5iy2gqvmwf1udlu0bg5l5.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"411c864f-2dc0-5f5b-9d1e-d08d9972cdd2\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b06",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Johnson & Associates Midwifery Group Apr 2025 (Johnson & Associates; id from g1, one tab): 1 billing row(s), bill type Cash Pay; its tab is named with the practice ID k0e6bqe181u8qqx1fo08y8yb.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"42b49b62-2aec-52ff-a7e6-c494b60ddc82\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b07",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Over The Moon Midwifery Apr 2025 (Over The Moon; id from g1, one tab): 1 billing row(s), bill type Cash Pay; its tab is named with the practice ID zlmy5xmx9xiwv3m53b9bqlsn.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"4800df2d-42fd-59da-bcf8-b88d33eece34\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b08",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Kindred Space LA Mar 2025 (Kindred Space; id from g1, one tab): 1 billing row(s), bill type Cash Pay; its tab is named with the practice ID hv7hbdtobx44s5st8xugtxez.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"4d96160c-7968-5427-92ce-2812f8c43d37\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b09",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Canyon Midwifery LLC - December 2024 (Canyon Midwifery; id from g1, one tab): 8 billing row(s), bill type cash-pay; its tab is named with the practice ID tlvzfosnyqem60kcvci6zw2v.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"4f6b8e6b-d724-5d24-bc24-3884476e1ffb\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b10",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Elke Barnes Mar 2025 (Elke Barnes; id from g1, one tab): no cells at all (an empty statement); its tab is named with the practice ID ywzgn0edl2barx0n24tzx1j9.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"5216c634-322d-503f-9795-66025dacbf4b\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b11",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Empowered Goddess Birth Apr 2025 (Empowered Goddess; id from g1, one tab): no cells at all (an empty statement); its tab is named with the practice ID j8lghvv51re0e787xpdvnpaj.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"62303707-5e62-5b13-9b4d-6eeef0fdd1ff\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b12",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Jamii Birth and Wellness Services, LLC (Jamii; id from g1, one tab): 1 billing row(s), bill type client_bill; its tab is named with the practice ID zrbt0rcya9e9tiggepiaska1.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"6790ba2a-ef27-533c-bd08-c9a9adba4be1\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b13",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Johnson & Associates Midwifery May 2025 (Johnson & Associates; id from g1, one tab): 8 billing row(s), bill type client_bill; its tab is named with the practice ID k0e6bqe181u8qqx1fo08y8yb.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"72c00a3c-7b5a-54de-a6e6-c3a9764cda95\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b14",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Empowered Goddess Birth May 2025 (Empowered Goddess; id from g1, one tab): no cells at all (an empty statement); its tab is named with the practice ID j8lghvv51re0e787xpdvnpaj.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"755cd097-c733-59c8-9226-3d3d4ff83ad2\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b15",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Authentic Birth Center Apr 2025 (Authentic Birth; id from g1, one tab): 1 billing row(s), bill type Cash Pay; its tab is named with the practice ID v2yj26da2p4547mr69vc9ikn.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"7cc4eda6-dcb7-5aa6-a97f-3af21d67dfde\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b16",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Elke Barnes, LM, CPM November 2025 (Elke Barnes; id from g1, one tab): no cells at all (an empty statement); its tab is named 'November 2025' (no ID).",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"859e4924-215f-5239-a5bc-ada40a2ae2f8\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b17",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Kellie Botts Mar 2025 (Kellie Botts; id from g1, one tab): 4 billing row(s), bill type Cash Pay; its tab is named with the practice ID tqihar106rjeihemw4eg6629.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"86e450e8-f6cb-59bf-b028-647409f4f579\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b18",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Empowered Goddess Birth, PLLC (Empowered Goddess; id from g1, one tab): no cells at all (an empty statement); its tab is named with the practice ID j8lghvv51re0e787xpdvnpaj.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"911c198e-8ddf-53da-b172-292b5781ec24\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b19",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Profound Birth July 2025 (Profound Birth; id from g1, one tab): 1 billing row(s), bill type client_bill; its tab is named with the practice ID tdpsm1aj4zu9fue69q5dszae.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"afa6e749-656e-57ad-9cdb-cddf85847f60\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b20",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Over The Moon Midwifery May 2025 (Over The Moon; id from g1, one tab): 1 billing row(s), bill type client_bill; its tab is named with the practice ID zlmy5xmx9xiwv3m53b9bqlsn.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"cbf44e1a-de57-54e3-84a3-06881db9c777\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b21",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Des Moines Midwife Collective LLC November 2025 (Des Moines; id from g1, one tab): no cells at all (an empty statement); its tab is named 'November 2025' (no ID).",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"cd8b69b4-b24b-5d49-ad13-797f8ac218bf\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b22",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Joyful Heart Midwifery & Women s Healthcare Apr 2025 (Joyful Heart; id from g1, one tab): 1 billing row(s), bill type Cash Pay; its tab is named with the practice ID kog0w1w541spd8zgz875krps.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"eb8441fd-2f70-5bb8-b00e-b8acb74c5efa\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "b23",
+  "depends_on": [
+   "g1"
+  ],
+  "purpose": "Read Johnson & Associates Midwifery Group August 2025 (Johnson & Associates; id from g1, one tab): 1 billing row(s), bill type client_bill; its tab is named with the practice ID k0e6bqe181u8qqx1fo08y8yb.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"f07876c0-3141-51c7-91b4-7ff3632fe69a\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ },
+ {
+  "id": "g2",
+  "depends_on": [
+   "b02",
+   "b03",
+   "b04",
+   "b05",
+   "b06",
+   "b07",
+   "b08",
+   "b09",
+   "b10",
+   "b11",
+   "b12",
+   "b13",
+   "b14",
+   "b15",
+   "b17",
+   "b18",
+   "b19",
+   "b20",
+   "b22",
+   "b23"
+  ],
+  "purpose": "List the raw exports: spreadsheets titled with nothing but one of the 13 practice IDs the statements carry as their tab names (read in b02, b03, b04, b05, b06, b07, b08, b09, b10, b11, b12, b13, b14, b15, b17, b18, b19, b20, b22, b23; the Des Moines statements and Elke Barnes' November statement are named by month). Returns one live spreadsheet, j8lghvv51re0e787xpdvnpaj, the ID on the tabs of the four empty Empowered Goddess statements. Johnson & Associates' raw export k0e6bqe181u8qqx1fo08y8yb is in the trash, which the listing leaves out.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws drive files list --params \"{\\\"q\\\": \\\"(name = 'hv7hbdtobx44s5st8xugtxez' or name = 'j0l5iy2gqvmwf1udlu0bg5l5' or name = 'j8lghvv51re0e787xpdvnpaj' or name = 'k0e6bqe181u8qqx1fo08y8yb' or name = 'kog0w1w541spd8zgz875krps' or name = 'poalceilxnlwdarj1b33qhew' or name = 'tdpsm1aj4zu9fue69q5dszae' or name = 'tlvzfosnyqem60kcvci6zw2v' or name = 'tqihar106rjeihemw4eg6629' or name = 'v2yj26da2p4547mr69vc9ikn' or name = 'ywzgn0edl2barx0n24tzx1j9' or name = 'zlmy5xmx9xiwv3m53b9bqlsn' or name = 'zrbt0rcya9e9tiggepiaska1') and mimeType = 'application/vnd.google-apps.spreadsheet'\\\", \\\"fields\\\": \\\"files(id,name)\\\", \\\"pageSize\\\": 100}\""
+  }
+ },
+ {
+  "id": "r1",
+  "depends_on": [
+   "g2"
+  ],
+  "purpose": "Read the raw export j8lghvv51re0e787xpdvnpaj (Empowered Goddess; id from g2, one tab): 1 billing row, bill type client_bill - the only billing row Empowered Goddess has.",
+  "name": "gws",
+  "server": "gws-gym",
+  "arguments": {
+   "command": "gws sheets spreadsheets values batchGet --params '{\"spreadsheetId\": \"d234bfc9-7243-536c-96c2-e32c33c0eda3\", \"ranges\": [\"A1:AZ500\"], \"valueRenderOption\": \"UNFORMATTED_VALUE\"}'"
+  }
+ }
+]

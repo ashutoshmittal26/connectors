@@ -1,0 +1,34 @@
+{
+ "renderer_n": 3,
+ "renderings_used": 3,
+ "protocol": "Three renderers (tools/readers.py, GLM-5.2, temperatures 0.5/0.8/1.0), single turn, no tools; instruction.md plus the correct values (_evidence/which-practices-moved-to-client-billing/reader_values.txt: the 37 Billing rows and the five Summary figures), asked only to show the deliverables. Raw output: _evidence/which-practices-moved-to-client-billing/readers-20260928-064744/renderer-*.md against instruction.md sha256 417421678936. All three answered on the first attempt (51s, 45s, 51s; _status.txt).",
+ "instruction_sha256": "417421678936692df188991faf6620ee2733cb43482799853b6c7d31aa92aab2",
+ "what_varied": {
+  "sheets": [
+   "Summary and Billing only in all three renderings; no notes sheet volunteered"
+  ],
+  "billing_rows": [
+   "A1:C37 with the gold file ids and order ids in the gold order and the gold TRUE/FALSE in C, 37 of 37 rows identical to the gold log (renderer-1, renderer-2 and renderer-3, checked in sequence)"
+  ],
+  "rendering_form": [
+   "markdown tables with a Row column, Billing first (renderer-1)",
+   "markdown tables with a Row column, Summary first (renderer-2)",
+   "markdown Cell/Content tables, Summary first (renderer-3)"
+  ],
+  "booleans": [
+   "TRUE/FALSE in upper case (renderer-1, renderer-2 and renderer-3)"
+  ],
+  "summary": [
+   "A1:B5 billed_practices 12, cash_pay_practices 7, client_bill_practices 7, switched_practices 2, silent_practices 2 in the stated order (renderer-1, renderer-2 and renderer-3)"
+  ]
+ },
+ "tolerance_policy_check": {
+  "extra_sheet": "FREE - only Billing and Summary are read; a notes sheet is allowed by the prompt",
+  "booleans": "FREE between an Excel boolean and the text TRUE/FALSE in any case (route M1 uses mixed-case text)",
+  "id_form": "FREE in case; the dashed and the undashed form of each id are both accepted (route M1: upper-case file ids, undashed order ids)",
+  "numbers": "FREE between 12 and 12.0 under any number format; text, decimals and formulas are refused because the prompt says typed as a number, not as text or a formula",
+  "labels": "FREE in case, spaces/underscores/hyphens and emphasis (route M1: 'Billed Practices' in bold)",
+  "layout": "PINNED by the prompt: sheet names, row 1 with no header row, the stated row order and columns A-C / A-B; every rendering follows it"
+ },
+ "verdict": "3 of 3 renderings match the graded cells exactly; nothing a renderer varied is refused by a verifier."
+}
